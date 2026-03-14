@@ -6,7 +6,7 @@ export default function App() {
     <View style={styles.container}>
       <Text style={styles.title}>The Hush Initiative</Text>
       <Text style={styles.subtitle}>Your journey begins here.</Text>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
     </View>
   );
 }
@@ -14,7 +14,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 24,
@@ -22,14 +22,14 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#f7fafc',
+    color: '#2d3748',
     marginBottom: 8,
     letterSpacing: 0.5,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
-    color: '#a0aec0',
+    color: '#718096',
     textAlign: 'center',
   },
 });
