@@ -18,6 +18,10 @@
       "bundleIdentifier": "com.thehushinitiative"
     },
     "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
       "package": "com.thehushinitiative"
     },
     "web": {
