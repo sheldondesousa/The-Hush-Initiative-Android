@@ -1,10 +1,14 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Image } from 'react-native';
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>The Hush Initiative</Text>
+      <Image
+        source={require('./assets/icon.png')}
+        style={styles.logo}
+        resizeMode="contain"
+      />
       <Text style={styles.subtitle}>Your journey begins here.</Text>
       <StatusBar style="dark" />
     </View>
@@ -19,13 +23,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 24,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#2d3748',
-    marginBottom: 8,
-    letterSpacing: 0.5,
-    textAlign: 'center',
+  logo: {
+    width: 280,
+    height: 100,
+    marginBottom: 16,
   },
   subtitle: {
     fontSize: 16,
