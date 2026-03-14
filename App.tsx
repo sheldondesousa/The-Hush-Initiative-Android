@@ -1,52 +1,33 @@
-/**
- * The Hush Initiative - Main App Component
- *
- * @format
- */
+import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, Text, View, useColorScheme } from 'react-native';
 
-import React from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
-
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? '#1a1a2e' : '#f0f4f8',
-    flex: 1,
-  };
+export default function App() {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <View style={styles.container}>
-          <Text style={styles.title}>The Hush Initiative</Text>
-          <Text style={styles.subtitle}>Your journey begins here.</Text>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <View style={[styles.container, isDark && styles.containerDark]}>
+      <Text style={[styles.title, isDark && styles.titleDark]}>
+        The Hush Initiative
+      </Text>
+      <Text style={[styles.subtitle, isDark && styles.subtitleDark]}>
+        Your journey begins here.
+      </Text>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#f0f4f8',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 80,
+    padding: 24,
+  },
+  containerDark: {
+    backgroundColor: '#1a1a2e',
   },
   title: {
     fontSize: 28,
@@ -54,12 +35,17 @@ const styles = StyleSheet.create({
     color: '#2d3748',
     marginBottom: 8,
     letterSpacing: 0.5,
+    textAlign: 'center',
+  },
+  titleDark: {
+    color: '#f7fafc',
   },
   subtitle: {
     fontSize: 16,
-    fontWeight: '400',
     color: '#718096',
+    textAlign: 'center',
+  },
+  subtitleDark: {
+    color: '#a0aec0',
   },
 });
-
-export default App;
