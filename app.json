@@ -29,6 +29,16 @@
       "bundler": "metro"
     },
     "platforms": ["ios", "android", "web"],
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "kotlinVersion": "2.1.0"
+          }
+        }
+      ]
+    ],
     "extra": {
       "eas": {
         "projectId": "89c8505d-3a18-4115-aad3-cb03457891a2"
