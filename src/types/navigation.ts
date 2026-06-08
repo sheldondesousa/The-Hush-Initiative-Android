@@ -3,7 +3,7 @@ export type TabId = 'about' | 'whyhush' | 'included';
 export interface TabConfig {
   id: TabId;
   label: string;
-  icon: keyof typeof import('@expo/vector-icons/build/Ionicons').glyphMap;
+  icon: string;
 }
 
 export const TABS: TabConfig[] = [

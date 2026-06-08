@@ -76,7 +76,6 @@ function Main() {
 }
 
 const styles = StyleSheet.create({
-  // Wide (sidebar) layout
   wideRoot: {
     flex: 1,
     backgroundColor: Colors.contentBg,
@@ -88,8 +87,6 @@ const styles = StyleSheet.create({
   wideContent: {
     flex: 1,
   },
-
-  // Narrow (bottom tabs) layout
   narrowRoot: {
     flex: 1,
     backgroundColor: Colors.contentBg,

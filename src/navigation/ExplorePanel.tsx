@@ -58,7 +58,7 @@ function SidebarItem({
     >
       {isActive && <View style={styles.sidebarActiveBar} />}
       <Ionicons
-        name={tab.icon}
+        name={tab.icon as any}
         size={18}
         color={isActive ? Colors.panelActive : Colors.panelInactive}
         style={styles.sidebarIcon}
@@ -107,7 +107,7 @@ function BottomTab({
       activeOpacity={0.7}
     >
       <Ionicons
-        name={tab.icon}
+        name={tab.icon as any}
         size={20}
         color={isActive ? Colors.panelActive : Colors.panelInactive}
       />
@@ -120,7 +120,6 @@ function BottomTab({
 }
 
 const styles = StyleSheet.create({
-  // ── Sidebar ─────────────────────────────────────────────────────────────
   sidebar: {
     width: 192,
     backgroundColor: Colors.panelBg,
@@ -197,8 +196,6 @@ const styles = StyleSheet.create({
     color: Colors.panelText,
     fontWeight: '600',
   },
-
-  // ── Bottom tabs ──────────────────────────────────────────────────────────
   bottomBar: {
     backgroundColor: Colors.panelBg,
     ...Platform.select({
