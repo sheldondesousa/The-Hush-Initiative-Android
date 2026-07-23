@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "The Hush Initiative",
+    "slug": "the-hush-initiative",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "android": {
+      "package": "com.sheldondesousa.thehushinitiative"
+    }
+  }
+}
