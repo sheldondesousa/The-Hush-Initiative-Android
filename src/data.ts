@@ -30,7 +30,7 @@ export const exercises: Exercise[] = [
     bestFor: 'Composure & focus',
     duration: '5 min',
     effort: 2,
-    description: 'Equal-ratio breathing that calms the nervous system while keeping you alert.',
+    description: 'Box breathing is a simple, effective relaxation technique where you inhale for 4 counts, hold your breath for 4, exhale for 4, and hold your breath again for 4, creating a pattern to calm the nervous system, reduce stress, and improve focus for important moments.',
     phases: [
       { label: 'Inhale', seconds: 4 },
       { label: 'Hold', seconds: 4 },
@@ -184,17 +184,17 @@ export const meditations: Meditation[] = [
 ];
 
 export const breathSituations = [
-  { id: 'wired', label: 'Stressed / tense', picks: ['sigh', 'box', 'coherent'] },
-  { id: 'foggy', label: 'Flat / foggy', picks: ['diaphragmatic', 'box', 'alternate'] },
-  { id: 'scattered', label: 'Distracted', picks: ['alternate', 'box', 'coherent'] },
-  { id: 'performance', label: 'Pre-performance', picks: ['box', 'sigh', 'coherent'] },
-  { id: 'conflict', label: 'Post-conflict', picks: ['humming', 'sigh', '478'] },
-  { id: 'sleep', label: 'Sleep transition', picks: ['478', 'coherent', 'humming'] },
+  { id: 'wired', label: 'Stressed' },
+  { id: 'foggy', label: 'Drained' },
+  { id: 'scattered', label: 'Distracted' },
+  { id: 'performance', label: 'Pre-performance' },
+  { id: 'conflict', label: 'Post-conflict' },
+  { id: 'sleep', label: 'Sleep transition' },
 ];
 
 export const meditationSituations = [
-  { id: 'calm', label: 'Calm & relax', picks: ['body-scan', 'self-compassion', 'micro-pmr'] },
-  { id: 'focus', label: 'Find focus', picks: ['soft-focus', 'noting', 'five-senses'] },
-  { id: 'emotion', label: 'Process emotions', picks: ['name-feeling', 'self-compassion', 'loving-kindness'] },
-  { id: 'ground', label: 'Ground myself', picks: ['five-senses', 'body-scan', 'name-feeling'] },
+  { id: 'calm', label: 'Calm & relax' },
+  { id: 'focus', label: 'Find focus' },
+  { id: 'emotion', label: 'Process emotions' },
+  { id: 'ground', label: 'Ground myself' },
 ];
