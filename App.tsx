@@ -19,6 +19,7 @@ import {
   meditationSituations,
   meditations,
 } from './src/data';
+import BoxBreathingSession from './src/components/BoxBreathingSession';
 
 type ThemeMode = 'light' | 'dark' | 'minimal';
 type Tab = 'breathe' | 'meditate' | 'recommend' | 'profile';
@@ -78,6 +79,16 @@ export default function App() {
   };
 
   if (activeExercise) {
+    if (activeExercise.id === 'box') {
+      return (
+        <BoxBreathingSession
+          palette={palette}
+          onClose={() => setActiveExercise(null)}
+          onComplete={() => completeSession(1)}
+          cycles={activeExercise.cycles}
+        />
+      );
+    }
     return (
       <BreathingSession
         exercise={activeExercise}
