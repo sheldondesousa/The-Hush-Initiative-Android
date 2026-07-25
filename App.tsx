@@ -20,6 +20,7 @@ import {
   meditations,
 } from './src/data';
 import BoxBreathingSession from './src/components/BoxBreathingSession';
+import BoxBreathingCardVisual from './src/components/BoxBreathingCardVisual';
 
 type ThemeMode = 'light' | 'dark' | 'minimal';
 type Tab = 'breathe' | 'meditate' | 'recommend' | 'profile';
@@ -273,9 +274,16 @@ function PracticeCard({
         { backgroundColor: palette.surface, borderColor: palette.border, opacity: pressed ? 0.78 : 1 },
       ]}
     >
-      <View style={[styles.cardMark, { backgroundColor: tint }]}>
-        <Text style={[styles.cardMarkText, { color }]}>{String(index + 1).padStart(2, '0')}</Text>
-      </View>
+      {item.id === 'box' && accent === 'breath' ? (
+        <BoxBreathingCardVisual
+          color={palette.text}
+          backgroundColor={tint}
+        />
+      ) : (
+        <View style={[styles.cardMark, { backgroundColor: tint }]}>
+          <Text style={[styles.cardMarkText, { color }]}>{String(index + 1).padStart(2, '0')}</Text>
+        </View>
+      )}
       <View style={styles.cardBody}>
         <Text style={[styles.cardCategory, { color }]}>{item.bestFor.toUpperCase()}</Text>
         <Text style={[styles.cardTitle, { color: palette.text }]}>{item.name}</Text>
