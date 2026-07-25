@@ -20,7 +20,7 @@ import {
   meditations,
 } from './src/data';
 import BoxBreathingSession from './src/components/BoxBreathingSession';
-import BoxBreathingCardVisual from './src/components/BoxBreathingCardVisual';
+import ExerciseCardVisual from './src/components/ExerciseCardVisual';
 
 type ThemeMode = 'light' | 'dark' | 'minimal';
 type Tab = 'breathe' | 'meditate' | 'recommend' | 'profile';
@@ -274,8 +274,9 @@ function PracticeCard({
         { backgroundColor: palette.surface, borderColor: palette.border, opacity: pressed ? 0.78 : 1 },
       ]}
     >
-      {item.id === 'box' && accent === 'breath' ? (
-        <BoxBreathingCardVisual
+      {accent === 'breath' ? (
+        <ExerciseCardVisual
+          exerciseName={item.name}
           color={palette.text}
           backgroundColor={tint}
         />
