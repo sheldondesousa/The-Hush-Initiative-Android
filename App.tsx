@@ -1,8 +1,11 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Haptics from 'expo-haptics';
 import { StatusBar } from 'expo-status-bar';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
   BackHandler,
+  Easing,
   FlatList,
   Pressable,
   ScrollView,
@@ -22,7 +25,11 @@ import {
   meditations,
 } from './src/data';
 import BoxBreathingSession from './src/components/BoxBreathingSession';
+import BreathingVisual, { BREATHING_READOUT_HEIGHT } from './src/components/BreathingVisual';
 import ExerciseCardVisual from './src/components/ExerciseCardVisual';
+import PersonalizeSheet from './src/components/PersonalizeSheet';
+import OnboardingFlow, { SplashScreen } from './src/components/OnboardingFlow';
+import { MenuSectionScreen, MenuSheet, type MenuSection } from './src/components/AppMenu';
 import {
   BreathIntensityId,
   breathIntensities,
@@ -37,14 +44,21 @@ import {
   ExerciseGuideSection,
   exerciseDetails,
 } from './src/exerciseDetails';
+import {
+  applyPersonalization,
+  basePersonalization,
+  clampPersonalization,
+  type ExerciseDefaults,
+  type ExercisePersonalization,
+} from './src/personalization';
 
 type ThemeMode = 'light' | 'dark' | 'minimal';
-type Tab = 'breathe' | 'meditate' | 'recommend' | 'profile';
+type Tab = 'breathe' | 'meditate' | 'recommend' | 'menu';
 type Detail = { kind: 'exercise'; item: Exercise } | { kind: 'meditation'; item: Meditation } | null;
 
 const palettes = {
   light: {
-    bg: '#F7F7F5',
+    bg: '#F7F4EE',
     surface: '#FFFFFF',
     text: '#1A1A1A',
     muted: '#5B625F',
@@ -80,7 +94,13 @@ const palettes = {
 
 type Palette = (typeof palettes)[ThemeMode];
 
+const EXERCISE_DEFAULTS_STORAGE_KEY = 'hush.exercise-defaults.v1';
+const SHOW_ONBOARDING_STORAGE_KEY = 'hush.show-onboarding-after-splash.v1';
+const SPLASH_DURATION_MS = 1200;
+const ENABLE_BOX_ORB_PROTOTYPE = false;
+
 export default function App() {
+  const [launchState, setLaunchState] = useState<'splash' | 'onboarding' | 'app'>('splash');
   const [tab, setTab] = useState<Tab>('breathe');
   const [themeMode, setThemeMode] = useState<ThemeMode>('light');
   const [detail, setDetail] = useState<Detail>(null);
@@ -88,7 +108,65 @@ export default function App() {
   const [activeMeditation, setActiveMeditation] = useState<Meditation | null>(null);
   const [completedSessions, setCompletedSessions] = useState(0);
   const [mindfulMinutes, setMindfulMinutes] = useState(0);
+  const [exerciseDefaults, setExerciseDefaults] = useState<ExerciseDefaults>({});
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuSection, setMenuSection] = useState<MenuSection>('profile');
+  const [showOnboardingAfterSplash, setShowOnboardingAfterSplash] = useState(true);
   const palette = palettes[themeMode];
+
+  useEffect(() => {
+    let active = true;
+    let splashTimeout: ReturnType<typeof setTimeout> | undefined;
+    const splashStartedAt = Date.now();
+    AsyncStorage.getItem(SHOW_ONBOARDING_STORAGE_KEY)
+      .then((stored) => {
+        if (!active) return;
+        const shouldShowOnboarding = stored === null ? true : stored === 'true';
+        setShowOnboardingAfterSplash(shouldShowOnboarding);
+        const remainingSplashTime = Math.max(0, SPLASH_DURATION_MS - (Date.now() - splashStartedAt));
+        splashTimeout = setTimeout(() => {
+          if (active) setLaunchState(shouldShowOnboarding ? 'onboarding' : 'app');
+        }, remainingSplashTime);
+      })
+      .catch(() => {
+        if (!active) return;
+        const remainingSplashTime = Math.max(0, SPLASH_DURATION_MS - (Date.now() - splashStartedAt));
+        splashTimeout = setTimeout(() => {
+          if (active) setLaunchState('onboarding');
+        }, remainingSplashTime);
+      });
+    return () => {
+      active = false;
+      if (splashTimeout) clearTimeout(splashTimeout);
+    };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    AsyncStorage.getItem(EXERCISE_DEFAULTS_STORAGE_KEY)
+      .then((stored) => {
+        if (!active || !stored) return;
+        const parsed = JSON.parse(stored) as ExerciseDefaults;
+        if (parsed && typeof parsed === 'object') setExerciseDefaults(parsed);
+      })
+      .catch(() => undefined);
+    return () => { active = false; };
+  }, []);
+
+  const updateExerciseDefault = (exerciseId: string, value: ExercisePersonalization | null) => {
+    setExerciseDefaults((current) => {
+      const next = { ...current };
+      if (value) next[exerciseId] = value;
+      else delete next[exerciseId];
+      AsyncStorage.setItem(EXERCISE_DEFAULTS_STORAGE_KEY, JSON.stringify(next)).catch(() => undefined);
+      return next;
+    });
+  };
+
+  const updateOnboardingVisibility = (enabled: boolean) => {
+    setShowOnboardingAfterSplash(enabled);
+    AsyncStorage.setItem(SHOW_ONBOARDING_STORAGE_KEY, String(enabled)).catch(() => undefined);
+  };
 
   useEffect(() => {
     if (!detail) return;
@@ -103,6 +181,18 @@ export default function App() {
     setCompletedSessions((value) => value + 1);
     setMindfulMinutes((value) => value + minutes);
   };
+
+  if (launchState === 'splash') {
+    return <SplashScreen />;
+  }
+
+  if (launchState === 'onboarding') {
+    return (
+      <OnboardingFlow
+        onComplete={() => setLaunchState('app')}
+      />
+    );
+  }
 
   if (activeExercise) {
     return (
@@ -133,10 +223,12 @@ export default function App() {
       <ExerciseInfoScreen
         detail={detail}
         palette={palette}
+        defaultPersonalization={detail.kind === 'exercise' ? exerciseDefaults[detail.item.id] : undefined}
+        onDefaultChange={updateExerciseDefault}
         onBack={() => setDetail(null)}
-        onBegin={() => {
-          if (detail.kind === 'exercise') setActiveExercise(detail.item);
-          else setActiveMeditation(detail.item);
+        onBegin={(configuredItem) => {
+          if (detail.kind === 'exercise') setActiveExercise(configuredItem as Exercise);
+          else setActiveMeditation(configuredItem as Meditation);
           setDetail(null);
         }}
       />
@@ -146,12 +238,12 @@ export default function App() {
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: palette.bg }]} edges={['top', 'left', 'right']}>
       <StatusBar style={themeMode === 'dark' ? 'light' : 'dark'} />
-      <Header palette={palette} themeMode={themeMode} setThemeMode={setThemeMode} />
+      <Header palette={palette} themeMode={themeMode} />
 
       <View style={styles.content}>
         {tab === 'breathe' && (
           <Library
-            title="Choose your path"
+            title="Breathe"
             items={exercises}
             palette={palette}
             accent="breath"
@@ -174,45 +266,49 @@ export default function App() {
             onMeditation={(item) => setDetail({ kind: 'meditation', item })}
           />
         )}
-        {tab === 'profile' && (
-          <Profile
+        {tab === 'menu' && (
+          <MenuSectionScreen
+            section={menuSection}
             palette={palette}
             completedSessions={completedSessions}
             mindfulMinutes={mindfulMinutes}
             themeMode={themeMode}
             setThemeMode={setThemeMode}
+            showOnboardingAfterSplash={showOnboardingAfterSplash}
+            setShowOnboardingAfterSplash={updateOnboardingVisibility}
           />
         )}
       </View>
 
-      <TabBar tab={tab} setTab={setTab} palette={palette} />
+      <TabBar
+        tab={tab}
+        palette={palette}
+        onTabPress={(nextTab) => {
+          if (nextTab === 'menu') setMenuOpen(true);
+          else setTab(nextTab);
+        }}
+      />
+      <MenuSheet
+        visible={menuOpen}
+        selected={tab === 'menu' ? menuSection : undefined}
+        palette={palette}
+        onClose={() => setMenuOpen(false)}
+        onSelect={(section) => {
+          setMenuSection(section);
+          setTab('menu');
+          setMenuOpen(false);
+        }}
+      />
     </SafeAreaView>
   );
 }
 
-function Header({
-  palette,
-  themeMode,
-  setThemeMode,
-}: {
-  palette: Palette;
-  themeMode: ThemeMode;
-  setThemeMode: (mode: ThemeMode) => void;
-}) {
-  const next: Record<ThemeMode, ThemeMode> = { light: 'dark', dark: 'minimal', minimal: 'light' };
+function Header({ palette, themeMode }: { palette: Palette; themeMode: ThemeMode }) {
   return (
     <View style={[styles.header, { borderBottomColor: palette.border }]}>
       <Text style={[styles.wordmark, { color: palette.text }]}>
         Hush<Text style={{ color: themeMode === 'dark' ? '#A89BFF' : '#4A7C68' }}>.</Text>
       </Text>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={`Theme: ${themeMode}. Change theme`}
-        onPress={() => setThemeMode(next[themeMode])}
-        style={[styles.themeButton, { borderColor: palette.border }]}
-      >
-        <Text style={{ color: palette.text }}>{themeMode === 'light' ? '◐' : themeMode === 'dark' ? '○' : '●'}</Text>
-      </Pressable>
     </View>
   );
 }
@@ -238,9 +334,9 @@ function Library<T extends Exercise | Meditation>({
       ListHeaderComponent={
         <View style={styles.libraryHeading}>
           <Text style={[styles.eyebrow, { color: accent === 'breath' ? palette.accent : palette.meditation }]}>
-            {accent === 'breath' ? 'BREATHE' : 'YOUR PRACTICE'}
+            {accent === 'breath' ? 'CHOOSE YOUR PATH' : 'FIND YOUR CALM'}
           </Text>
-          <Text style={[styles.title, { color: palette.text }]}>{title}</Text>
+          <Text style={[styles.title, styles.libraryTitle, { color: palette.text }]}>{title}</Text>
         </View>
       }
       renderItem={({ item, index }) => (
@@ -324,21 +420,63 @@ function PracticeCard({
   );
 }
 
+function PersonalizeIcon({ color, backgroundColor }: { color: string; backgroundColor: string }) {
+  return (
+    <Svg width={24} height={24} viewBox="0 0 24 24">
+      <Line x1={4} y1={7} x2={20} y2={7} stroke={color} strokeWidth={1.5} strokeLinecap="round" />
+      <Circle cx={9} cy={7} r={2} fill={backgroundColor} stroke={color} strokeWidth={1.5} />
+      <Line x1={4} y1={17} x2={20} y2={17} stroke={color} strokeWidth={1.5} strokeLinecap="round" />
+      <Circle cx={15} cy={17} r={2} fill={backgroundColor} stroke={color} strokeWidth={1.5} />
+    </Svg>
+  );
+}
+
 function ExerciseInfoScreen({
   detail,
   palette,
+  defaultPersonalization,
+  onDefaultChange,
   onBack,
   onBegin,
 }: {
   detail: NonNullable<Detail>;
   palette: Palette;
+  defaultPersonalization?: ExercisePersonalization;
+  onDefaultChange: (exerciseId: string, value: ExercisePersonalization | null) => void;
   onBack: () => void;
-  onBegin: () => void;
+  onBegin: (item: Exercise | Meditation) => void;
 }) {
   const item = detail.item;
   const isExercise = detail.kind === 'exercise';
+  const exerciseItem = isExercise ? item as Exercise : undefined;
   const exerciseConfig = isExercise ? exerciseDetails[item.id] : undefined;
   const accent = isExercise ? palette.accent : palette.meditation;
+  const [personalizeOpen, setPersonalizeOpen] = useState(false);
+  const [personalization, setPersonalization] = useState<ExercisePersonalization | null>(() => (
+    exerciseItem ? defaultPersonalization ?? basePersonalization(exerciseItem) : null
+  ));
+
+  useEffect(() => {
+    if (!exerciseItem) {
+      setPersonalization(null);
+      return;
+    }
+    setPersonalization(defaultPersonalization ?? basePersonalization(exerciseItem));
+  }, [defaultPersonalization, exerciseItem?.id]);
+
+  const configuredExercise = exerciseItem && personalization
+    ? applyPersonalization(exerciseItem, clampPersonalization(exerciseItem, personalization))
+    : undefined;
+  const configuredExerciseConfig = exerciseConfig && configuredExercise
+    && (configuredExercise.id === 'coherent' || configuredExercise.id === 'alternate')
+    ? {
+        ...exerciseConfig,
+        phases: configuredExercise.phases.map((phase) => ({
+          label: phase.label.toUpperCase(),
+          seconds: phase.seconds,
+        })),
+      }
+    : exerciseConfig;
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: palette.bg }]}>
       <StatusBar style={palette === palettes.dark ? 'light' : 'dark'} />
@@ -351,7 +489,19 @@ function ExerciseInfoScreen({
         ) : (
           <Text style={[styles.detailHeaderLabel, { color: palette.muted }]}>MEDITATION</Text>
         )}
-        <View style={{ width: 52 }} />
+        {exerciseItem ? (
+          <Pressable
+            onPress={() => setPersonalizeOpen(true)}
+            hitSlop={10}
+            accessibilityRole="button"
+            accessibilityLabel={`Personalise ${exerciseItem.name}`}
+            style={styles.detailPersonalizeButton}
+          >
+            <PersonalizeIcon color={palette.text} backgroundColor={palette.bg} />
+          </Pressable>
+        ) : (
+          <View style={{ width: 52 }} />
+        )}
       </View>
       <ScrollView contentContainerStyle={styles.detailContent}>
         <Text style={[styles.eyebrow, { color: accent }]}>{item.bestFor.toUpperCase()}</Text>
@@ -368,7 +518,7 @@ function ExerciseInfoScreen({
         {isExercise ? (
           exerciseConfig ? (
             <>
-              <ExerciseRhythm config={exerciseConfig} palette={palette} />
+              <ExerciseRhythm config={configuredExerciseConfig ?? exerciseConfig} palette={palette} />
               <ExerciseGuide sections={exerciseConfig.guide} palette={palette} />
             </>
           ) : null
@@ -379,10 +529,25 @@ function ExerciseInfoScreen({
         )}
       </ScrollView>
       <View style={[styles.beginDock, { backgroundColor: palette.bg, borderTopColor: palette.border }]}>
-        <Pressable onPress={onBegin} style={[styles.primaryButton, { backgroundColor: accent }]}>
+        <Pressable onPress={() => onBegin(configuredExercise ?? item)} style={[styles.primaryButton, { backgroundColor: accent }]}>
           <Text style={[styles.primaryButtonText, { color: palette.bg }]}>Begin practice</Text>
         </Pressable>
       </View>
+      {exerciseItem && personalization && (
+        <PersonalizeSheet
+          visible={personalizeOpen}
+          exercise={exerciseItem}
+          value={personalization}
+          defaultEnabled={Boolean(defaultPersonalization)}
+          palette={palette}
+          onClose={() => setPersonalizeOpen(false)}
+          onSave={(value, setAsDefault) => {
+            setPersonalization(value);
+            onDefaultChange(exerciseItem.id, setAsDefault ? value : null);
+            setPersonalizeOpen(false);
+          }}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -432,8 +597,10 @@ function buildFlowPaths(phases: DetailPhase[]) {
       const control = x + width * 0.05;
       commands.push(`C${control},${y2} ${control},${y2} ${x2},${y2}`);
     } else {
-      const control = (x + x2) / 2;
-      commands.push(`C${control},${y1} ${control},${y2} ${x2},${y2}`);
+      const midpointX = x + width * 0.5;
+      const midpointY = y1 + (y2 - y1) * 0.5;
+      commands.push(`C${x + width / 6},${y1} ${x + width / 3},${y1 + (y2 - y1) * 0.1875} ${midpointX},${midpointY}`);
+      commands.push(`C${x + width * 2 / 3},${y1 + (y2 - y1) * 0.8125} ${x + width * 5 / 6},${y2} ${x2},${y2}`);
     }
     x = x2;
   });
@@ -445,7 +612,8 @@ function ExerciseRhythm({ config, palette }: { config: ExerciseDetailConfig; pal
   const [previewExpanded, setPreviewExpanded] = useState(false);
   const { width: screenWidth } = useWindowDimensions();
   const isDark = palette === palettes.dark;
-  const graphStroke = isDark ? 'rgba(240,240,240,0.55)' : '#4A7C68';
+  const usesWhiteGraphOutline = isDark || palette === palettes.minimal;
+  const graphStroke = usesWhiteGraphOutline ? '#FFFFFF' : '#4A7C68';
   const graphFill = isDark ? 'rgba(240,240,240,0.08)' : 'rgba(74,124,104,0.10)';
   const guideLine = isDark ? 'rgba(240,240,240,0.40)' : 'rgba(74,124,104,0.42)';
   const previewScale = Math.min(Math.max(screenWidth - 74, 1) / 360, 259 / 286);
@@ -500,7 +668,7 @@ function ExerciseRhythm({ config, palette }: { config: ExerciseDetailConfig; pal
         style={({ pressed }) => [styles.previewToggle, { opacity: pressed ? 0.6 : 1 }]}
       >
         <Text style={[styles.previewToggleText, { color: palette.muted }]}>
-          {previewExpanded ? 'Hide preview' : 'Show preview'}
+          {previewExpanded ? 'Hide preview' : 'Preview'}
         </Text>
         <ChevronDisclosureIcon color={palette.muted} expanded={previewExpanded} size={13} />
       </Pressable>
@@ -601,16 +769,18 @@ function ExercisePreviewGraphic({
   }
 
   if (config.preview === 'triangles') {
+    const inhalePhase = config.phases.find((phase) => phase.label.includes('INHALE')) ?? config.phases[0];
+    const exhalePhase = config.phases.find((phase) => phase.label.includes('EXHALE')) ?? config.phases[1];
     return (
       <Svg width="100%" height={259} viewBox="-10 10 360 286">
         <Path d="M174,67.5 L87.5,242.5 L174,242.5 Z" fill={softFill} stroke={active} strokeWidth={1.75} />
         <Path d="M176,67.5 L176,242.5 L262.5,242.5 Z" fill={softFill} stroke={ghost} strokeWidth={1.75} />
         <Circle cx={130.75} cy={155} r={2.5} fill={palette.text} />
         <Line x1={130.75} y1={155} x2={55} y2={155} stroke={leader} />
-        {metric('triangle-inhale', 50, 155, 'end', config.phases[0])}
+        {metric('triangle-inhale', 50, 155, 'end', inhalePhase)}
         <Circle cx={219.25} cy={155} r={2.5} fill={palette.text} />
         <Line x1={219.25} y1={155} x2={295} y2={155} stroke={leader} />
-        {metric('triangle-exhale', 300, 155, 'start', config.phases[1])}
+        {metric('triangle-exhale', 300, 155, 'start', exhalePhase)}
       </Svg>
     );
   }
@@ -699,17 +869,17 @@ function ExercisePreviewGraphic({
 }
 
 function ExerciseGuide({ sections, palette }: { sections: ExerciseGuideSection[]; palette: Palette }) {
-  const [openSection, setOpenSection] = useState<string | null>(null);
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   return (
     <View style={styles.infoSection}>
       <Text style={[styles.infoTitle, { color: palette.text }]}>Guide</Text>
       <View style={[styles.guideBox, { borderColor: palette.border }]}>
         {sections.map((section, sectionIndex) => {
-          const isOpen = openSection === section.id;
+          const isOpen = Boolean(openSections[section.id]);
           return (
             <View key={section.id} style={sectionIndex < sections.length - 1 && { borderBottomColor: palette.border, borderBottomWidth: StyleSheet.hairlineWidth }}>
               <Pressable
-                onPress={() => setOpenSection(isOpen ? null : section.id)}
+                onPress={() => setOpenSections((current) => ({ ...current, [section.id]: !current[section.id] }))}
                 accessibilityRole="button"
                 accessibilityState={{ expanded: isOpen }}
                 accessibilityLabel={`${section.title}, ${isOpen ? 'collapse' : 'expand'}`}
@@ -768,7 +938,7 @@ function BreathingSession({
   onClose: () => void;
   onComplete: () => void;
 }) {
-  if (exercise.id === 'box') {
+  if (exercise.id === 'box' && !ENABLE_BOX_ORB_PROTOTYPE) {
     return (
       <BoxBreathingSession
         palette={palette}
@@ -799,88 +969,314 @@ function StandardBreathingSession({
   onClose: () => void;
   onComplete: () => void;
 }) {
+  const { width } = useWindowDimensions();
+  const [sessionState, setSessionState] = useState<'countdown' | 'starting' | 'active' | 'finishing' | 'complete'>('countdown');
+  const [countdown, setCountdown] = useState(3);
   const [phaseIndex, setPhaseIndex] = useState(0);
   const [secondsLeft, setSecondsLeft] = useState(exercise.phases[0].seconds);
   const [cycle, setCycle] = useState(1);
   const [paused, setPaused] = useState(false);
-  const [complete, setComplete] = useState(false);
-  const scale = useRef(new Animated.Value(0.72)).current;
+  const [contentHeight, setContentHeight] = useState(0);
+  const breathLevel = useRef(new Animated.Value(0)).current;
+  const phaseProgress = useRef(new Animated.Value(0)).current;
+  const phaseProgressIndex = useRef(-1);
+  const visualOpacity = useRef(new Animated.Value(0)).current;
+  const phaseAnimation = useRef<Animated.CompositeAnimation | null>(null);
+  const phaseProgressAnimation = useRef<Animated.CompositeAnimation | null>(null);
   const phase = exercise.phases[phaseIndex];
+  const visualSize = width - 32;
+  const visualBlockHeight = visualSize + BREATHING_READOUT_HEIGHT;
+  const contentSpaceBelowVisual = Math.max(0, (contentHeight - visualBlockHeight) / 2);
+  const cycleLabelTop = (40 - contentSpaceBelowVisual) / 2 - 10;
+  const complete = sessionState === 'complete';
+  const active = sessionState === 'active';
+  const totalSessionSeconds = exercise.phases.reduce((sum, item) => sum + item.seconds, 0) * exercise.cycles;
+  const timeSpent = `${Math.floor(totalSessionSeconds / 60)}:${String(totalSessionSeconds % 60).padStart(2, '0')}`;
+  const phaseTarget = useMemo(() => {
+    for (let index = phaseIndex; index >= 0; index -= 1) {
+      const label = exercise.phases[index].label.toLowerCase();
+      if (label.includes('exhale') || label.includes('softens') || label.includes('hum')) return 0;
+      if (label.includes('inhale') || label.includes('expands')) return 1;
+    }
+    return 0;
+  }, [exercise.phases, phaseIndex]);
 
   useEffect(() => {
-    Animated.timing(scale, {
-      toValue: phase.label.toLowerCase().includes('inhale') || phase.label.includes('expands') ? 1.08 : 0.72,
-      duration: phase.seconds * 1000,
+    if (sessionState !== 'countdown') return;
+    const timer = setTimeout(() => {
+      if (countdown > 1) {
+        setCountdown((value) => value - 1);
+      } else {
+        setSessionState('starting');
+      }
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [countdown, sessionState]);
+
+  useEffect(() => {
+    if (sessionState !== 'starting') return;
+    const timer = setTimeout(() => {
+      setSessionState('active');
+      Animated.timing(visualOpacity, {
+        toValue: 1,
+        duration: 600,
+        easing: Easing.inOut(Easing.sin),
+        useNativeDriver: true,
+      }).start();
+    }, 850);
+    return () => clearTimeout(timer);
+  }, [sessionState, visualOpacity]);
+
+  useLayoutEffect(() => {
+    phaseProgressAnimation.current?.stop();
+    if (!active || paused) return;
+    if (phaseProgressIndex.current !== phaseIndex) {
+      phaseProgressIndex.current = phaseIndex;
+      phaseProgress.setValue(0);
+    }
+    const animation = Animated.timing(phaseProgress, {
+      toValue: 1,
+      duration: secondsLeft * 1000,
+      easing: Easing.inOut(Easing.quad),
+      useNativeDriver: false,
+    });
+    phaseProgressAnimation.current = animation;
+    animation.start();
+    return () => animation.stop();
+  }, [active, paused, phaseIndex, phaseProgress]);
+
+  useEffect(() => {
+    phaseAnimation.current?.stop();
+    if (!active || paused) return;
+    if (phase.label.toLowerCase().includes('hold')) {
+      breathLevel.setValue(phaseTarget);
+      return;
+    }
+    const animation = Animated.timing(breathLevel, {
+      toValue: phaseTarget,
+      duration: secondsLeft * 1000,
+      easing: Easing.inOut(Easing.sin),
       useNativeDriver: true,
-    }).start();
-  }, [phase, scale]);
+    });
+    phaseAnimation.current = animation;
+    animation.start();
+    return () => animation.stop();
+  }, [active, breathLevel, paused, phase.label, phaseTarget]);
 
   useEffect(() => {
-    if (paused || complete) return;
+    if (!active || paused) return;
     const timer = setInterval(() => {
       setSecondsLeft((current) => {
-        if (current > 1) return current - 1;
+        if (current > 0.5) return current - 0.5;
         if (phaseIndex < exercise.phases.length - 1) {
+          if (exercise.id === '478' || exercise.id === 'coherent' || exercise.id === 'alternate' || exercise.id === 'pursed' || exercise.id === 'sigh' || exercise.id === 'diaphragmatic' || exercise.id === 'humming') {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => undefined);
+          }
           const nextIndex = phaseIndex + 1;
           setPhaseIndex(nextIndex);
           return exercise.phases[nextIndex].seconds;
         }
         if (cycle < exercise.cycles) {
+          if (exercise.id === '478' || exercise.id === 'coherent' || exercise.id === 'alternate' || exercise.id === 'pursed' || exercise.id === 'sigh' || exercise.id === 'diaphragmatic' || exercise.id === 'humming') {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => undefined);
+          }
           setCycle((value) => value + 1);
           setPhaseIndex(0);
           return exercise.phases[0].seconds;
         }
         clearInterval(timer);
-        setComplete(true);
-        onComplete();
-        return 0;
+        setSessionState('finishing');
+        Animated.timing(visualOpacity, {
+          toValue: 0,
+          duration: 600,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }).start(({ finished }) => {
+          if (finished) {
+            setSessionState('complete');
+            onComplete();
+          }
+        });
+        return 1;
       });
-    }, 1000);
+    }, 500);
     return () => clearInterval(timer);
-  }, [paused, complete, phaseIndex, cycle, exercise, onComplete]);
+  }, [active, paused, phaseIndex, cycle, exercise, onComplete]);
 
   const restart = () => {
     setPhaseIndex(0);
     setSecondsLeft(exercise.phases[0].seconds);
     setCycle(1);
-    setComplete(false);
     setPaused(false);
-    scale.setValue(0.72);
+    setCountdown(3);
+    setSessionState('countdown');
+    phaseAnimation.current?.stop();
+    phaseProgressAnimation.current?.stop();
+    phaseProgressIndex.current = -1;
+    breathLevel.setValue(0);
+    phaseProgress.setValue(0);
+    visualOpacity.setValue(0);
   };
 
   return (
-    <SafeAreaView style={[styles.session, { backgroundColor: palette.bg }]}>
+    <SafeAreaView style={[styles.exerciseSession, { backgroundColor: palette.bg }]} edges={['top', 'bottom']}>
       <StatusBar style={palette === palettes.dark ? 'light' : 'dark'} />
-      <View style={styles.sessionHeader}>
-        <Pressable onPress={onClose} hitSlop={12}><Text style={[styles.close, { color: palette.text }]}>×</Text></Pressable>
-        <Text style={[styles.sessionName, { color: palette.text }]}>{exercise.name}</Text>
-        <Text style={[styles.sessionCycle, { color: palette.muted }]}>{cycle}/{exercise.cycles}</Text>
+      <View style={styles.exerciseSessionHeader}>
+        <Pressable onPress={onClose} hitSlop={12} style={styles.exerciseSessionCloseButton}>
+          <Text style={[styles.close, { color: palette.text }]}>×</Text>
+        </Pressable>
+        <Text style={[styles.exerciseSessionName, { color: palette.text }]}>{exercise.name}</Text>
+        <View style={styles.exerciseSessionHeaderSpacer} />
       </View>
-      <View style={styles.sessionCenter}>
-        <Animated.View style={[styles.breathOrbOuter, { backgroundColor: palette.tint, transform: [{ scale }] }]}>
-          <View style={[styles.breathOrb, { backgroundColor: palette.accent }]}>
-            <Text style={[styles.phaseText, { color: palette.bg }]}>{complete ? 'Complete' : phase.label}</Text>
-            <Text style={[styles.timerText, { color: palette.bg }]}>{complete ? '✓' : secondsLeft}</Text>
+
+      <View
+        style={styles.exerciseSessionContent}
+        onLayout={(event) => setContentHeight(event.nativeEvent.layout.height)}
+      >
+        <View style={[styles.exerciseSessionVisual, { width: visualSize, height: visualSize + BREATHING_READOUT_HEIGHT }]}>
+          {(sessionState === 'countdown' || sessionState === 'starting') && (
+            <View style={styles.exerciseSessionReadout}>
+              <Text
+                style={[
+                  styles.exerciseSessionCountdown,
+                  {
+                    color: palette.text,
+                    opacity: sessionState === 'countdown' ? 1 : 0,
+                  },
+                ]}
+              >
+                {sessionState === 'countdown' ? countdown : '0'}
+              </Text>
+              <Text style={[styles.exerciseSessionPhase, { color: palette.muted }]}>
+                {sessionState === 'countdown' ? 'GET READY' : 'STARTING…'}
+              </Text>
+            </View>
+          )}
+
+          {(active || sessionState === 'finishing') && (
+            <Animated.View style={[styles.exerciseSessionAnimation, { opacity: visualOpacity }]}>
+              <BreathingVisual
+                exerciseId={exercise.id}
+                level={breathLevel}
+                phaseProgress={phaseProgress}
+                phaseIndex={phaseIndex}
+                phaseCount={exercise.phases.length}
+                cycle={cycle}
+                phaseLabel={phase.label}
+                count={
+                  exercise.id === 'sigh'
+                    ? phaseIndex === 1
+                      ? 4
+                      : Math.min(Math.ceil(phase.seconds), Math.floor(phase.seconds - secondsLeft) + 1)
+                    : exercise.id === '478' || exercise.id === 'coherent' || exercise.id === 'alternate' || exercise.id === 'pursed' || exercise.id === 'diaphragmatic' || exercise.id === 'humming'
+                        ? Math.min(Math.ceil(phase.seconds), Math.floor(phase.seconds - secondsLeft) + 1)
+                        : Math.max(1, Math.ceil(secondsLeft))
+                }
+                palette={palette}
+                width={visualSize}
+                height={visualSize}
+              />
+            </Animated.View>
+          )}
+
+          {complete && (
+            <View style={styles.exerciseSessionReadout}>
+              <Text style={[styles.exerciseSessionCheck, { color: palette.text }]}>✓</Text>
+              <Text style={[styles.exerciseSessionCompleteTitle, { color: palette.text }]}>Well done</Text>
+              <Text style={[styles.exerciseSessionCompleteCopy, { color: palette.text }]}>
+                That was time well spent. Let it settle.
+              </Text>
+            </View>
+          )}
+        </View>
+
+        {complete && (
+          <View
+            accessible
+            accessibilityLabel={`Time spent ${timeSpent}, ${exercise.cycles} cycles`}
+            style={[
+              styles.exerciseSessionCompletionStats,
+              { borderColor: palette.border, left: (width - 220) / 2 },
+              { transform: [{ translateY: 36 }] },
+            ]}
+          >
+            <View style={styles.exerciseSessionStatRow}>
+              <Text style={[styles.exerciseSessionStatLabel, { color: palette.muted }]}>Time Spent</Text>
+              <Text style={[styles.exerciseSessionStatValue, { color: palette.text }]}>{timeSpent}</Text>
+            </View>
+            <View style={[styles.exerciseSessionStatDivider, { backgroundColor: palette.border }]} />
+            <View style={styles.exerciseSessionStatRow}>
+              <Text style={[styles.exerciseSessionStatLabel, { color: palette.muted }]}>Cycles</Text>
+              <Text style={[styles.exerciseSessionStatValue, { color: palette.text }]}>{exercise.cycles}</Text>
+            </View>
           </View>
-        </Animated.View>
-        <Text style={[styles.sessionHint, { color: palette.muted }]}>
-          {complete ? 'Take a moment to notice how you feel.' : 'Follow the shape. Keep the breath easy and comfortable.'}
-        </Text>
+        )}
+
       </View>
-      <View style={styles.sessionControls}>
+
+      <View style={styles.exerciseSessionControls}>
         {complete ? (
           <>
-            <Pressable onPress={restart} style={[styles.secondaryButton, { borderColor: palette.border }]}>
-              <Text style={{ color: palette.text }}>Practise again</Text>
+            <View style={styles.exerciseSessionRoundPlaceholder} />
+            <View style={styles.exerciseSessionActions}>
+            <Pressable
+              onPress={restart}
+              style={[styles.exerciseSessionAction, { backgroundColor: palette.surface, borderColor: palette.border }]}
+            >
+              <Text style={[styles.exerciseSessionActionLabel, { color: palette.text }]}>Practise again</Text>
             </Pressable>
-            <Pressable onPress={onClose} style={[styles.primaryButton, { backgroundColor: palette.accent }]}>
-              <Text style={[styles.primaryButtonText, { color: palette.bg }]}>Done</Text>
+            <Pressable
+              onPress={onClose}
+              style={[styles.exerciseSessionAction, { backgroundColor: palette.accent, borderColor: palette.accent }]}
+            >
+              <Text style={[styles.exerciseSessionActionLabel, { color: palette.bg }]}>Done</Text>
             </Pressable>
+            </View>
           </>
         ) : (
-          <Pressable onPress={() => setPaused((value) => !value)} style={[styles.primaryButton, { backgroundColor: palette.accent }]}>
-            <Text style={[styles.primaryButtonText, { color: palette.bg }]}>{paused ? 'Resume' : 'Pause'}</Text>
-          </Pressable>
+          <>
+            <View style={styles.exerciseSessionRoundPlaceholder} />
+            {(active || sessionState === 'finishing') && (
+              <Text
+                style={[
+                  styles.exerciseSessionRound,
+                  styles.exerciseSessionFloatingRound,
+                  { color: palette.muted, top: cycleLabelTop },
+                ]}
+              >
+                Round {cycle} of {exercise.cycles}
+              </Text>
+            )}
+            {(active || sessionState === 'finishing') && (
+              <View style={styles.exerciseSessionActions}>
+              <Pressable
+                onPress={onClose}
+                style={[
+                  styles.exerciseSessionAction,
+                  { backgroundColor: palette.surface, borderColor: palette.border },
+                ]}
+              >
+                <Text style={[styles.exerciseSessionActionLabel, { color: palette.text }]}>End session</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setPaused((value) => !value)}
+                disabled={!active}
+                style={[
+                  styles.exerciseSessionAction,
+                  {
+                    backgroundColor: palette.surface,
+                    borderColor: palette.border,
+                    opacity: active ? 1 : 0.46,
+                  },
+                ]}
+              >
+                <Text style={[styles.exerciseSessionActionLabel, { color: palette.text }]}>
+                  {paused ? 'Resume' : 'Pause'}
+                </Text>
+              </Pressable>
+              </View>
+            )}
+          </>
         )}
       </View>
     </SafeAreaView>
@@ -1095,64 +1491,21 @@ function RecommendScreen({
   );
 }
 
-function Profile({
+function TabBar({
+  tab,
+  onTabPress,
   palette,
-  completedSessions,
-  mindfulMinutes,
-  themeMode,
-  setThemeMode,
 }: {
+  tab: Tab;
+  onTabPress: (tab: Tab) => void;
   palette: Palette;
-  completedSessions: number;
-  mindfulMinutes: number;
-  themeMode: ThemeMode;
-  setThemeMode: (mode: ThemeMode) => void;
 }) {
-  return (
-    <ScrollView contentContainerStyle={styles.profileContent}>
-      <Text style={[styles.eyebrow, { color: palette.accent }]}>YOUR SPACE</Text>
-      <Text style={[styles.title, { color: palette.text }]}>Profile</Text>
-      <View style={styles.metrics}>
-        <View style={[styles.metric, { backgroundColor: palette.surface, borderColor: palette.border }]}>
-          <Text style={[styles.metricValue, { color: palette.text }]}>{completedSessions}</Text>
-          <Text style={[styles.metricLabel, { color: palette.muted }]}>Sessions</Text>
-        </View>
-        <View style={[styles.metric, { backgroundColor: palette.surface, borderColor: palette.border }]}>
-          <Text style={[styles.metricValue, { color: palette.text }]}>{mindfulMinutes}</Text>
-          <Text style={[styles.metricLabel, { color: palette.muted }]}>Mindful min</Text>
-        </View>
-      </View>
-      <Text style={[styles.question, { color: palette.text }]}>Appearance</Text>
-      {(['light', 'dark', 'minimal'] as ThemeMode[]).map((mode) => (
-        <Pressable
-          key={mode}
-          onPress={() => setThemeMode(mode)}
-          style={[styles.settingRow, { backgroundColor: palette.surface, borderColor: palette.border }]}
-        >
-          <Text style={[styles.settingText, { color: palette.text }]}>{mode[0].toUpperCase() + mode.slice(1)}</Text>
-          <Text style={{ color: palette.accent }}>{themeMode === mode ? '●' : '○'}</Text>
-        </Pressable>
-      ))}
-      <View style={[styles.aboutBox, { backgroundColor: palette.tint }]}>
-        <Text style={[styles.infoTitle, { color: palette.text }]}>About Hush</Text>
-        <Text style={[styles.aboutText, { color: palette.muted }]}>
-          Hush makes evidence-informed breathing and mindfulness practices simple enough to use in the moments you actually need them.
-        </Text>
-        <Text style={[styles.disclaimer, { color: palette.muted }]}>
-          This app supports wellbeing and is not medical care. Stop any practice that causes discomfort and seek professional help when needed.
-        </Text>
-      </View>
-    </ScrollView>
-  );
-}
-
-function TabBar({ tab, setTab, palette }: { tab: Tab; setTab: (tab: Tab) => void; palette: Palette }) {
   const insets = useSafeAreaInsets();
   const tabs: { id: Tab; label: string; icon: string }[] = [
     { id: 'breathe', label: 'Breathe', icon: '' },
     { id: 'meditate', label: 'Meditate', icon: '' },
     { id: 'recommend', label: 'Guide Me', icon: '' },
-    { id: 'profile', label: 'Profile', icon: '' },
+    { id: 'menu', label: 'Menu', icon: '' },
   ];
   return (
     <View
@@ -1169,15 +1522,15 @@ function TabBar({ tab, setTab, palette }: { tab: Tab; setTab: (tab: Tab) => void
           const selected = tab === item.id;
           const color = selected ? palette.accent : palette.muted;
           return (
-            <Pressable key={item.id} onPress={() => setTab(item.id)} style={styles.tab} accessibilityRole="tab" accessibilityState={{ selected }}>
+            <Pressable key={item.id} onPress={() => onTabPress(item.id)} style={styles.tab} accessibilityRole="tab" accessibilityState={{ selected }}>
               {item.id === 'breathe' ? (
                 <WindIcon color={color} />
               ) : item.id === 'meditate' ? (
                 <FocusIcon color={color} />
               ) : item.id === 'recommend' ? (
                 <SmartAssistIcon color={color} />
-              ) : item.id === 'profile' ? (
-                <UserIcon color={color} />
+              ) : item.id === 'menu' ? (
+                <MenuIcon color={color} />
               ) : (
                 <Text style={[styles.tabIcon, { color }]}>{item.icon}</Text>
               )}
@@ -1213,11 +1566,12 @@ function FocusIcon({ color }: { color: string }) {
   );
 }
 
-function UserIcon({ color }: { color: string }) {
+function MenuIcon({ color }: { color: string }) {
   return (
     <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" accessible={false}>
-      <Circle cx={12} cy={8} r={5} stroke={color} strokeWidth={1.8} />
-      <Path d="M20 21a8 8 0 0 0-16 0" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
+      <Line x1={4} y1={6} x2={20} y2={6} stroke={color} strokeWidth={1.8} strokeLinecap="round" />
+      <Line x1={4} y1={12} x2={20} y2={12} stroke={color} strokeWidth={1.8} strokeLinecap="round" />
+      <Line x1={4} y1={18} x2={20} y2={18} stroke={color} strokeWidth={1.8} strokeLinecap="round" />
     </Svg>
   );
 }
@@ -1258,16 +1612,22 @@ const styles = StyleSheet.create({
   content: { flex: 1 },
   header: {
     height: 70, paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center',
-    justifyContent: 'space-between', borderBottomWidth: StyleSheet.hairlineWidth,
+    justifyContent: 'flex-end', borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  wordmark: { fontSize: 28, fontWeight: '500', letterSpacing: -0.56 },
-  themeButton: {
-    width: 38, height: 38, borderWidth: 1, borderRadius: 19, alignItems: 'center', justifyContent: 'center',
+  wordmark: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    textAlign: 'center',
+    fontSize: 28,
+    fontWeight: '500',
+    letterSpacing: -0.56,
   },
   listContent: { paddingHorizontal: 18, paddingBottom: 36 },
   libraryHeading: { paddingTop: 30, paddingBottom: 24 },
   eyebrow: { fontSize: 11, fontWeight: '700', letterSpacing: 1.8, marginBottom: 8 },
   title: { fontSize: 38, fontWeight: '500', letterSpacing: -1.2 },
+  libraryTitle: { fontSize: 36 },
   card: { minHeight: 196, borderWidth: 1, borderRadius: 18, padding: 16, flexDirection: 'row', gap: 14 },
   cardMark: { width: 54, height: 54, borderRadius: 27, alignItems: 'center', justifyContent: 'center' },
   cardMarkText: { fontSize: 13, fontWeight: '700', letterSpacing: 1 },
@@ -1287,7 +1647,8 @@ const styles = StyleSheet.create({
   },
   back: { fontSize: 16 },
   detailHeaderLabel: { fontSize: 10, letterSpacing: 1.5, fontWeight: '700' },
-  detailWordmark: { fontSize: 22, fontWeight: '500', letterSpacing: -0.44 },
+  detailWordmark: { fontSize: 28, fontWeight: '500', letterSpacing: -0.56 },
+  detailPersonalizeButton: { width: 52, height: 44, alignItems: 'flex-end', justifyContent: 'center' },
   detailContent: { padding: 22, paddingBottom: 130 },
   detailTitle: { fontSize: 40, lineHeight: 46, fontWeight: '600', letterSpacing: -1.2 },
   detailMeta: { marginTop: 12, fontSize: 13 },
@@ -1325,6 +1686,136 @@ const styles = StyleSheet.create({
   primaryButton: { minHeight: 54, borderRadius: 27, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 26 },
   primaryButtonText: { fontSize: 16, fontWeight: '700' },
   secondaryButton: { minHeight: 54, borderRadius: 27, borderWidth: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 26 },
+  exerciseSession: { flex: 1 },
+  exerciseSessionHeader: {
+    height: 64,
+    paddingHorizontal: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  exerciseSessionCloseButton: { width: 30, zIndex: 1 },
+  exerciseSessionName: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    textAlign: 'center',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  exerciseSessionHeaderSpacer: { width: 30 },
+  exerciseSessionContent: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    paddingTop: 0,
+  },
+  exerciseSessionRhythm: {
+    position: 'absolute',
+    top: 10,
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 2,
+  },
+  exerciseSessionVisual: {
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  exerciseSessionReadout: {
+    ...StyleSheet.absoluteFill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 42,
+  },
+  exerciseSessionCountdown: {
+    width: '100%',
+    textAlign: 'center',
+    fontSize: 68,
+    lineHeight: 74,
+    fontWeight: '300',
+    fontVariant: ['tabular-nums'],
+  },
+  exerciseSessionPhase: {
+    width: '100%',
+    textAlign: 'center',
+    fontSize: 24,
+    lineHeight: 30,
+    fontWeight: '400',
+    letterSpacing: 2.2,
+    marginTop: 6,
+  },
+  exerciseSessionAnimation: { ...StyleSheet.absoluteFill },
+  exerciseSessionCheck: { fontSize: 42, fontWeight: '300' },
+  exerciseSessionCompleteTitle: { fontSize: 24, fontWeight: '600', marginTop: 8 },
+  exerciseSessionCompleteCopy: {
+    textAlign: 'center',
+    fontSize: 16,
+    lineHeight: 24,
+    marginTop: 8,
+  },
+  exerciseSessionRound: {
+    textAlign: 'center',
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '400',
+    fontVariant: ['tabular-nums'],
+  },
+  exerciseSessionRoundPosition: {
+    position: 'absolute',
+    top: '50%',
+    left: 0,
+    right: 0,
+  },
+  exerciseSessionCompletionStats: {
+    position: 'absolute',
+    top: '75%',
+    width: 220,
+    borderWidth: 1,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  exerciseSessionStatRow: {
+    minHeight: 32,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  exerciseSessionStatLabel: { fontSize: 16, lineHeight: 24, fontWeight: '400' },
+  exerciseSessionStatValue: {
+    fontSize: 16,
+    lineHeight: 24,
+    fontWeight: '500',
+    fontVariant: ['tabular-nums'],
+  },
+  exerciseSessionStatDivider: { height: 1 },
+  exerciseSessionControls: {
+    minHeight: 116,
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 16,
+    justifyContent: 'center',
+    gap: 10,
+  },
+  exerciseSessionRoundPlaceholder: { height: 20 },
+  exerciseSessionFloatingRound: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+  },
+  exerciseSessionActions: { flexDirection: 'row', gap: 10 },
+  exerciseSessionAction: {
+    flex: 1,
+    minHeight: 54,
+    borderRadius: 16,
+    borderWidth: StyleSheet.hairlineWidth,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 18,
+  },
+  exerciseSessionActionLabel: { fontSize: 16, fontWeight: '500' },
   session: { flex: 1, paddingHorizontal: 20 },
   sessionHeader: { height: 70, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   close: { fontSize: 32, fontWeight: '300' },
@@ -1355,19 +1846,6 @@ const styles = StyleSheet.create({
   chipLabel: { textAlign: 'center', fontSize: 15, fontWeight: '600' },
   chipDescription: { textAlign: 'center', fontSize: 12, marginTop: 3 },
   results: { gap: 12 },
-  profileContent: { padding: 20, paddingBottom: 42 },
-  metrics: { flexDirection: 'row', gap: 12, marginTop: 26 },
-  metric: { flex: 1, minHeight: 125, borderWidth: 1, borderRadius: 16, padding: 18, justifyContent: 'space-between' },
-  metricValue: { fontSize: 40, fontWeight: '500' },
-  metricLabel: { fontSize: 13 },
-  settingRow: {
-    minHeight: 58, borderWidth: 1, borderRadius: 14, marginBottom: 9, paddingHorizontal: 17,
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-  },
-  settingText: { fontSize: 16 },
-  aboutBox: { padding: 20, borderRadius: 16, marginTop: 28 },
-  aboutText: { fontSize: 15, lineHeight: 23 },
-  disclaimer: { fontSize: 12, lineHeight: 18, marginTop: 18 },
   tabBar: { borderTopWidth: StyleSheet.hairlineWidth },
   tabItems: { height: 70, flexDirection: 'row', paddingVertical: 4 },
   tab: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 2 },
