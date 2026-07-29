@@ -243,7 +243,7 @@ export default function App() {
       <View style={styles.content}>
         {tab === 'breathe' && (
           <Library
-            title="Choose your path"
+            title="Breathe"
             items={exercises}
             palette={palette}
             accent="breath"
@@ -334,9 +334,9 @@ function Library<T extends Exercise | Meditation>({
       ListHeaderComponent={
         <View style={styles.libraryHeading}>
           <Text style={[styles.eyebrow, { color: accent === 'breath' ? palette.accent : palette.meditation }]}>
-            {accent === 'breath' ? 'BREATHE' : 'YOUR PRACTICE'}
+            {accent === 'breath' ? 'CHOOSE YOUR PATH' : 'FIND YOUR CALM'}
           </Text>
-          <Text style={[styles.title, { color: palette.text }]}>{title}</Text>
+          <Text style={[styles.title, styles.libraryTitle, { color: palette.text }]}>{title}</Text>
         </View>
       }
       renderItem={({ item, index }) => (
@@ -1631,6 +1631,7 @@ const styles = StyleSheet.create({
   libraryHeading: { paddingTop: 30, paddingBottom: 24 },
   eyebrow: { fontSize: 11, fontWeight: '700', letterSpacing: 1.8, marginBottom: 8 },
   title: { fontSize: 38, fontWeight: '500', letterSpacing: -1.2 },
+  libraryTitle: { fontSize: 36 },
   card: { minHeight: 196, borderWidth: 1, borderRadius: 18, padding: 16, flexDirection: 'row', gap: 14 },
   cardMark: { width: 54, height: 54, borderRadius: 27, alignItems: 'center', justifyContent: 'center' },
   cardMarkText: { fontSize: 13, fontWeight: '700', letterSpacing: 1 },
