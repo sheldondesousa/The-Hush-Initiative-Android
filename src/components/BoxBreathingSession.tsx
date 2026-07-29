@@ -350,49 +350,6 @@ export default function BoxBreathingSession({
             <Animated.View entering={FadeIn.duration(600)} style={styles.animationLayer}>
               <View pointerEvents="none" style={[styles.activeReadout, { height: BREATHING_READOUT_HEIGHT }]}>
                 <Text style={[styles.count, { color: palette.text }]}>{count}</Text>
-                <View style={styles.phaseToggle}>
-                  <Text
-                    numberOfLines={1}
-                    style={[
-                      styles.phaseToggleLabel,
-                      {
-                        color: phases[phaseIndex] === 'INHALE' ? palette.text : palette.muted,
-                        fontWeight: phases[phaseIndex] === 'INHALE' ? '700' : '400',
-                        opacity: phases[phaseIndex] === 'INHALE' ? 1 : 0.35,
-                      },
-                    ]}
-                  >
-                    INHALE
-                  </Text>
-                  <Text style={[styles.phaseToggleDivider, { color: palette.border }]}>|</Text>
-                  <Text
-                    numberOfLines={1}
-                    style={[
-                      styles.phaseToggleLabel,
-                      {
-                        color: phases[phaseIndex] === 'HOLD' ? palette.text : palette.muted,
-                        fontWeight: phases[phaseIndex] === 'HOLD' ? '700' : '400',
-                        opacity: phases[phaseIndex] === 'HOLD' ? 1 : 0.35,
-                      },
-                    ]}
-                  >
-                    HOLD
-                  </Text>
-                  <Text style={[styles.phaseToggleDivider, { color: palette.border }]}>|</Text>
-                  <Text
-                    numberOfLines={1}
-                    style={[
-                      styles.phaseToggleLabel,
-                      {
-                        color: phases[phaseIndex] === 'EXHALE' ? palette.text : palette.muted,
-                        fontWeight: phases[phaseIndex] === 'EXHALE' ? '700' : '400',
-                        opacity: phases[phaseIndex] === 'EXHALE' ? 1 : 0.35,
-                      },
-                    ]}
-                  >
-                    EXHALE
-                  </Text>
-                </View>
               </View>
               <View
                 style={[
@@ -403,7 +360,7 @@ export default function BoxBreathingSession({
                     height: visualSize,
                   },
                 ]}
-              >
+                >
                 <Svg width="100%" height="100%" viewBox={`0 0 ${SIZE} ${SIZE}`}>
                   <Path
                     d={boxPath}
@@ -428,6 +385,11 @@ export default function BoxBreathingSession({
                     fill={primary}
                   />
                 </Svg>
+                <View pointerEvents="none" style={styles.boxPhaseState}>
+                  <Text style={[styles.boxPhaseStateText, { color: palette.text }]}>
+                    {phases[phaseIndex]}
+                  </Text>
+                </View>
               </View>
             </Animated.View>
           )}
@@ -600,6 +562,19 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     overflow: 'hidden',
+  },
+  boxPhaseState: {
+    ...StyleSheet.absoluteFill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 48,
+  },
+  boxPhaseStateText: {
+    textAlign: 'center',
+    fontSize: 20,
+    lineHeight: 26,
+    fontWeight: '600',
+    letterSpacing: 1.6,
   },
   centerReadout: {
     position: 'absolute',

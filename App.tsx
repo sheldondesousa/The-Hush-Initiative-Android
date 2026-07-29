@@ -1168,11 +1168,7 @@ function StandardBreathingSession({
                     ? phaseIndex === 1
                       ? 4
                       : Math.min(Math.ceil(phase.seconds), Math.floor(phase.seconds - secondsLeft) + 1)
-                    : exercise.id === 'diaphragmatic'
-                      ? phaseIndex === 1
-                        ? 1
-                        : Math.min(Math.ceil(phase.seconds), Math.floor(phase.seconds - secondsLeft) + 1)
-                      : exercise.id === '478' || exercise.id === 'coherent' || exercise.id === 'alternate' || exercise.id === 'pursed' || exercise.id === 'humming'
+                    : exercise.id === '478' || exercise.id === 'coherent' || exercise.id === 'alternate' || exercise.id === 'pursed' || exercise.id === 'diaphragmatic' || exercise.id === 'humming'
                         ? Math.min(Math.ceil(phase.seconds), Math.floor(phase.seconds - secondsLeft) + 1)
                         : Math.max(1, Math.ceil(secondsLeft))
                 }

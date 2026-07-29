@@ -40,6 +40,14 @@ const visualByExercise: Record<string, VisualFamily> = {
   humming: 'humming',
 };
 
+const phaseInsideVisualExercises = new Set([
+  'box',
+  '478',
+  'pursed',
+  'sigh',
+  'humming',
+]);
+
 const smokeWisps = Array.from({ length: 18 }, (_, index) => ({
   left: ((index * 47) % 100) / 100,
   width: 0.36 + (index % 5) * 0.045,
@@ -184,12 +192,18 @@ export default function BreathingVisual({
 
   const displayPhase = (phaseLabel ?? 'BREATHE').toUpperCase();
   const normalizedPhase = displayPhase.toLowerCase();
-  const hasHoldPhase = exerciseId === 'box' || exerciseId === '478' || (exerciseId === 'alternate' && phaseCount === 8);
+  const phaseInsideVisual = phaseInsideVisualExercises.has(exerciseId);
+  const phaseInsideLabel = exerciseId === 'pursed'
+    ? normalizedPhase.includes('exhale') ? 'EXHALE' : 'INHALE'
+    : displayPhase;
+  const hasHoldPhase = exerciseId === 'box'
+    || exerciseId === '478'
+    || (exerciseId === 'alternate' && phaseCount === 8);
   const breathPhase = normalizedPhase.includes('exhale')
     ? 'exhale'
     : normalizedPhase.includes('inhale')
       ? 'inhale'
-      : hasHoldPhase && normalizedPhase.includes('hold')
+      : hasHoldPhase && (normalizedPhase.includes('hold') || normalizedPhase.includes('pause'))
         ? 'hold'
         : null;
 
@@ -206,66 +220,80 @@ export default function BreathingVisual({
         <Text style={[styles.count, styles.countProminent, { color: palette.text }]}>
           {count}
         </Text>
-        {breathPhase ? (
-          <View style={styles.phaseToggle}>
+        {!phaseInsideVisual && (
+          breathPhase ? (
+            <View style={styles.phaseToggle}>
+              <Text
+                numberOfLines={1}
+                style={[
+                  styles.phaseToggleLabel,
+                  {
+                    color: breathPhase === 'inhale' ? palette.text : palette.muted,
+                    fontWeight: breathPhase === 'inhale' ? '700' : '400',
+                    opacity: breathPhase === 'inhale' ? 1 : 0.35,
+                  },
+                ]}
+              >
+                INHALE
+              </Text>
+              {hasHoldPhase && (
+                <>
+                  <Text style={[styles.phaseToggleDivider, { color: palette.border }]}>|</Text>
+                  <Text
+                    numberOfLines={1}
+                    style={[
+                      styles.phaseToggleLabel,
+                      {
+                        color: breathPhase === 'hold' ? palette.text : palette.muted,
+                        fontWeight: breathPhase === 'hold' ? '700' : '400',
+                        opacity: breathPhase === 'hold' ? 1 : 0.35,
+                      },
+                    ]}
+                  >
+                    HOLD
+                  </Text>
+                </>
+              )}
+              <Text style={[styles.phaseToggleDivider, { color: palette.border }]}>|</Text>
+              <Text
+                numberOfLines={1}
+                style={[
+                  styles.phaseToggleLabel,
+                  {
+                    color: breathPhase === 'exhale' ? palette.text : palette.muted,
+                    fontWeight: breathPhase === 'exhale' ? '700' : '400',
+                    opacity: breathPhase === 'exhale' ? 1 : 0.35,
+                  },
+                ]}
+              >
+                EXHALE
+              </Text>
+            </View>
+          ) : (
             <Text
-              numberOfLines={1}
-              style={[
-                styles.phaseToggleLabel,
-                {
-                  color: breathPhase === 'inhale' ? palette.text : palette.muted,
-                  fontWeight: breathPhase === 'inhale' ? '700' : '400',
-                  opacity: breathPhase === 'inhale' ? 1 : 0.35,
-                },
-              ]}
+              numberOfLines={2}
+              adjustsFontSizeToFit
+              style={[styles.phase, styles.phaseProminent, { color: palette.text }]}
             >
-              INHALE
+              {phaseInsideLabel}
             </Text>
-            {hasHoldPhase && (
-              <>
-                <Text style={[styles.phaseToggleDivider, { color: palette.border }]}>|</Text>
-                <Text
-                  numberOfLines={1}
-                  style={[
-                    styles.phaseToggleLabel,
-                    {
-                      color: breathPhase === 'hold' ? palette.text : palette.muted,
-                      fontWeight: breathPhase === 'hold' ? '700' : '400',
-                      opacity: breathPhase === 'hold' ? 1 : 0.35,
-                    },
-                  ]}
-                >
-                  HOLD
-                </Text>
-              </>
-            )}
-            <Text style={[styles.phaseToggleDivider, { color: palette.border }]}>|</Text>
-            <Text
-              numberOfLines={1}
-              style={[
-                styles.phaseToggleLabel,
-                {
-                  color: breathPhase === 'exhale' ? palette.text : palette.muted,
-                  fontWeight: breathPhase === 'exhale' ? '700' : '400',
-                  opacity: breathPhase === 'exhale' ? 1 : 0.35,
-                },
-              ]}
-            >
-              EXHALE
-            </Text>
-          </View>
-        ) : (
-          <Text
-            numberOfLines={2}
-            adjustsFontSizeToFit
-            style={[styles.phase, styles.phaseProminent, { color: palette.text }]}
-          >
-            {displayPhase}
-          </Text>
+          )
         )}
       </View>
       <View style={[styles.animationStage, { width, height }]}>
         {visual}
+        {phaseInsideVisual && (
+          <View pointerEvents="none" style={styles.phaseInsideVisual}>
+            <Text
+              numberOfLines={2}
+              adjustsFontSizeToFit
+              minimumFontScale={0.68}
+              style={[styles.phaseInsideVisualText, { color: palette.text }]}
+            >
+              {displayPhase}
+            </Text>
+          </View>
+        )}
       </View>
     </View>
   );
@@ -592,15 +620,10 @@ function DiaphragmaticVisual({
   width: number;
   height: number;
 }) {
-  const safePhase = Math.min(Math.max(phaseIndex, 0), 2);
+  const safePhase = Math.min(Math.max(phaseIndex, 0), 1);
   const fill = safePhase === 0
     ? phaseProgress
-    : safePhase === 1
-      ? phaseProgress.interpolate({
-          inputRange: [0, 1],
-          outputRange: [1, 1],
-        })
-      : phaseProgress.interpolate({
+    : phaseProgress.interpolate({
           inputRange: [0, 1],
           outputRange: [1, 0],
         });
@@ -676,7 +699,7 @@ function DiaphragmaticVisual({
             Belly
           </SvgText>
           <SvgText x={0} y={30} fill={palette.muted} fontSize={12} fontWeight="400">
-            {safePhase === 2 ? 'Falls on Exhale' : 'Rises on Inhale'}
+            {safePhase === 1 ? 'Falls on Exhale' : 'Rises on Inhale'}
           </SvgText>
         </Svg>
       </Animated.View>
@@ -1646,6 +1669,20 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  phaseInsideVisual: {
+    ...StyleSheet.absoluteFill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 54,
+  },
+  phaseInsideVisualText: {
+    width: '100%',
+    textAlign: 'center',
+    fontSize: 20,
+    lineHeight: 26,
+    fontWeight: '600',
+    letterSpacing: 1.6,
   },
   count: {
     width: '100%',

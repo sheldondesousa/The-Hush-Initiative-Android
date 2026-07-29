@@ -216,7 +216,6 @@ export const exerciseDetails: Record<string, ExerciseDetailConfig> = {
     summary: 'Diaphragmatic breathing or belly breathing is a deep relaxation technique that engages your diaphragm rather than your chest. It triggers your parasympathetic nervous system which lowers heart rate, reduces stress, and decreases cortisol levels.',
     phases: [
       { label: 'INHALE', seconds: 5 },
-      { label: 'PAUSE', seconds: 1.5 },
       { label: 'EXHALE', seconds: 8 },
     ],
     flow: 'Expand-Collapse',
