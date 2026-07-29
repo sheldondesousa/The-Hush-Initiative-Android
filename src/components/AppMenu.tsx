@@ -1,0 +1,440 @@
+import React from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import BottomSheetModal from './BottomSheetModal';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+export type MenuSection = 'profile' | 'dashboard' | 'configuration' | 'about' | 'terms';
+export type MenuThemeMode = 'light' | 'dark' | 'minimal';
+
+type MenuPalette = {
+  bg: string;
+  surface: string;
+  text: string;
+  muted: string;
+  accent: string;
+  tint: string;
+  border: string;
+};
+
+const MENU_ITEMS: Array<{ id: MenuSection; label: string }> = [
+  { id: 'profile', label: 'Profile' },
+  { id: 'dashboard', label: 'Dashboard' },
+  { id: 'configuration', label: 'Configuration' },
+  { id: 'about', label: 'About Hush' },
+  { id: 'terms', label: 'Terms & Conditions' },
+];
+
+const ABOUT_SECTIONS = [
+  {
+    title: 'It Started With Silence.',
+    body: "There’s a particular kind of exhaustion that comes from being always on. The notifications, deadlines, endless scroll, and the noise that follows you even when you try to sleep. Hush began with the need for one quiet moment—something simple to turn to, on your terms and in your time.",
+  },
+  {
+    title: 'What We Couldn’t Find',
+    body: 'Too many wellbeing apps felt visually overwhelming, crowded with upsells, or designed to keep people engaged. We wanted the opposite: a clear, honest space grounded in evidence, without pressure, clutter, or a subscription gate.',
+  },
+  {
+    title: 'The “Aha” Moment',
+    body: 'Breathing and sound offered what we had been looking for: intentional, evidence-informed exercises that help the mind and body settle naturally. No achievement badges or streaks—just a useful practice when you need it.',
+  },
+  {
+    title: 'This Is For You If…',
+    body: 'You are tired of external chaos and internal chatter. You value simplicity over complexity and evidence over trends. You do not need millions of features; you need one thing that works.',
+  },
+  {
+    title: 'A Small Collective',
+    body: 'Hush is built for people who understand that sometimes the most restorative thing you can do is simply rest your mind. Use it when you need it, share it if you want to, and let it remain quieter than a revolution—a breath.',
+  },
+];
+
+const TERMS_SECTIONS: Array<{ title: string; body: string; bullets?: string[] }> = [
+  {
+    title: '1. Who We Are',
+    body: 'Hush is developed by a small team offering a minimalist breathing and mindfulness tool. We do not serve ads, offer upsells, or sell your data.',
+  },
+  {
+    title: '2. Use of the App',
+    body: 'You may use the app for personal, non-commercial purposes only. You must not:',
+    bullets: [
+      'Use the app for unlawful or harmful purposes.',
+      'Attempt to reverse-engineer, copy, or distribute the app or its content.',
+      'Use automated systems to access the app or collect data.',
+    ],
+  },
+  {
+    title: '3. Health Disclaimer',
+    body: 'Hush provides general breathing and mindfulness exercises for relaxation and focus. It is not a substitute for professional medical advice or treatment.',
+    bullets: [
+      'Use the exercises at your own risk.',
+      'Consult your doctor before use if you have respiratory, cardiac, or neurological conditions.',
+      'Stop any practice that causes discomfort.',
+    ],
+  },
+  {
+    title: '4. Intellectual Property',
+    body: 'All app content—including visuals, sound design, and breathing patterns—is owned by the app creators or used with permission. You may not reproduce, distribute, or modify it without explicit written consent.',
+  },
+  {
+    title: '5. Limitation of Liability',
+    body: 'The app is provided “as is” without warranties of any kind. To the fullest extent permitted by law, we disclaim liability for direct or indirect damages, health-related outcomes, service interruptions, or data loss.',
+  },
+  {
+    title: '6. Privacy',
+    body: 'Your use of Hush is also subject to its privacy practices. Saved exercise defaults are stored locally on your device.',
+  },
+  {
+    title: '7. Governing Law',
+    body: 'These Terms are governed by the laws of India. Any disputes shall be subject to the exclusive jurisdiction of the courts in India.',
+  },
+];
+
+export function MenuSheet({
+  visible,
+  selected,
+  palette,
+  onClose,
+  onSelect,
+}: {
+  visible: boolean;
+  selected?: MenuSection;
+  palette: MenuPalette;
+  onClose: () => void;
+  onSelect: (section: MenuSection) => void;
+}) {
+  const insets = useSafeAreaInsets();
+  return (
+    <BottomSheetModal
+      visible={visible}
+      surfaceColor={palette.surface}
+      borderColor={palette.border}
+      onClose={onClose}
+      sheetStyle={[styles.sheet, { paddingBottom: Math.max(22, insets.bottom + 12) }]}
+    >
+      {(dismiss) => (
+        <>
+          <View style={styles.handleRow}>
+            <View style={[styles.handle, { backgroundColor: palette.border }]} />
+          </View>
+          <View style={styles.sheetHeader}>
+            <View>
+              <Text style={[styles.eyebrow, { color: palette.accent }]}>NAVIGATE</Text>
+              <Text style={[styles.sheetTitle, { color: palette.text }]}>Menu</Text>
+            </View>
+            <Pressable
+              onPress={() => dismiss()}
+              hitSlop={12}
+              accessibilityRole="button"
+              accessibilityLabel="Close menu"
+            >
+              <Text style={[styles.close, { color: palette.text }]}>×</Text>
+            </Pressable>
+          </View>
+          <View style={[styles.sheetDivider, { backgroundColor: palette.border }]} />
+          {MENU_ITEMS.map((item, index) => {
+            const active = selected === item.id;
+            return (
+              <Pressable
+                key={item.id}
+                onPress={() => dismiss(() => onSelect(item.id))}
+                accessibilityRole="button"
+                accessibilityState={{ selected: active }}
+                style={[
+                  styles.menuRow,
+                  index < MENU_ITEMS.length - 1 && {
+                    borderBottomColor: palette.border,
+                    borderBottomWidth: StyleSheet.hairlineWidth,
+                  },
+                ]}
+              >
+                <Text style={[styles.menuLabel, { color: active ? palette.text : palette.muted, fontWeight: active ? '600' : '400' }]}>
+                  {item.label}
+                </Text>
+                <Text style={[styles.menuChevron, { color: active ? palette.accent : palette.muted }]}>›</Text>
+              </Pressable>
+            );
+          })}
+        </>
+      )}
+    </BottomSheetModal>
+  );
+}
+
+function PageHeader({ eyebrow, title, palette }: { eyebrow: string; title: string; palette: MenuPalette }) {
+  return (
+    <View style={styles.pageHeader}>
+      <Text style={[styles.eyebrow, { color: palette.accent }]}>{eyebrow}</Text>
+      <Text style={[styles.pageTitle, { color: palette.text }]}>{title}</Text>
+    </View>
+  );
+}
+
+function InfoRow({ label, value, palette, last = false }: { label: string; value: string; palette: MenuPalette; last?: boolean }) {
+  return (
+    <View style={[styles.infoRow, !last && { borderBottomColor: palette.border, borderBottomWidth: StyleSheet.hairlineWidth }]}>
+      <Text style={[styles.infoLabel, { color: palette.muted }]}>{label}</Text>
+      <Text style={[styles.infoValue, { color: palette.text }]}>{value}</Text>
+    </View>
+  );
+}
+
+function ProfilePage({ palette }: { palette: MenuPalette }) {
+  return (
+    <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
+      <PageHeader eyebrow="YOUR SPACE" title="Profile" palette={palette} />
+      <View style={styles.identityBlock}>
+        <View style={[styles.avatar, { backgroundColor: palette.tint, borderColor: palette.border }]}>
+          <Text style={[styles.avatarText, { color: palette.accent }]}>H</Text>
+        </View>
+        <View style={styles.identityCopy}>
+          <Text style={[styles.identityName, { color: palette.text }]}>Hush User</Text>
+          <Text style={[styles.identityMeta, { color: palette.muted }]}>Local profile</Text>
+        </View>
+      </View>
+      <Text style={[styles.sectionTitle, { color: palette.text }]}>Profile details</Text>
+      <View style={[styles.infoCard, { backgroundColor: palette.surface, borderColor: palette.border }]}>
+        <InfoRow label="Account" value="On this device" palette={palette} />
+        <InfoRow label="Practice data" value="Private" palette={palette} last />
+      </View>
+      <Text style={[styles.supportingText, { color: palette.muted }]}>
+        Your exercise preferences and local practice activity stay on this device.
+      </Text>
+    </ScrollView>
+  );
+}
+
+function DashboardPage({
+  palette,
+  completedSessions,
+  mindfulMinutes,
+}: {
+  palette: MenuPalette;
+  completedSessions: number;
+  mindfulMinutes: number;
+}) {
+  return (
+    <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
+      <PageHeader eyebrow="YOUR PRACTICE" title="Dashboard" palette={palette} />
+      <Text style={[styles.dashboardLead, { color: palette.text }]}>Take a deep breath and relax.</Text>
+      <View style={styles.metrics}>
+        <View style={[styles.metric, { backgroundColor: palette.surface, borderColor: palette.border }]}>
+          <Text style={[styles.metricValue, { color: palette.text }]}>{completedSessions}</Text>
+          <Text style={[styles.metricLabel, { color: palette.muted }]}>Sessions complete</Text>
+        </View>
+        <View style={[styles.metric, { backgroundColor: palette.surface, borderColor: palette.border }]}>
+          <Text style={[styles.metricValue, { color: palette.text }]}>{mindfulMinutes}</Text>
+          <Text style={[styles.metricLabel, { color: palette.muted }]}>Mindful minutes</Text>
+        </View>
+      </View>
+      <View style={[styles.callout, { backgroundColor: palette.tint }]}>
+        <Text style={[styles.calloutTitle, { color: palette.text }]}>Your practice overview</Text>
+        <Text style={[styles.calloutBody, { color: palette.muted }]}>Activity updates whenever you complete a breathing or meditation session.</Text>
+      </View>
+    </ScrollView>
+  );
+}
+
+function ConfigurationPage({
+  palette,
+  themeMode,
+  setThemeMode,
+  showOnboardingAfterSplash,
+  setShowOnboardingAfterSplash,
+}: {
+  palette: MenuPalette;
+  themeMode: MenuThemeMode;
+  setThemeMode: (mode: MenuThemeMode) => void;
+  showOnboardingAfterSplash: boolean;
+  setShowOnboardingAfterSplash: (enabled: boolean) => void;
+}) {
+  return (
+    <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
+      <PageHeader eyebrow="PREFERENCES" title="Configuration" palette={palette} />
+      <Text style={[styles.sectionTitle, { color: palette.text }]}>Appearance</Text>
+      {(['light', 'dark', 'minimal'] as MenuThemeMode[]).map((mode) => {
+        const selected = themeMode === mode;
+        return (
+          <Pressable
+            key={mode}
+            onPress={() => setThemeMode(mode)}
+            accessibilityRole="radio"
+            accessibilityState={{ selected }}
+            style={[styles.settingRow, { backgroundColor: palette.surface, borderColor: palette.border }]}
+          >
+            <Text style={[styles.settingText, { color: palette.text }]}>{mode[0].toUpperCase() + mode.slice(1)}</Text>
+            <View style={[styles.radioOuter, { borderColor: selected ? palette.accent : palette.border }]}>
+              {selected && <View style={[styles.radioInner, { backgroundColor: palette.accent }]} />}
+            </View>
+          </Pressable>
+        );
+      })}
+      <Text style={[styles.supportingText, { color: palette.muted }]}>Choose the visual mode that feels most comfortable. The change applies immediately.</Text>
+      <Text style={[styles.sectionTitle, styles.configurationSectionTitle, { color: palette.text }]}>Onboarding</Text>
+      <Pressable
+        onPress={() => setShowOnboardingAfterSplash(!showOnboardingAfterSplash)}
+        accessibilityRole="switch"
+        accessibilityLabel="Show onboarding after splash"
+        accessibilityState={{ checked: showOnboardingAfterSplash }}
+        style={[styles.settingRow, { backgroundColor: palette.surface, borderColor: palette.border }]}
+      >
+        <Text style={[styles.settingText, { color: palette.text }]}>Show after splash</Text>
+        <View
+          style={[
+            styles.switchTrack,
+            {
+              backgroundColor: showOnboardingAfterSplash ? palette.accent : palette.border,
+              alignItems: showOnboardingAfterSplash ? 'flex-end' : 'flex-start',
+            },
+          ]}
+        >
+          <View style={[styles.switchThumb, { backgroundColor: palette.surface }]} />
+        </View>
+      </Pressable>
+      <Text style={[styles.supportingText, { color: palette.muted }]}>
+        When enabled, the three onboarding screens appear after the splash screen on every app launch.
+      </Text>
+    </ScrollView>
+  );
+}
+
+function AboutPage({ palette }: { palette: MenuPalette }) {
+  return (
+    <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
+      <PageHeader eyebrow="OUR STORY" title="About Hush" palette={palette} />
+      {ABOUT_SECTIONS.map((section, index) => (
+        <View key={section.title} style={[styles.copySection, index > 0 && { borderTopColor: palette.border, borderTopWidth: StyleSheet.hairlineWidth }]}>
+          <Text style={[styles.copyTitle, { color: palette.text }]}>{section.title}</Text>
+          <Text style={[styles.copyBody, { color: palette.muted }]}>{section.body}</Text>
+        </View>
+      ))}
+    </ScrollView>
+  );
+}
+
+function TermsPage({ palette }: { palette: MenuPalette }) {
+  return (
+    <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
+      <PageHeader eyebrow="LEGAL" title="Terms & Conditions" palette={palette} />
+      <Text style={[styles.updatedText, { color: palette.muted }]}>Last updated: January 9, 2026</Text>
+      <Text style={[styles.termsIntro, { color: palette.muted }]}>Please read these Terms and Conditions carefully before using Hush. By accessing or using the app, you agree to be bound by these Terms.</Text>
+      {TERMS_SECTIONS.map((section) => (
+        <View key={section.title} style={[styles.copySection, { borderTopColor: palette.border, borderTopWidth: StyleSheet.hairlineWidth }]}>
+          <Text style={[styles.copyTitle, { color: palette.text }]}>{section.title}</Text>
+          <Text style={[styles.copyBody, { color: palette.muted }]}>{section.body}</Text>
+          {section.bullets?.map((bullet) => (
+            <View key={bullet} style={styles.bulletRow}>
+              <Text style={[styles.bullet, { color: palette.accent }]}>•</Text>
+              <Text style={[styles.bulletText, { color: palette.muted }]}>{bullet}</Text>
+            </View>
+          ))}
+        </View>
+      ))}
+    </ScrollView>
+  );
+}
+
+export function MenuSectionScreen({
+  section,
+  palette,
+  completedSessions,
+  mindfulMinutes,
+  themeMode,
+  setThemeMode,
+  showOnboardingAfterSplash,
+  setShowOnboardingAfterSplash,
+}: {
+  section: MenuSection;
+  palette: MenuPalette;
+  completedSessions: number;
+  mindfulMinutes: number;
+  themeMode: MenuThemeMode;
+  setThemeMode: (mode: MenuThemeMode) => void;
+  showOnboardingAfterSplash: boolean;
+  setShowOnboardingAfterSplash: (enabled: boolean) => void;
+}) {
+  if (section === 'profile') return <ProfilePage palette={palette} />;
+  if (section === 'dashboard') {
+    return <DashboardPage palette={palette} completedSessions={completedSessions} mindfulMinutes={mindfulMinutes} />;
+  }
+  if (section === 'configuration') {
+    return (
+      <ConfigurationPage
+        palette={palette}
+        themeMode={themeMode}
+        setThemeMode={setThemeMode}
+        showOnboardingAfterSplash={showOnboardingAfterSplash}
+        setShowOnboardingAfterSplash={setShowOnboardingAfterSplash}
+      />
+    );
+  }
+  if (section === 'about') return <AboutPage palette={palette} />;
+  return <TermsPage palette={palette} />;
+}
+
+const styles = StyleSheet.create({
+  sheet: {
+    paddingHorizontal: 22,
+  },
+  handleRow: { height: 24, alignItems: 'center', justifyContent: 'center' },
+  handle: { width: 42, height: 4, borderRadius: 2 },
+  sheetHeader: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
+  eyebrow: { fontSize: 11, lineHeight: 17, fontWeight: '700', letterSpacing: 1.7 },
+  sheetTitle: { marginTop: 3, fontSize: 28, lineHeight: 34, fontWeight: '500', letterSpacing: -0.7 },
+  close: { fontSize: 32, lineHeight: 34, fontWeight: '300' },
+  sheetDivider: { height: StyleSheet.hairlineWidth, marginTop: 18 },
+  menuRow: { minHeight: 58, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  menuLabel: { fontSize: 16, lineHeight: 22 },
+  menuChevron: { fontSize: 27, lineHeight: 30, fontWeight: '300' },
+  pageContent: { paddingHorizontal: 20, paddingTop: 30, paddingBottom: 48 },
+  pageHeader: { marginBottom: 28 },
+  pageTitle: { marginTop: 7, fontSize: 38, lineHeight: 44, fontWeight: '500', letterSpacing: -1.2 },
+  identityBlock: { flexDirection: 'row', alignItems: 'center', marginBottom: 30 },
+  avatar: { width: 72, height: 72, borderRadius: 36, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  avatarText: { fontSize: 30, lineHeight: 36, fontWeight: '500' },
+  identityCopy: { marginLeft: 16 },
+  identityName: { fontSize: 22, lineHeight: 28, fontWeight: '600' },
+  identityMeta: { marginTop: 3, fontSize: 14, lineHeight: 20 },
+  sectionTitle: { fontSize: 20, lineHeight: 26, fontWeight: '600', marginBottom: 14 },
+  infoCard: { borderWidth: 1, borderRadius: 16, overflow: 'hidden' },
+  infoRow: { minHeight: 58, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 14 },
+  infoLabel: { fontSize: 15, lineHeight: 21 },
+  infoValue: { fontSize: 15, lineHeight: 21, fontWeight: '500' },
+  supportingText: { marginTop: 14, fontSize: 13, lineHeight: 20 },
+  dashboardLead: { fontSize: 20, lineHeight: 29, fontWeight: '500', marginBottom: 22 },
+  metrics: { flexDirection: 'row', gap: 12 },
+  metric: { flex: 1, minHeight: 132, borderWidth: 1, borderRadius: 16, padding: 18, justifyContent: 'space-between' },
+  metricValue: { fontSize: 40, lineHeight: 46, fontWeight: '500', fontVariant: ['tabular-nums'] },
+  metricLabel: { fontSize: 13, lineHeight: 18 },
+  callout: { marginTop: 24, borderRadius: 16, padding: 20 },
+  calloutTitle: { fontSize: 17, lineHeight: 23, fontWeight: '600' },
+  calloutBody: { marginTop: 7, fontSize: 14, lineHeight: 21 },
+  settingRow: { minHeight: 58, borderWidth: 1, borderRadius: 14, marginBottom: 9, paddingHorizontal: 17, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  settingText: { fontSize: 16, lineHeight: 22 },
+  configurationSectionTitle: { marginTop: 30 },
+  switchTrack: {
+    width: 46,
+    height: 26,
+    borderRadius: 13,
+    padding: 3,
+    justifyContent: 'center',
+  },
+  switchThumb: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.12,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  radioOuter: { width: 20, height: 20, borderRadius: 10, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
+  radioInner: { width: 10, height: 10, borderRadius: 5 },
+  updatedText: { marginTop: -14, marginBottom: 18, fontSize: 12, lineHeight: 18, fontStyle: 'italic' },
+  termsIntro: { fontSize: 15, lineHeight: 24, marginBottom: 8 },
+  copySection: { paddingTop: 24, marginTop: 24 },
+  copyTitle: { fontSize: 19, lineHeight: 25, fontWeight: '600', marginBottom: 10 },
+  copyBody: { fontSize: 15, lineHeight: 24 },
+  bulletRow: { flexDirection: 'row', alignItems: 'flex-start', marginTop: 8 },
+  bullet: { width: 18, fontSize: 17, lineHeight: 23 },
+  bulletText: { flex: 1, fontSize: 15, lineHeight: 23 },
+});

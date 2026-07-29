@@ -1,8 +1,11 @@
 import * as Haptics from 'expo-haptics';
+import { StatusBar } from 'expo-status-bar';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import Animated, {
   Easing,
+  FadeIn,
+  FadeOut,
   cancelAnimation,
   runOnJS,
   useAnimatedProps,
@@ -13,9 +16,10 @@ import Animated, {
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Path } from 'react-native-svg';
+import { BREATHING_READOUT_HEIGHT } from './BreathingVisual';
 
 const SIZE = 312;
-const PAD = 24;
+const PAD = 34;
 const RADIUS = 17;
 const PHASE_SECONDS = 4;
 const CYCLE_SECONDS = 16;
@@ -102,7 +106,7 @@ function pointAtProgress(rawProgress: number) {
 
   switch (segmentIndex) {
     case 0: {
-      const angle = Math.PI - (Math.PI / 2) * t;
+      const angle = Math.PI + (Math.PI / 2) * t;
       return { x: x0 + RADIUS + RADIUS * Math.cos(angle), y: y0 + RADIUS + RADIUS * Math.sin(angle) };
     }
     case 1:
@@ -135,7 +139,13 @@ export default function BoxBreathingSession({
   cycles = DEFAULT_CYCLES,
 }: Props) {
   const { width } = useWindowDimensions();
-  const visualSize = Math.min(width - 48, SIZE);
+  const [contentHeight, setContentHeight] = useState(0);
+  const visualSize = width - 32;
+  const visualBlockHeight = visualSize + BREATHING_READOUT_HEIGHT;
+  const contentSpaceBelowVisual = Math.max(0, (contentHeight - visualBlockHeight) / 2);
+  const cycleLabelTop = (40 - contentSpaceBelowVisual) / 2 - 10;
+  const totalSessionSeconds = cycles * CYCLE_SECONDS;
+  const timeSpent = `${Math.floor(totalSessionSeconds / 60)}:${String(totalSessionSeconds % 60).padStart(2, '0')}`;
   const [sessionState, setSessionState] = useState<SessionState>('countdown');
   const [countdown, setCountdown] = useState(3);
   const [cycle, setCycle] = useState(1);
@@ -148,12 +158,8 @@ export default function BoxBreathingSession({
   const visualOpacity = useSharedValue(1);
 
   const primary = palette.text;
-  const outline = palette.text === '#F0F0F0'
-    ? 'rgba(240,240,240,0.45)'
-    : 'rgba(26,26,26,0.50)';
-  const trail = palette.text === '#F0F0F0'
-    ? 'rgba(240,240,240,0.82)'
-    : 'rgba(26,26,26,0.76)';
+  const outline = palette.tint;
+  const trail = palette.accent;
 
   useEffect(() => {
     if (sessionState !== 'countdown') return;
@@ -292,128 +298,234 @@ export default function BoxBreathingSession({
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: palette.bg }]} edges={['top', 'bottom']}>
+      <StatusBar style={palette.text === '#F0F0F0' ? 'light' : 'dark'} />
       <View style={styles.header}>
         <Pressable
           onPress={onClose}
           hitSlop={12}
           accessibilityRole="button"
           accessibilityLabel="Close breathing session"
+          style={styles.closeButton}
         >
           <Text style={[styles.close, { color: palette.text }]}>×</Text>
         </Pressable>
         <Text style={[styles.headerTitle, { color: palette.text }]}>Box Breathing</Text>
-        <Text style={[styles.cycle, { color: palette.muted }]}>{cycle}/{cycles}</Text>
+        <View style={styles.headerSpacer} />
       </View>
 
-      <View style={styles.content}>
-        <Text style={[styles.eyebrow, { color: palette.accent }]}>4 · 4 · 4 · 4</Text>
-        <Text style={[styles.title, { color: palette.text }]}>Steady the rhythm</Text>
-        <Text style={[styles.subtitle, { color: palette.muted }]}>
-          Follow the marker clockwise. Let every side of the box take four easy counts.
-        </Text>
-
+      <View
+        style={styles.content}
+        onLayout={(event) => setContentHeight(event.nativeEvent.layout.height)}
+      >
         <Animated.View
           style={[
             styles.animationCard,
             {
               width: visualSize,
-              height: visualSize,
-              backgroundColor: palette.surface,
-              borderColor: palette.border,
+              height: visualSize + BREATHING_READOUT_HEIGHT,
             },
             visualStyle,
           ]}
         >
           {(sessionState === 'countdown' || sessionState === 'starting') && (
-            <View style={styles.centerReadout}>
-              <Text style={[styles.preCount, { color: palette.text }]}>
-                {sessionState === 'countdown' ? countdown : '·'}
+            <Animated.View entering={FadeIn.duration(200)} exiting={FadeOut.duration(450)} style={styles.centerReadout}>
+              <Text
+                style={[
+                  styles.preCount,
+                  {
+                    color: palette.text,
+                    opacity: sessionState === 'countdown' ? 1 : 0,
+                  },
+                ]}
+              >
+                {sessionState === 'countdown' ? countdown : '0'}
               </Text>
               <Text style={[styles.phase, { color: palette.muted }]}>
                 {sessionState === 'countdown' ? 'GET READY' : 'STARTING…'}
               </Text>
-            </View>
+            </Animated.View>
           )}
 
           {(active || sessionState === 'finishing') && (
-            <>
-              <Svg width="100%" height="100%" viewBox={`0 0 ${SIZE} ${SIZE}`}>
-                <Path
-                  d={boxPath}
-                  fill="none"
-                  stroke={outline}
-                  strokeWidth={2}
-                  strokeLinejoin="round"
-                />
-                <AnimatedPath
-                  animatedProps={pathAnimatedProps}
-                  d={boxPath}
-                  fill="none"
-                  stroke={trail}
-                  strokeWidth={2.5}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeDasharray={`${perimeter} ${perimeter}`}
-                />
-                <AnimatedCircle
-                  animatedProps={markerAnimatedProps}
-                  r={7}
-                  fill={primary}
-                />
-              </Svg>
-              <View pointerEvents="none" style={styles.centerReadout}>
+            <Animated.View entering={FadeIn.duration(600)} style={styles.animationLayer}>
+              <View pointerEvents="none" style={[styles.activeReadout, { height: BREATHING_READOUT_HEIGHT }]}>
                 <Text style={[styles.count, { color: palette.text }]}>{count}</Text>
-                <Text style={[styles.phase, { color: palette.muted }]}>{phases[phaseIndex]}</Text>
+                <View style={styles.phaseToggle}>
+                  <Text
+                    numberOfLines={1}
+                    style={[
+                      styles.phaseToggleLabel,
+                      {
+                        color: phases[phaseIndex] === 'INHALE' ? palette.text : palette.muted,
+                        fontWeight: phases[phaseIndex] === 'INHALE' ? '700' : '400',
+                        opacity: phases[phaseIndex] === 'INHALE' ? 1 : 0.35,
+                      },
+                    ]}
+                  >
+                    INHALE
+                  </Text>
+                  <Text style={[styles.phaseToggleDivider, { color: palette.border }]}>|</Text>
+                  <Text
+                    numberOfLines={1}
+                    style={[
+                      styles.phaseToggleLabel,
+                      {
+                        color: phases[phaseIndex] === 'HOLD' ? palette.text : palette.muted,
+                        fontWeight: phases[phaseIndex] === 'HOLD' ? '700' : '400',
+                        opacity: phases[phaseIndex] === 'HOLD' ? 1 : 0.35,
+                      },
+                    ]}
+                  >
+                    HOLD
+                  </Text>
+                  <Text style={[styles.phaseToggleDivider, { color: palette.border }]}>|</Text>
+                  <Text
+                    numberOfLines={1}
+                    style={[
+                      styles.phaseToggleLabel,
+                      {
+                        color: phases[phaseIndex] === 'EXHALE' ? palette.text : palette.muted,
+                        fontWeight: phases[phaseIndex] === 'EXHALE' ? '700' : '400',
+                        opacity: phases[phaseIndex] === 'EXHALE' ? 1 : 0.35,
+                      },
+                    ]}
+                  >
+                    EXHALE
+                  </Text>
+                </View>
               </View>
-            </>
+              <View
+                style={[
+                  styles.boxAnimationStage,
+                  {
+                    top: BREATHING_READOUT_HEIGHT,
+                    width: visualSize,
+                    height: visualSize,
+                  },
+                ]}
+              >
+                <Svg width="100%" height="100%" viewBox={`0 0 ${SIZE} ${SIZE}`}>
+                  <Path
+                    d={boxPath}
+                    fill="none"
+                    stroke={outline}
+                    strokeWidth={2}
+                    strokeLinejoin="round"
+                  />
+                  <AnimatedPath
+                    animatedProps={pathAnimatedProps}
+                    d={boxPath}
+                    fill="none"
+                    stroke={trail}
+                    strokeWidth={2.5}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeDasharray={`${perimeter} ${perimeter}`}
+                  />
+                  <AnimatedCircle
+                    animatedProps={markerAnimatedProps}
+                    r={7}
+                    fill={primary}
+                  />
+                </Svg>
+              </View>
+            </Animated.View>
           )}
 
           {complete && (
             <View style={styles.centerReadout}>
               <Text style={[styles.check, { color: palette.text }]}>✓</Text>
               <Text style={[styles.completeTitle, { color: palette.text }]}>Well done</Text>
-              <Text style={[styles.completeCopy, { color: palette.muted }]}>
-                Notice your breath before moving on.
+              <Text style={[styles.completeCopy, { color: palette.text }]}>
+                That was time well spent. Let it settle.
               </Text>
             </View>
           )}
         </Animated.View>
 
-        <View style={styles.progressRow}>
-          {Array.from({ length: cycles }, (_, index) => (
-            <View
-              key={index}
-              style={[
-                styles.progressPip,
-                {
-                  backgroundColor: index < cycle
-                    ? palette.accent
-                    : palette.border,
-                },
-              ]}
-            />
-          ))}
-        </View>
+        {complete && (
+          <View
+            accessible
+            accessibilityLabel={`Time spent ${timeSpent}, ${cycles} cycles`}
+            style={[
+              styles.completionStats,
+              { borderColor: palette.border, left: (width - 220) / 2 },
+              { transform: [{ translateY: 36 }] },
+            ]}
+          >
+            <View style={styles.statRow}>
+              <Text style={[styles.statLabel, { color: palette.muted }]}>Time Spent</Text>
+              <Text style={[styles.statValue, { color: palette.text }]}>{timeSpent}</Text>
+            </View>
+            <View style={[styles.statDivider, { backgroundColor: palette.border }]} />
+            <View style={styles.statRow}>
+              <Text style={[styles.statLabel, { color: palette.muted }]}>Cycles</Text>
+              <Text style={[styles.statValue, { color: palette.text }]}>{cycles}</Text>
+            </View>
+          </View>
+        )}
+
       </View>
 
       <View style={styles.controls}>
-        {active && (
-          <Pressable
-            onPress={paused ? resume : pause}
-            accessibilityRole="button"
-            accessibilityLabel={paused ? 'Resume exercise' : 'Pause exercise'}
-            style={({ pressed }) => [
-              styles.primaryButton,
-              { backgroundColor: palette.accent, opacity: pressed ? 0.78 : 1 },
-            ]}
-          >
-            <Text style={[styles.primaryLabel, { color: palette.bg }]}>
-              {paused ? 'Resume' : 'Pause'}
-            </Text>
-          </Pressable>
+        {!complete && (
+          <>
+            <View style={styles.roundPlaceholder} />
+            {(active || sessionState === 'finishing') && (
+              <Text
+                style={[
+                  styles.roundCount,
+                  styles.floatingRoundCount,
+                  { color: palette.muted, top: cycleLabelTop },
+                ]}
+              >
+                Round {cycle} of {cycles}
+              </Text>
+            )}
+            {(active || sessionState === 'finishing') && (
+              <View style={styles.sessionActions}>
+              <Pressable
+                onPress={onClose}
+                accessibilityRole="button"
+                accessibilityLabel="End session"
+                style={({ pressed }) => [
+                  styles.sessionAction,
+                  {
+                    backgroundColor: palette.surface,
+                    borderColor: palette.border,
+                    opacity: pressed ? 0.72 : 1,
+                  },
+                ]}
+              >
+                <Text style={[styles.sessionActionLabel, { color: palette.text }]}>End session</Text>
+              </Pressable>
+              <Pressable
+                onPress={paused ? resume : pause}
+                disabled={!active}
+                accessibilityRole="button"
+                accessibilityLabel={paused ? 'Resume exercise' : 'Pause exercise'}
+                accessibilityState={{ disabled: !active }}
+                style={({ pressed }) => [
+                  styles.sessionAction,
+                  {
+                    backgroundColor: palette.surface,
+                    borderColor: palette.border,
+                    opacity: !active ? 0.45 : pressed ? 0.72 : 1,
+                  },
+                ]}
+              >
+                <Text style={[styles.sessionActionLabel, { color: palette.text }]}>
+                  {paused ? 'Resume' : 'Pause'}
+                </Text>
+              </Pressable>
+              </View>
+            )}
+          </>
         )}
         {complete && (
-          <View style={styles.completedControls}>
+          <>
+            <View style={styles.roundPlaceholder} />
+            <View style={styles.completedControls}>
             <Pressable
               onPress={restart}
               style={[styles.secondaryButton, { borderColor: palette.border }]}
@@ -426,10 +538,8 @@ export default function BoxBreathingSession({
             >
               <Text style={[styles.primaryLabel, { color: palette.bg }]}>Done</Text>
             </Pressable>
-          </View>
-        )}
-        {!active && !complete && (
-          <Text style={[styles.controlHint, { color: palette.muted }]}>Prepare to breathe gently.</Text>
+            </View>
+          </>
         )}
       </View>
     </SafeAreaView>
@@ -445,25 +555,51 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  closeButton: {
+    width: 30,
+    zIndex: 1,
+  },
   close: { fontSize: 32, fontWeight: '300', lineHeight: 34 },
-  headerTitle: { fontSize: 14, fontWeight: '600' },
-  cycle: { width: 30, textAlign: 'right', fontSize: 12, fontVariant: ['tabular-nums'] },
-  content: { flex: 1, alignItems: 'center', paddingHorizontal: 24, paddingTop: 10 },
-  eyebrow: { fontSize: 11, fontWeight: '700', letterSpacing: 2, marginBottom: 8 },
-  title: { fontSize: 30, fontWeight: '500', letterSpacing: -0.8 },
-  subtitle: { maxWidth: 330, textAlign: 'center', fontSize: 15, lineHeight: 22, marginTop: 8 },
+  headerTitle: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    textAlign: 'center',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  headerSpacer: { width: 30 },
+  content: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    paddingTop: 0,
+  },
+  eyebrow: {
+    position: 'absolute',
+    top: 10,
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 2,
+  },
   animationCard: {
-    marginTop: 28,
     borderRadius: 16,
-    borderWidth: StyleSheet.hairlineWidth,
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 3,
+  },
+  animationLayer: { ...StyleSheet.absoluteFill },
+  activeReadout: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 42,
+  },
+  boxAnimationStage: {
+    position: 'absolute',
+    left: 0,
+    overflow: 'hidden',
   },
   centerReadout: {
     position: 'absolute',
@@ -475,15 +611,131 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 42,
   },
-  preCount: { fontSize: 58, lineHeight: 66, fontWeight: '300', fontVariant: ['tabular-nums'] },
-  count: { fontSize: 56, lineHeight: 62, fontWeight: '300', fontVariant: ['tabular-nums'] },
-  phase: { fontSize: 14, fontWeight: '400', letterSpacing: 2.2, marginTop: 2 },
+  preCount: {
+    width: '100%',
+    textAlign: 'center',
+    fontSize: 68,
+    lineHeight: 74,
+    fontWeight: '300',
+    fontVariant: ['tabular-nums'],
+  },
+  count: {
+    width: '100%',
+    textAlign: 'center',
+    fontSize: 68,
+    lineHeight: 74,
+    fontWeight: '300',
+    fontVariant: ['tabular-nums'],
+  },
+  phase: {
+    width: '100%',
+    textAlign: 'center',
+    fontSize: 24,
+    lineHeight: 30,
+    fontWeight: '400',
+    letterSpacing: 2.2,
+    marginTop: 6,
+  },
+  phaseToggle: {
+    minHeight: 30,
+    marginTop: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+  },
+  phaseToggleLabel: {
+    fontSize: 16,
+    lineHeight: 24,
+    fontWeight: '500',
+    letterSpacing: 1.4,
+  },
+  phaseToggleDivider: {
+    fontSize: 16,
+    lineHeight: 24,
+    fontWeight: '400',
+  },
+  activePhase: {
+    width: '100%',
+    textAlign: 'center',
+    fontSize: 24,
+    lineHeight: 30,
+    fontWeight: '400',
+    letterSpacing: 2.2,
+    marginTop: 2,
+  },
   check: { fontSize: 42, fontWeight: '300' },
   completeTitle: { fontSize: 24, fontWeight: '600', marginTop: 8 },
-  completeCopy: { textAlign: 'center', fontSize: 14, lineHeight: 21, marginTop: 8 },
-  progressRow: { flexDirection: 'row', gap: 8, marginTop: 24 },
-  progressPip: { width: 26, height: 3, borderRadius: 2 },
-  controls: { minHeight: 92, paddingHorizontal: 20, paddingTop: 12, paddingBottom: 18, justifyContent: 'center' },
+  completeCopy: { textAlign: 'center', fontSize: 16, lineHeight: 24, marginTop: 8 },
+  controls: {
+    minHeight: 116,
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 16,
+    justifyContent: 'center',
+    gap: 10,
+  },
+  roundCount: {
+    textAlign: 'center',
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '400',
+    fontVariant: ['tabular-nums'],
+  },
+  roundCountPosition: {
+    position: 'absolute',
+    top: '50%',
+    left: 0,
+    right: 0,
+  },
+  roundPlaceholder: {
+    height: 20,
+  },
+  floatingRoundCount: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+  },
+  completionStats: {
+    position: 'absolute',
+    top: '75%',
+    width: 220,
+    borderWidth: 1,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  statRow: {
+    minHeight: 32,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  statLabel: { fontSize: 16, lineHeight: 24, fontWeight: '400' },
+  statValue: {
+    fontSize: 16,
+    lineHeight: 24,
+    fontWeight: '500',
+    fontVariant: ['tabular-nums'],
+  },
+  statDivider: { height: 1 },
+  sessionActions: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  sessionAction: {
+    flex: 1,
+    minHeight: 54,
+    borderRadius: 16,
+    borderWidth: StyleSheet.hairlineWidth,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 18,
+  },
+  sessionActionLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
   primaryButton: {
     minHeight: 54,
     borderRadius: 27,
@@ -504,5 +756,4 @@ const styles = StyleSheet.create({
   secondaryLabel: { fontSize: 15, fontWeight: '600' },
   completedControls: { flexDirection: 'row', gap: 10 },
   flexButton: { flex: 1 },
-  controlHint: { textAlign: 'center', fontSize: 13 },
 });

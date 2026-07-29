@@ -5,6 +5,11 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/hush-logo-green.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F7F4EE"
+    },
     "android": {
       "package": "com.sheldondesousa.thehushinitiative"
     }
