@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export type MenuSection = 'profile' | 'dashboard' | 'configuration' | 'about' | 'terms';
 export type MenuThemeMode = 'light' | 'dark' | 'minimal';
+export type MenuAnimationChoice = 'geometric' | 'facial';
 
 type MenuPalette = {
   bg: string;
@@ -239,12 +240,16 @@ function ConfigurationPage({
   setThemeMode,
   showOnboardingAfterSplash,
   setShowOnboardingAfterSplash,
+  animationChoice,
+  setAnimationChoice,
 }: {
   palette: MenuPalette;
   themeMode: MenuThemeMode;
   setThemeMode: (mode: MenuThemeMode) => void;
   showOnboardingAfterSplash: boolean;
   setShowOnboardingAfterSplash: (enabled: boolean) => void;
+  animationChoice: MenuAnimationChoice;
+  setAnimationChoice: (choice: MenuAnimationChoice) => void;
 }) {
   return (
     <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
@@ -268,6 +273,30 @@ function ConfigurationPage({
         );
       })}
       <Text style={[styles.supportingText, { color: palette.muted }]}>Choose the visual mode that feels most comfortable. The change applies immediately.</Text>
+      <Text style={[styles.sectionTitle, styles.configurationSectionTitle, { color: palette.text }]}>Animation choice</Text>
+      {([
+        { id: 'geometric' as MenuAnimationChoice, label: 'Geometric' },
+        { id: 'facial' as MenuAnimationChoice, label: 'Facial' },
+      ]).map((option) => {
+        const selected = animationChoice === option.id;
+        return (
+          <Pressable
+            key={option.id}
+            onPress={() => setAnimationChoice(option.id)}
+            accessibilityRole="radio"
+            accessibilityState={{ selected }}
+            style={[styles.settingRow, { backgroundColor: palette.surface, borderColor: palette.border }]}
+          >
+            <Text style={[styles.settingText, { color: palette.text }]}>{option.label}</Text>
+            <View style={[styles.radioOuter, { borderColor: selected ? palette.accent : palette.border }]}>
+              {selected && <View style={[styles.radioInner, { backgroundColor: palette.accent }]} />}
+            </View>
+          </Pressable>
+        );
+      })}
+      <Text style={[styles.supportingText, { color: palette.muted }]}>
+        Geometric keeps the shapes and orbits that guide each exercise. Facial replaces them with a breathing face that moves through the same phases.
+      </Text>
       <Text style={[styles.sectionTitle, styles.configurationSectionTitle, { color: palette.text }]}>Onboarding</Text>
       <Pressable
         onPress={() => setShowOnboardingAfterSplash(!showOnboardingAfterSplash)}
@@ -341,6 +370,8 @@ export function MenuSectionScreen({
   setThemeMode,
   showOnboardingAfterSplash,
   setShowOnboardingAfterSplash,
+  animationChoice,
+  setAnimationChoice,
 }: {
   section: MenuSection;
   palette: MenuPalette;
@@ -350,6 +381,8 @@ export function MenuSectionScreen({
   setThemeMode: (mode: MenuThemeMode) => void;
   showOnboardingAfterSplash: boolean;
   setShowOnboardingAfterSplash: (enabled: boolean) => void;
+  animationChoice: MenuAnimationChoice;
+  setAnimationChoice: (choice: MenuAnimationChoice) => void;
 }) {
   if (section === 'profile') return <ProfilePage palette={palette} />;
   if (section === 'dashboard') {
@@ -363,6 +396,8 @@ export function MenuSectionScreen({
         setThemeMode={setThemeMode}
         showOnboardingAfterSplash={showOnboardingAfterSplash}
         setShowOnboardingAfterSplash={setShowOnboardingAfterSplash}
+        animationChoice={animationChoice}
+        setAnimationChoice={setAnimationChoice}
       />
     );
   }
