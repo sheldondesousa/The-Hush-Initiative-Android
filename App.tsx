@@ -53,6 +53,7 @@ import {
 } from './src/personalization';
 
 type ThemeMode = 'light' | 'dark' | 'minimal';
+type AnimationChoice = 'geometric' | 'facial';
 type Tab = 'breathe' | 'meditate' | 'recommend' | 'menu';
 type Detail = { kind: 'exercise'; item: Exercise } | { kind: 'meditation'; item: Meditation } | null;
 
@@ -96,6 +97,7 @@ type Palette = (typeof palettes)[ThemeMode];
 
 const EXERCISE_DEFAULTS_STORAGE_KEY = 'hush.exercise-defaults.v1';
 const SHOW_ONBOARDING_STORAGE_KEY = 'hush.show-onboarding-after-splash.v1';
+const ANIMATION_CHOICE_STORAGE_KEY = 'hush.animation-choice.v1';
 const SPLASH_DURATION_MS = 1200;
 const ENABLE_BOX_ORB_PROTOTYPE = false;
 
@@ -112,6 +114,7 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuSection, setMenuSection] = useState<MenuSection>('profile');
   const [showOnboardingAfterSplash, setShowOnboardingAfterSplash] = useState(true);
+  const [animationChoice, setAnimationChoice] = useState<AnimationChoice>('geometric');
   const palette = palettes[themeMode];
 
   useEffect(() => {
@@ -169,6 +172,22 @@ export default function App() {
   };
 
   useEffect(() => {
+    let active = true;
+    AsyncStorage.getItem(ANIMATION_CHOICE_STORAGE_KEY)
+      .then((stored) => {
+        if (!active) return;
+        if (stored === 'geometric' || stored === 'facial') setAnimationChoice(stored);
+      })
+      .catch(() => undefined);
+    return () => { active = false; };
+  }, []);
+
+  const updateAnimationChoice = (choice: AnimationChoice) => {
+    setAnimationChoice(choice);
+    AsyncStorage.setItem(ANIMATION_CHOICE_STORAGE_KEY, choice).catch(() => undefined);
+  };
+
+  useEffect(() => {
     if (!detail) return;
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
       setDetail(null);
@@ -199,6 +218,7 @@ export default function App() {
       <BreathingSession
         exercise={activeExercise}
         palette={palette}
+        animationChoice={animationChoice}
         onClose={() => setActiveExercise(null)}
         onComplete={() => completeSession(Math.max(1, Math.round(
           activeExercise.phases.reduce((sum, phase) => sum + phase.seconds, 0) * activeExercise.cycles / 60,
@@ -276,6 +296,8 @@ export default function App() {
             setThemeMode={setThemeMode}
             showOnboardingAfterSplash={showOnboardingAfterSplash}
             setShowOnboardingAfterSplash={updateOnboardingVisibility}
+            animationChoice={animationChoice}
+            setAnimationChoice={updateAnimationChoice}
           />
         )}
       </View>
@@ -930,15 +952,17 @@ function InfoRow({ number, text, palette }: { number: number; text: string; pale
 function BreathingSession({
   exercise,
   palette,
+  animationChoice,
   onClose,
   onComplete,
 }: {
   exercise: Exercise;
   palette: Palette;
+  animationChoice: AnimationChoice;
   onClose: () => void;
   onComplete: () => void;
 }) {
-  if (exercise.id === 'box' && !ENABLE_BOX_ORB_PROTOTYPE) {
+  if (exercise.id === 'box' && !ENABLE_BOX_ORB_PROTOTYPE && animationChoice !== 'facial') {
     return (
       <BoxBreathingSession
         palette={palette}
@@ -952,6 +976,7 @@ function BreathingSession({
     <StandardBreathingSession
       exercise={exercise}
       palette={palette}
+      animationChoice={animationChoice}
       onClose={onClose}
       onComplete={onComplete}
     />
@@ -961,11 +986,13 @@ function BreathingSession({
 function StandardBreathingSession({
   exercise,
   palette,
+  animationChoice,
   onClose,
   onComplete,
 }: {
   exercise: Exercise;
   palette: Palette;
+  animationChoice: AnimationChoice;
   onClose: () => void;
   onComplete: () => void;
 }) {
@@ -1157,6 +1184,7 @@ function StandardBreathingSession({
             <Animated.View style={[styles.exerciseSessionAnimation, { opacity: visualOpacity }]}>
               <BreathingVisual
                 exerciseId={exercise.id}
+                animationChoice={animationChoice}
                 level={breathLevel}
                 phaseProgress={phaseProgress}
                 phaseIndex={phaseIndex}
