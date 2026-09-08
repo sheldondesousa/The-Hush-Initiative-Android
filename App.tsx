@@ -1537,7 +1537,12 @@ function TabBar({
     );
     return (
       <Pressable key={item.id} onPress={() => onTabPress(item.id)} style={styles.tab} accessibilityRole="tab" accessibilityState={{ selected }}>
-        <View style={[styles.tabIconBadge, iconBackground && { backgroundColor: iconBackground }]}>
+        <View
+          style={{
+            ...styles.tabIconBadge,
+            backgroundColor: iconBackground ?? 'transparent',
+          }}
+        >
           {icon}
         </View>
         <Text style={[styles.tabLabel, { color: selected ? palette.text : palette.muted, fontWeight: selected ? '700' : '400' }]}>{item.label}</Text>
@@ -1882,7 +1887,7 @@ const styles = StyleSheet.create({
   tabBar: { borderTopWidth: StyleSheet.hairlineWidth },
   tabItems: { height: 70, flexDirection: 'row', paddingVertical: 4 },
   tab: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 2 },
-  tabIconBadge: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  tabIconBadge: { width: 36, height: 36, borderRadius: 12, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
   tabIcon: { fontSize: 20 },
   tabLabel: { fontSize: 12 },
 });
