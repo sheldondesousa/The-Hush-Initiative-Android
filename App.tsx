@@ -58,7 +58,7 @@ type Detail = { kind: 'exercise'; item: Exercise } | { kind: 'meditation'; item:
 
 const palettes = {
   light: {
-    bg: '#F7F4EE',
+    bg: '#EDE9E3',
     surface: '#FFFFFF',
     text: '#1A1A1A',
     muted: '#5B625F',

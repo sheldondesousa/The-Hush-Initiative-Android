@@ -11,7 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Line, Path, Rect } from 'react-native-svg';
 
 const colors = {
-  background: '#F7F4EE',
+  background: '#EDE9E3',
   surface: '#FFFFFF',
   text: '#1A1A1A',
   muted: '#66706B',
