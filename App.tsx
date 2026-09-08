@@ -1360,7 +1360,8 @@ function RecommendScreen({
   onMeditation: (item: Meditation) => void;
 }) {
   const scrollRef = useRef<ScrollView>(null);
-  const [mode, setMode] = useState<'breathe' | 'meditate'>('breathe');
+  // Guide Me only covers breathing for now — the meditate mode toggle was removed.
+  const mode: 'breathe' | 'meditate' = 'breathe';
   const [selectedSituation, setSelectedSituation] = useState<string | null>(null);
   const [selectedLevel, setSelectedLevel] = useState<BreathIntensityId | MeditationTimeId | null>(null);
   const situations = mode === 'breathe' ? breathSituations : meditationSituations;
@@ -1401,22 +1402,6 @@ function RecommendScreen({
     <ScrollView ref={scrollRef} contentContainerStyle={styles.recommendContent} showsVerticalScrollIndicator={false}>
       <Text style={[styles.eyebrow, { color: palette.accent }]}>FIND THE RIGHT TECHNIQUE</Text>
       <Text style={[styles.title, { color: palette.text }]}>What do you need?</Text>
-      <View style={[styles.segment, { backgroundColor: palette.surface, borderColor: palette.border }]}>
-        {(['breathe', 'meditate'] as const).map((item) => (
-          <Pressable
-            key={item}
-            onPress={() => {
-              setMode(item);
-              setSelectedSituation(null);
-              setSelectedLevel(null);
-              scrollToTop();
-            }}
-            style={[styles.segmentItem, mode === item && { backgroundColor: item === 'breathe' ? palette.tint : palette.meditationTint }]}
-          >
-            <Text style={{ color: palette.text, fontWeight: mode === item ? '700' : '400' }}>{item === 'breathe' ? 'Breathe' : 'Meditate'}</Text>
-          </Pressable>
-        ))}
-      </View>
       {!selectedSituation ? (
         <>
           <Text style={[styles.question, { color: palette.text }]}>How are you feeling right now?</Text>
@@ -1514,7 +1499,7 @@ function TabBar({
   const isLight = palette === palettes.light;
   const tabs: { id: Tab; label: string; icon: string }[] = [
     { id: 'breathe', label: 'Breathe', icon: '' },
-    { id: 'meditate', label: 'Meditate', icon: '' },
+    // Meditate is hidden from the nav bar for now.
     { id: 'recommend', label: 'Guide Me', icon: '' },
     { id: 'menu', label: 'Menu', icon: '' },
   ];
@@ -1873,8 +1858,6 @@ const styles = StyleSheet.create({
   meditationGlyph: { fontSize: 48 },
   meditationPrompt: { textAlign: 'center', fontSize: 27, lineHeight: 38, fontWeight: '500', marginTop: 38 },
   recommendContent: { padding: 20, paddingBottom: 42 },
-  segment: { flexDirection: 'row', borderWidth: 1, borderRadius: 14, padding: 4, marginTop: 24 },
-  segmentItem: { flex: 1, minHeight: 44, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   question: { fontSize: 20, fontWeight: '600', marginTop: 30, marginBottom: 14 },
   recommenderCarousel: { flexDirection: 'row', alignItems: 'center' },
   recommenderChevron: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
