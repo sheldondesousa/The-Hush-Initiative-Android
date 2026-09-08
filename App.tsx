@@ -99,6 +99,20 @@ const SHOW_ONBOARDING_STORAGE_KEY = 'hush.show-onboarding-after-splash.v1';
 const SPLASH_DURATION_MS = 1200;
 const ENABLE_BOX_ORB_PROTOTYPE = false;
 
+// Approximates a soft box-shadow with a stack of thin bands on a
+// quadratic ease-out curve, since RN has no cross-platform box-shadow
+// and Android's `elevation` can't be tinted/directional on an
+// edge-to-edge bar. bandOpacity(t) grows with t^2, so bands nearest
+// the source read darkest and it fades out smoothly, not in visible steps.
+function buildShadowBands(maxOpacity: number, totalHeight: number, bandCount = 24) {
+  return Array.from({ length: bandCount }, (_, index) => {
+    const t = (index + 1) / bandCount;
+    return { height: totalHeight / bandCount, opacity: maxOpacity * t * t };
+  });
+}
+
+const HEADER_SHADOW_BANDS = buildShadowBands(0.08, 12);
+
 export default function App() {
   const [launchState, setLaunchState] = useState<'splash' | 'onboarding' | 'app'>('splash');
   const [tab, setTab] = useState<Tab>('breathe');
@@ -309,10 +323,20 @@ export default function App() {
 
 function Header({ palette, themeMode }: { palette: Palette; themeMode: ThemeMode }) {
   return (
-    <View style={[styles.header, { borderBottomColor: palette.border }]}>
-      <Text style={[styles.wordmark, { color: palette.text }]}>
-        Hush<Text style={{ color: themeMode === 'dark' ? '#A89BFF' : '#4A7C68' }}>.</Text>
-      </Text>
+    <View style={styles.headerWrapper}>
+      <View style={[styles.header, { backgroundColor: palette.bg, borderBottomColor: palette.border }]}>
+        <Text style={[styles.wordmark, { color: palette.text }]}>
+          Hush<Text style={{ color: themeMode === 'dark' ? '#A89BFF' : '#4A7C68' }}>.</Text>
+        </Text>
+      </View>
+      <View style={styles.headerShadowStack} pointerEvents="none">
+        {[...HEADER_SHADOW_BANDS].reverse().map((band, index) => (
+          <View
+            key={index}
+            style={{ height: band.height, backgroundColor: `rgba(26,46,32,${band.opacity})` }}
+          />
+        ))}
+      </View>
     </View>
   );
 }
@@ -1642,10 +1666,12 @@ function ChevronDisclosureIcon({ color, expanded, size = 18 }: { color: string; 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   content: { flex: 1 },
+  headerWrapper: {},
   header: {
     height: 70, paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center',
     justifyContent: 'flex-end', borderBottomWidth: StyleSheet.hairlineWidth,
   },
+  headerShadowStack: { flexDirection: 'column' },
   wordmark: {
     position: 'absolute',
     left: 0,
