@@ -1514,22 +1514,30 @@ function TabBar({
     recommend: palette.text,
     menu: palette.text,
   };
+  const activeTabTint: Partial<Record<Tab, string>> = {
+    breathe: palette.tint,
+    meditate: palette.meditationTint,
+  };
   const tabItems = tabs.map((item) => {
     const selected = tab === item.id;
     const iconColor = selected ? activeTabColor[item.id] : palette.muted;
+    const iconBackground = selected ? activeTabTint[item.id] : undefined;
+    const icon = item.id === 'breathe' ? (
+      <WindIcon color={iconColor} />
+    ) : item.id === 'meditate' ? (
+      <FocusIcon color={iconColor} />
+    ) : item.id === 'recommend' ? (
+      <SmartAssistIcon color={iconColor} />
+    ) : item.id === 'menu' ? (
+      <MenuIcon color={iconColor} />
+    ) : (
+      <Text style={[styles.tabIcon, { color: iconColor }]}>{item.icon}</Text>
+    );
     return (
       <Pressable key={item.id} onPress={() => onTabPress(item.id)} style={styles.tab} accessibilityRole="tab" accessibilityState={{ selected }}>
-        {item.id === 'breathe' ? (
-          <WindIcon color={iconColor} />
-        ) : item.id === 'meditate' ? (
-          <FocusIcon color={iconColor} />
-        ) : item.id === 'recommend' ? (
-          <SmartAssistIcon color={iconColor} />
-        ) : item.id === 'menu' ? (
-          <MenuIcon color={iconColor} />
-        ) : (
-          <Text style={[styles.tabIcon, { color: iconColor }]}>{item.icon}</Text>
-        )}
+        <View style={[styles.tabIconBadge, iconBackground && { backgroundColor: iconBackground }]}>
+          {icon}
+        </View>
         <Text style={[styles.tabLabel, { color: selected ? palette.text : palette.muted, fontWeight: selected ? '700' : '400' }]}>{item.label}</Text>
       </Pressable>
     );
@@ -1872,6 +1880,7 @@ const styles = StyleSheet.create({
   tabBar: { borderTopWidth: StyleSheet.hairlineWidth },
   tabItems: { height: 70, flexDirection: 'row', paddingVertical: 4 },
   tab: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 2 },
+  tabIconBadge: { width: 32, height: 32, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   tabIcon: { fontSize: 20 },
   tabLabel: { fontSize: 12 },
 });
