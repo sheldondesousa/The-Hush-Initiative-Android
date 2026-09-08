@@ -1518,7 +1518,6 @@ function TabBar({
         },
       ]}
     >
-      {isLight && <View pointerEvents="none" style={styles.tabBarDarkenOverlay} />}
       <View style={styles.tabItems} accessibilityRole="tablist">
         {tabs.map((item) => {
           const selected = tab === item.id;
@@ -1848,8 +1847,7 @@ const styles = StyleSheet.create({
   chipLabel: { textAlign: 'center', fontSize: 15, fontWeight: '600' },
   chipDescription: { textAlign: 'center', fontSize: 12, marginTop: 3 },
   results: { gap: 12 },
-  tabBar: { borderTopWidth: StyleSheet.hairlineWidth, position: 'relative' },
-  tabBarDarkenOverlay: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.2)' },
+  tabBar: { borderTopWidth: StyleSheet.hairlineWidth },
   tabItems: { height: 70, flexDirection: 'row', paddingVertical: 4 },
   tab: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 2 },
   tabIcon: { fontSize: 20 },
