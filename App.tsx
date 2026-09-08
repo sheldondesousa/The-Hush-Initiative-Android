@@ -1882,7 +1882,7 @@ const styles = StyleSheet.create({
   tabBar: { borderTopWidth: StyleSheet.hairlineWidth },
   tabItems: { height: 70, flexDirection: 'row', paddingVertical: 4 },
   tab: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 2 },
-  tabIconBadge: { width: 32, height: 32, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
+  tabIconBadge: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   tabIcon: { fontSize: 20 },
   tabLabel: { fontSize: 12 },
 });
