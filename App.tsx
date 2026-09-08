@@ -29,7 +29,7 @@ import BreathingVisual, { BREATHING_READOUT_HEIGHT } from './src/components/Brea
 import ExerciseCardVisual from './src/components/ExerciseCardVisual';
 import PersonalizeSheet from './src/components/PersonalizeSheet';
 import OnboardingFlow, { SplashScreen } from './src/components/OnboardingFlow';
-import { MenuSectionScreen, MenuSheet, type MenuSection } from './src/components/AppMenu';
+import { MenuSectionScreen, type MenuSection } from './src/components/AppMenu';
 import {
   BreathIntensityId,
   breathIntensities,
@@ -58,7 +58,7 @@ type Detail = { kind: 'exercise'; item: Exercise } | { kind: 'meditation'; item:
 
 const palettes = {
   light: {
-    bg: '#F7F4EE',
+    bg: '#EDE9E3',
     surface: '#FFFFFF',
     text: '#1A1A1A',
     muted: '#5B625F',
@@ -98,6 +98,7 @@ const EXERCISE_DEFAULTS_STORAGE_KEY = 'hush.exercise-defaults.v1';
 const SHOW_ONBOARDING_STORAGE_KEY = 'hush.show-onboarding-after-splash.v1';
 const SPLASH_DURATION_MS = 1200;
 const ENABLE_BOX_ORB_PROTOTYPE = false;
+const HEADER_HEIGHT = 70;
 
 export default function App() {
   const [launchState, setLaunchState] = useState<'splash' | 'onboarding' | 'app'>('splash');
@@ -109,8 +110,7 @@ export default function App() {
   const [completedSessions, setCompletedSessions] = useState(0);
   const [mindfulMinutes, setMindfulMinutes] = useState(0);
   const [exerciseDefaults, setExerciseDefaults] = useState<ExerciseDefaults>({});
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [menuSection, setMenuSection] = useState<MenuSection>('profile');
+  const [menuSection, setMenuSection] = useState<MenuSection | null>(null);
   const [showOnboardingAfterSplash, setShowOnboardingAfterSplash] = useState(true);
   const palette = palettes[themeMode];
 
@@ -243,7 +243,7 @@ export default function App() {
       <View style={styles.content}>
         {tab === 'breathe' && (
           <Library
-            title="Breathe"
+            title="Just Breathe"
             items={exercises}
             palette={palette}
             accent="breath"
@@ -276,6 +276,8 @@ export default function App() {
             setThemeMode={setThemeMode}
             showOnboardingAfterSplash={showOnboardingAfterSplash}
             setShowOnboardingAfterSplash={updateOnboardingVisibility}
+            onSelectSection={setMenuSection}
+            onBack={() => setMenuSection(null)}
           />
         )}
       </View>
@@ -284,19 +286,8 @@ export default function App() {
         tab={tab}
         palette={palette}
         onTabPress={(nextTab) => {
-          if (nextTab === 'menu') setMenuOpen(true);
-          else setTab(nextTab);
-        }}
-      />
-      <MenuSheet
-        visible={menuOpen}
-        selected={tab === 'menu' ? menuSection : undefined}
-        palette={palette}
-        onClose={() => setMenuOpen(false)}
-        onSelect={(section) => {
-          setMenuSection(section);
-          setTab('menu');
-          setMenuOpen(false);
+          if (nextTab === 'menu') setMenuSection(null);
+          setTab(nextTab);
         }}
       />
     </SafeAreaView>
@@ -304,10 +295,21 @@ export default function App() {
 }
 
 function Header({ palette, themeMode }: { palette: Palette; themeMode: ThemeMode }) {
+  const insets = useSafeAreaInsets();
+  const isLight = palette === palettes.light;
+  const isDark = palette === palettes.dark;
+  const overlayColor = isLight ? 'rgba(74,55,35,0.15)' : isDark ? 'rgba(168,200,186,0.15)' : 'rgba(0,0,0,0.15)';
   return (
-    <View style={[styles.header, { borderBottomColor: palette.border }]}>
-      <Text style={[styles.wordmark, { color: palette.text }]}>
-        Hush<Text style={{ color: themeMode === 'dark' ? '#A89BFF' : '#4A7C68' }}>.</Text>
+    <View style={[styles.header, { backgroundColor: palette.bg, borderBottomColor: palette.border }]}>
+      <View
+        pointerEvents="none"
+        style={[
+          styles.headerDarkenOverlay,
+          { top: -insets.top, height: insets.top + HEADER_HEIGHT, backgroundColor: overlayColor, zIndex: 0 },
+        ]}
+      />
+      <Text style={[styles.wordmark, { color: palette.text, zIndex: 1 }]}>
+        Hush<Text style={{ color: themeMode === 'dark' ? '#A8C8BA' : '#4A7C68' }}>.</Text>
       </Text>
     </View>
   );
@@ -484,7 +486,7 @@ function ExerciseInfoScreen({
         <Pressable onPress={onBack} hitSlop={12}><Text style={[styles.back, { color: palette.text }]}>‹ Back</Text></Pressable>
         {isExercise ? (
           <Text accessibilityLabel="Hush" style={[styles.detailWordmark, { color: palette.text }]}>
-            Hush<Text style={{ color: '#4A7C68' }}>.</Text>
+            Hush<Text style={{ color: palette === palettes.dark ? '#A8C8BA' : '#4A7C68' }}>.</Text>
           </Text>
         ) : (
           <Text style={[styles.detailHeaderLabel, { color: palette.muted }]}>MEDITATION</Text>
@@ -612,10 +614,10 @@ function ExerciseRhythm({ config, palette }: { config: ExerciseDetailConfig; pal
   const [previewExpanded, setPreviewExpanded] = useState(false);
   const { width: screenWidth } = useWindowDimensions();
   const isDark = palette === palettes.dark;
-  const usesWhiteGraphOutline = isDark || palette === palettes.minimal;
-  const graphStroke = usesWhiteGraphOutline ? '#FFFFFF' : '#4A7C68';
-  const graphFill = isDark ? 'rgba(240,240,240,0.08)' : 'rgba(74,124,104,0.10)';
-  const guideLine = isDark ? 'rgba(240,240,240,0.40)' : 'rgba(74,124,104,0.42)';
+  const isMinimal = palette === palettes.minimal;
+  const graphStroke = isDark ? '#FFFFFF' : isMinimal ? palette.accent : '#4A7C68';
+  const graphFill = isDark ? 'rgba(240,240,240,0.08)' : isMinimal ? palette.tint : 'rgba(74,124,104,0.10)';
+  const guideLine = isDark ? 'rgba(240,240,240,0.40)' : isMinimal ? 'rgba(17,17,17,0.35)' : 'rgba(74,124,104,0.42)';
   const previewScale = Math.min(Math.max(screenWidth - 74, 1) / 360, 259 / 286);
   // SVG text renders optically smaller than native React Native Text at the
   // same nominal size, so use a 13px SVG target to match the 12px phase labels.
@@ -706,10 +708,11 @@ function ExercisePreviewGraphic({
   unitFontSize: number;
 }) {
   const isDark = palette === palettes.dark;
+  const isMinimal = palette === palettes.minimal;
   const ghost = isDark ? 'rgba(255,255,255,0.32)' : 'rgba(0,0,0,0.30)';
   const active = isDark ? 'rgba(255,255,255,0.72)' : palette.accent;
   const leader = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.14)';
-  const softFill = isDark ? 'rgba(255,255,255,0.09)' : 'rgba(49,95,77,0.08)';
+  const softFill = isDark ? 'rgba(255,255,255,0.09)' : isMinimal ? palette.tint : 'rgba(49,95,77,0.08)';
   const phaseColor = palette.accent;
 
   const metric = (
@@ -853,7 +856,7 @@ function ExercisePreviewGraphic({
       {config.preview === 'sigh' && (
         <>
           <Circle cx={cx} cy={cy} r={radius} fill={softFill} stroke={ghost} strokeWidth={1.75} />
-          <Circle cx={cx} cy={cy} r={55} fill={isDark ? 'rgba(255,255,255,0.07)' : 'rgba(49,95,77,0.04)'} />
+          <Circle cx={cx} cy={cy} r={55} fill={isDark ? 'rgba(255,255,255,0.07)' : isMinimal ? palette.tint : 'rgba(49,95,77,0.04)'} />
         </>
       )}
       {arcs.map((arc, index) => (
@@ -1350,7 +1353,8 @@ function RecommendScreen({
   onMeditation: (item: Meditation) => void;
 }) {
   const scrollRef = useRef<ScrollView>(null);
-  const [mode, setMode] = useState<'breathe' | 'meditate'>('breathe');
+  // Guide Me only covers breathing for now — the meditate mode toggle was removed.
+  const mode: 'breathe' | 'meditate' = 'breathe';
   const [selectedSituation, setSelectedSituation] = useState<string | null>(null);
   const [selectedLevel, setSelectedLevel] = useState<BreathIntensityId | MeditationTimeId | null>(null);
   const situations = mode === 'breathe' ? breathSituations : meditationSituations;
@@ -1391,22 +1395,6 @@ function RecommendScreen({
     <ScrollView ref={scrollRef} contentContainerStyle={styles.recommendContent} showsVerticalScrollIndicator={false}>
       <Text style={[styles.eyebrow, { color: palette.accent }]}>FIND THE RIGHT TECHNIQUE</Text>
       <Text style={[styles.title, { color: palette.text }]}>What do you need?</Text>
-      <View style={[styles.segment, { backgroundColor: palette.surface, borderColor: palette.border }]}>
-        {(['breathe', 'meditate'] as const).map((item) => (
-          <Pressable
-            key={item}
-            onPress={() => {
-              setMode(item);
-              setSelectedSituation(null);
-              setSelectedLevel(null);
-              scrollToTop();
-            }}
-            style={[styles.segmentItem, mode === item && { backgroundColor: item === 'breathe' ? palette.tint : palette.meditationTint }]}
-          >
-            <Text style={{ color: palette.text, fontWeight: mode === item ? '700' : '400' }}>{item === 'breathe' ? 'Breathe' : 'Meditate'}</Text>
-          </Pressable>
-        ))}
-      </View>
       {!selectedSituation ? (
         <>
           <Text style={[styles.question, { color: palette.text }]}>How are you feeling right now?</Text>
@@ -1501,43 +1489,71 @@ function TabBar({
   palette: Palette;
 }) {
   const insets = useSafeAreaInsets();
+  const isLight = palette === palettes.light;
   const tabs: { id: Tab; label: string; icon: string }[] = [
     { id: 'breathe', label: 'Breathe', icon: '' },
-    { id: 'meditate', label: 'Meditate', icon: '' },
+    // Meditate is hidden from the nav bar for now.
     { id: 'recommend', label: 'Guide Me', icon: '' },
     { id: 'menu', label: 'Menu', icon: '' },
   ];
+  const activeTabColor: Record<Tab, string> = {
+    breathe: palette.accent,
+    meditate: palette.meditation,
+    recommend: palette.text,
+    menu: palette.text,
+  };
+  const activeTabTint: Record<Tab, string> = {
+    breathe: palette.tint,
+    meditate: palette.meditationTint,
+    recommend: palette.bg,
+    menu: palette.bg,
+  };
+  const tabItems = tabs.map((item) => {
+    const selected = tab === item.id;
+    const iconColor = selected ? activeTabColor[item.id] : palette.muted;
+    const iconBackground = selected ? activeTabTint[item.id] : undefined;
+    const icon = item.id === 'breathe' ? (
+      <WindIcon color={iconColor} />
+    ) : item.id === 'meditate' ? (
+      <FocusIcon color={iconColor} />
+    ) : item.id === 'recommend' ? (
+      <SmartAssistIcon color={iconColor} />
+    ) : item.id === 'menu' ? (
+      <MenuIcon color={iconColor} />
+    ) : (
+      <Text style={[styles.tabIcon, { color: iconColor }]}>{item.icon}</Text>
+    );
+    return (
+      <Pressable key={item.id} onPress={() => onTabPress(item.id)} style={styles.tab} accessibilityRole="tab" accessibilityState={{ selected }}>
+        <View
+          style={{
+            ...styles.tabIconBadge,
+            backgroundColor: iconBackground ?? 'transparent',
+          }}
+        >
+          {icon}
+        </View>
+        <Text style={[styles.tabLabel, { color: selected ? palette.text : palette.muted, fontWeight: selected ? '700' : '400' }]}>{item.label}</Text>
+      </Pressable>
+    );
+  });
+
+  if (isLight) {
+    return (
+      <View style={[styles.tabBarFloatingWrapper, { paddingBottom: Math.max(insets.bottom, 16) }]}>
+        <View style={styles.tabBarFloatingCard}>
+          <View style={styles.tabItems} accessibilityRole="tablist">
+            {tabItems}
+          </View>
+        </View>
+      </View>
+    );
+  }
+
   return (
-    <View
-      style={[
-        styles.tabBar,
-        {
-          backgroundColor: palette.surface,
-          borderTopColor: palette.border,
-        },
-      ]}
-    >
+    <View style={[styles.tabBar, { backgroundColor: palette.surface, borderTopColor: palette.border }]}>
       <View style={styles.tabItems} accessibilityRole="tablist">
-        {tabs.map((item) => {
-          const selected = tab === item.id;
-          const color = selected ? palette.accent : palette.muted;
-          return (
-            <Pressable key={item.id} onPress={() => onTabPress(item.id)} style={styles.tab} accessibilityRole="tab" accessibilityState={{ selected }}>
-              {item.id === 'breathe' ? (
-                <WindIcon color={color} />
-              ) : item.id === 'meditate' ? (
-                <FocusIcon color={color} />
-              ) : item.id === 'recommend' ? (
-                <SmartAssistIcon color={color} />
-              ) : item.id === 'menu' ? (
-                <MenuIcon color={color} />
-              ) : (
-                <Text style={[styles.tabIcon, { color }]}>{item.icon}</Text>
-              )}
-              <Text style={[styles.tabLabel, { color: selected ? palette.text : palette.muted, fontWeight: selected ? '700' : '400' }]}>{item.label}</Text>
-            </Pressable>
-          );
-        })}
+        {tabItems}
       </View>
       <View style={{ height: insets.bottom }} />
     </View>
@@ -1611,9 +1627,11 @@ const styles = StyleSheet.create({
   safe: { flex: 1 },
   content: { flex: 1 },
   header: {
-    height: 70, paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center',
+    height: HEADER_HEIGHT, paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center',
     justifyContent: 'flex-end', borderBottomWidth: StyleSheet.hairlineWidth,
+    position: 'relative',
   },
+  headerDarkenOverlay: { position: 'absolute', left: 0, right: 0 },
   wordmark: {
     position: 'absolute',
     left: 0,
@@ -1833,8 +1851,6 @@ const styles = StyleSheet.create({
   meditationGlyph: { fontSize: 48 },
   meditationPrompt: { textAlign: 'center', fontSize: 27, lineHeight: 38, fontWeight: '500', marginTop: 38 },
   recommendContent: { padding: 20, paddingBottom: 42 },
-  segment: { flexDirection: 'row', borderWidth: 1, borderRadius: 14, padding: 4, marginTop: 24 },
-  segmentItem: { flex: 1, minHeight: 44, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   question: { fontSize: 20, fontWeight: '600', marginTop: 30, marginBottom: 14 },
   recommenderCarousel: { flexDirection: 'row', alignItems: 'center' },
   recommenderChevron: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
@@ -1846,9 +1862,20 @@ const styles = StyleSheet.create({
   chipLabel: { textAlign: 'center', fontSize: 15, fontWeight: '600' },
   chipDescription: { textAlign: 'center', fontSize: 12, marginTop: 3 },
   results: { gap: 12 },
+  tabBarFloatingWrapper: { paddingHorizontal: 16, paddingTop: 8 },
+  tabBarFloatingCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 28,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 6,
+  },
   tabBar: { borderTopWidth: StyleSheet.hairlineWidth },
   tabItems: { height: 70, flexDirection: 'row', paddingVertical: 4 },
   tab: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 2 },
+  tabIconBadge: { width: 36, height: 36, borderRadius: 12, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
   tabIcon: { fontSize: 20 },
   tabLabel: { fontSize: 12 },
 });

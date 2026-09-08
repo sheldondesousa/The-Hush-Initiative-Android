@@ -1,3 +1,6 @@
+import { CormorantGaramond_400Regular } from '@expo-google-fonts/cormorant-garamond';
+import { DMSans_700Bold } from '@expo-google-fonts/dm-sans';
+import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -11,7 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Line, Path, Rect } from 'react-native-svg';
 
 const colors = {
-  background: '#F7F4EE',
+  background: '#EDE9E3',
   surface: '#FFFFFF',
   text: '#1A1A1A',
   muted: '#66706B',
@@ -37,6 +40,7 @@ export function SplashScreen() {
 }
 
 export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
+  const [fontsLoaded] = useFonts({ DMSans_700Bold, CormorantGaramond_400Regular });
   const [page, setPage] = useState(0);
   const opacity = useRef(new Animated.Value(1)).current;
   const translateX = useRef(new Animated.Value(0)).current;
@@ -79,7 +83,6 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         <Text accessibilityLabel="Hush" style={styles.headerWordmark}>
           Hush<Text style={styles.headerWordmarkDot}>.</Text>
         </Text>
-        <Text style={styles.stepLabel}>{page + 1} / 3</Text>
       </View>
 
       <View style={styles.illustrationPanel}>
@@ -97,45 +100,6 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
           {page === 1 && <ToolkitIllustration />}
           {page === 2 && <FollowPatternIllustration />}
         </Animated.View>
-
-        <View style={styles.pageNavigation}>
-          <Pressable
-            onPress={goBack}
-            disabled={page === 0}
-            accessibilityRole="button"
-            accessibilityLabel="Previous onboarding screen"
-            accessibilityState={{ disabled: page === 0 }}
-            style={({ pressed }) => [
-              styles.navigationButton,
-              page === 0 && styles.navigationButtonHidden,
-              pressed && styles.navigationButtonPressed,
-            ]}
-          >
-            <Text style={styles.navigationArrow}>‹</Text>
-          </Pressable>
-          <View style={styles.dots} accessibilityLabel={`Onboarding page ${page + 1} of 3`}>
-            {[0, 1, 2].map((index) => (
-              <View
-                key={index}
-                style={[styles.dot, index === page && styles.dotActive]}
-              />
-            ))}
-          </View>
-          <Pressable
-            onPress={goForward}
-            disabled={page === 2}
-            accessibilityRole="button"
-            accessibilityLabel="Next onboarding screen"
-            accessibilityState={{ disabled: page === 2 }}
-            style={({ pressed }) => [
-              styles.navigationButton,
-              page === 2 && styles.navigationButtonHidden,
-              pressed && styles.navigationButtonPressed,
-            ]}
-          >
-            <Text style={styles.navigationArrow}>›</Text>
-          </Pressable>
-        </View>
       </View>
 
       <View style={styles.copyPanel}>
@@ -149,10 +113,10 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             },
           ]}
         >
-          <Text style={styles.eyebrow}>
+          <Text style={[styles.eyebrow, fontsLoaded && { fontFamily: 'DMSans_700Bold' }]}>
             {page === 0 ? 'FIND YOUR PRACTICE' : page === 1 ? 'MAKE IT YOURS' : 'BREATHE WITH THE GUIDE'}
           </Text>
-          <Text accessibilityRole="header" style={styles.title}>
+          <Text accessibilityRole="header" style={[styles.title, fontsLoaded && { fontFamily: 'CormorantGaramond_400Regular' }]}>
             {page === 0
               ? 'Choose from 8 guided breathing exercises.'
               : page === 1
@@ -162,14 +126,44 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         </Animated.View>
       </View>
 
-      <Pressable
-        onPress={onComplete}
-        accessibilityRole="button"
-        accessibilityLabel="Skip onboarding and go to the home page"
-        style={({ pressed }) => [styles.skipButton, pressed && styles.skipButtonPressed]}
-      >
-        <Text style={styles.skipText}>SKIP</Text>
-      </Pressable>
+      <View style={styles.bottomNav}>
+        <View style={styles.bottomNavSide}>
+          {page > 0 && (
+            <Pressable
+              onPress={goBack}
+              accessibilityRole="button"
+              accessibilityLabel="Previous onboarding screen"
+              style={({ pressed }) => [styles.navigationButton, pressed && styles.navigationButtonPressed]}
+            >
+              <View style={styles.chevronCircle}>
+                <Text style={styles.navigationArrow}>‹</Text>
+              </View>
+            </Pressable>
+          )}
+        </View>
+        <Pressable
+          onPress={onComplete}
+          accessibilityRole="button"
+          accessibilityLabel="Skip onboarding and go to the home page"
+          style={({ pressed }) => [styles.skipButton, pressed && styles.skipButtonPressed]}
+        >
+          <Text style={styles.skipText}>SKIP</Text>
+        </Pressable>
+        <View style={[styles.bottomNavSide, styles.bottomNavSideEnd]}>
+          {page < 2 && (
+            <Pressable
+              onPress={goForward}
+              accessibilityRole="button"
+              accessibilityLabel="Next onboarding screen"
+              style={({ pressed }) => [styles.navigationButton, pressed && styles.navigationButtonPressed]}
+            >
+              <View style={styles.chevronCircle}>
+                <Text style={styles.navigationArrow}>›</Text>
+              </View>
+            </Pressable>
+          )}
+        </View>
+      </View>
     </SafeAreaView>
   );
 }
@@ -403,7 +397,6 @@ const styles = StyleSheet.create({
     letterSpacing: -0.56,
   },
   headerWordmarkDot: { color: colors.accent },
-  stepLabel: { color: colors.muted, fontSize: 12, fontWeight: '600', letterSpacing: 1.1 },
   illustrationCanvas: {
     position: 'absolute',
     top: 12,
@@ -416,42 +409,44 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  pageNavigation: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 4,
-    height: 48,
-    paddingHorizontal: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   navigationButton: {
     width: 48,
     height: 48,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  navigationButtonHidden: { opacity: 0 },
   navigationButtonPressed: { opacity: 0.48 },
-  navigationArrow: { color: colors.accent, fontSize: 36, lineHeight: 38, fontWeight: '300' },
-  dots: { width: 78, height: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 },
-  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#AABCB3' },
-  dotActive: { width: 22, backgroundColor: colors.accent },
+  chevronCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(74,55,35,0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  navigationArrow: { color: colors.accent, fontSize: 26, lineHeight: 28, fontWeight: '500', textAlign: 'center' },
+  bottomNav: {
+    height: 56,
+    paddingHorizontal: 24,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  bottomNavSide: { flex: 1, flexDirection: 'row', alignItems: 'center' },
+  bottomNavSideEnd: { justifyContent: 'flex-end' },
   copyPanel: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
   copy: { width: '100%', paddingHorizontal: 26 },
-  eyebrow: { color: colors.accent, fontSize: 11, fontWeight: '700', letterSpacing: 1.65, marginBottom: 10 },
-  title: { color: colors.text, fontSize: 28, lineHeight: 35, fontWeight: '500', letterSpacing: -0.7 },
+  eyebrow: { color: colors.accent, fontSize: 12, fontWeight: '700', letterSpacing: 1.68, marginBottom: 10 },
+  title: { color: colors.text, fontSize: 40, lineHeight: 47.2, fontWeight: '400', letterSpacing: -0.2 },
   skipButton: {
-    height: 56,
+    height: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: 12,
   },
   skipButtonPressed: { opacity: 0.48 },
   skipText: { color: colors.accent, fontSize: 12, fontWeight: '700', letterSpacing: 1.8 },
