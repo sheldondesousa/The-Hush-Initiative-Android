@@ -99,6 +99,19 @@ const SHOW_ONBOARDING_STORAGE_KEY = 'hush.show-onboarding-after-splash.v1';
 const SPLASH_DURATION_MS = 1200;
 const ENABLE_BOX_ORB_PROTOTYPE = false;
 
+// Approximates box-shadow: 0 -6px 16px rgba(26,46,32,0.10) above the nav
+// bar with stacked bands, since RN has no cross-platform box-shadow.
+const TAB_BAR_SHADOW_BANDS = [
+  { height: 1, opacity: 0.01 },
+  { height: 1, opacity: 0.02 },
+  { height: 1, opacity: 0.035 },
+  { height: 1, opacity: 0.05 },
+  { height: 1, opacity: 0.065 },
+  { height: 1, opacity: 0.08 },
+  { height: 1, opacity: 0.09 },
+  { height: 1, opacity: 0.1 },
+];
+
 export default function App() {
   const [launchState, setLaunchState] = useState<'splash' | 'onboarding' | 'app'>('splash');
   const [tab, setTab] = useState<Tab>('breathe');
@@ -1509,38 +1522,48 @@ function TabBar({
     { id: 'menu', label: 'Menu', icon: '' },
   ];
   return (
-    <View
-      style={[
-        styles.tabBar,
-        {
-          backgroundColor: isLight ? '#E2DDD4' : palette.surface,
-          borderTopColor: palette.border,
-        },
-      ]}
-    >
-      <View style={styles.tabItems} accessibilityRole="tablist">
-        {tabs.map((item) => {
-          const selected = tab === item.id;
-          const color = selected ? palette.accent : palette.muted;
-          return (
-            <Pressable key={item.id} onPress={() => onTabPress(item.id)} style={styles.tab} accessibilityRole="tab" accessibilityState={{ selected }}>
-              {item.id === 'breathe' ? (
-                <WindIcon color={color} />
-              ) : item.id === 'meditate' ? (
-                <FocusIcon color={color} />
-              ) : item.id === 'recommend' ? (
-                <SmartAssistIcon color={color} />
-              ) : item.id === 'menu' ? (
-                <MenuIcon color={color} />
-              ) : (
-                <Text style={[styles.tabIcon, { color }]}>{item.icon}</Text>
-              )}
-              <Text style={[styles.tabLabel, { color: selected ? palette.text : palette.muted, fontWeight: selected ? '700' : '400' }]}>{item.label}</Text>
-            </Pressable>
-          );
-        })}
+    <View style={styles.tabBarWrapper}>
+      <View style={styles.tabBarShadowStack} pointerEvents="none">
+        {TAB_BAR_SHADOW_BANDS.map((band, index) => (
+          <View
+            key={index}
+            style={{ flex: band.height, backgroundColor: `rgba(26,46,32,${band.opacity})` }}
+          />
+        ))}
       </View>
-      <View style={{ height: insets.bottom }} />
+      <View
+        style={[
+          styles.tabBar,
+          {
+            backgroundColor: isLight ? '#E2DDD4' : palette.surface,
+            borderTopColor: palette.border,
+          },
+        ]}
+      >
+        <View style={styles.tabItems} accessibilityRole="tablist">
+          {tabs.map((item) => {
+            const selected = tab === item.id;
+            const color = selected ? palette.accent : palette.muted;
+            return (
+              <Pressable key={item.id} onPress={() => onTabPress(item.id)} style={styles.tab} accessibilityRole="tab" accessibilityState={{ selected }}>
+                {item.id === 'breathe' ? (
+                  <WindIcon color={color} />
+                ) : item.id === 'meditate' ? (
+                  <FocusIcon color={color} />
+                ) : item.id === 'recommend' ? (
+                  <SmartAssistIcon color={color} />
+                ) : item.id === 'menu' ? (
+                  <MenuIcon color={color} />
+                ) : (
+                  <Text style={[styles.tabIcon, { color }]}>{item.icon}</Text>
+                )}
+                <Text style={[styles.tabLabel, { color: selected ? palette.text : palette.muted, fontWeight: selected ? '700' : '400' }]}>{item.label}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+        <View style={{ height: insets.bottom }} />
+      </View>
     </View>
   );
 }
@@ -1847,14 +1870,16 @@ const styles = StyleSheet.create({
   chipLabel: { textAlign: 'center', fontSize: 15, fontWeight: '600' },
   chipDescription: { textAlign: 'center', fontSize: 12, marginTop: 3 },
   results: { gap: 12 },
-  tabBar: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    shadowColor: 'rgba(26,46,32,0.10)',
-    shadowOffset: { width: 0, height: -6 },
-    shadowOpacity: 1,
-    shadowRadius: 16,
-    elevation: 8,
+  tabBarWrapper: { position: 'relative' },
+  tabBarShadowStack: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: '100%',
+    height: 16,
+    flexDirection: 'column',
   },
+  tabBar: { borderTopWidth: StyleSheet.hairlineWidth },
   tabItems: { height: 70, flexDirection: 'row', paddingVertical: 4 },
   tab: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 2 },
   tabIcon: { fontSize: 20 },
