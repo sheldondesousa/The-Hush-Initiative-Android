@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import Svg, { Circle, Line, Path, Rect } from 'react-native-svg';
+import Svg, { Circle, Line, Path } from 'react-native-svg';
 
 export type MenuSection = 'profile' | 'dashboard' | 'configuration' | 'about' | 'terms';
 export type MenuThemeMode = 'light' | 'dark' | 'minimal';
@@ -17,9 +17,11 @@ type MenuPalette = {
 
 type MenuIconProps = { color: string };
 
+const MENU_ICON_SIZE = 24;
+
 function ProfileIcon({ color }: MenuIconProps) {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" accessible={false}>
+    <Svg width={MENU_ICON_SIZE} height={MENU_ICON_SIZE} viewBox="0 0 24 24" fill="none" accessible={false}>
       <Circle cx={12} cy={8} r={3.2} stroke={color} strokeWidth={1.8} />
       <Path d="M4.5 20c0-4 3.5-6.5 7.5-6.5s7.5 2.5 7.5 6.5" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
     </Svg>
@@ -28,31 +30,32 @@ function ProfileIcon({ color }: MenuIconProps) {
 
 function DashboardIcon({ color }: MenuIconProps) {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" accessible={false}>
-      <Rect x={4} y={4} width={7} height={7} rx={1.5} stroke={color} strokeWidth={1.8} />
-      <Rect x={13} y={4} width={7} height={7} rx={1.5} stroke={color} strokeWidth={1.8} />
-      <Rect x={4} y={13} width={7} height={7} rx={1.5} stroke={color} strokeWidth={1.8} />
-      <Rect x={13} y={13} width={7} height={7} rx={1.5} stroke={color} strokeWidth={1.8} />
+    <Svg width={MENU_ICON_SIZE} height={MENU_ICON_SIZE} viewBox="0 0 24 24" fill="none" accessible={false}>
+      <Line x1={4} y1={20} x2={20} y2={20} stroke={color} strokeWidth={1.8} strokeLinecap="round" />
+      <Line x1={7} y1={20} x2={7} y2={13} stroke={color} strokeWidth={2.2} strokeLinecap="round" />
+      <Line x1={12} y1={20} x2={12} y2={7} stroke={color} strokeWidth={2.2} strokeLinecap="round" />
+      <Line x1={17} y1={20} x2={17} y2={10} stroke={color} strokeWidth={2.2} strokeLinecap="round" />
     </Svg>
   );
 }
 
 function ConfigurationIcon({ color }: MenuIconProps) {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" accessible={false}>
-      <Line x1={3} y1={6} x2={21} y2={6} stroke={color} strokeWidth={1.8} strokeLinecap="round" />
-      <Circle cx={9} cy={6} r={2} stroke={color} strokeWidth={1.8} />
-      <Line x1={3} y1={12} x2={21} y2={12} stroke={color} strokeWidth={1.8} strokeLinecap="round" />
-      <Circle cx={15} cy={12} r={2} stroke={color} strokeWidth={1.8} />
-      <Line x1={3} y1={18} x2={21} y2={18} stroke={color} strokeWidth={1.8} strokeLinecap="round" />
-      <Circle cx={7} cy={18} r={2} stroke={color} strokeWidth={1.8} />
+    <Svg width={MENU_ICON_SIZE} height={MENU_ICON_SIZE} viewBox="0 0 24 24" fill="none" accessible={false}>
+      <Path
+        d="M12 15a3 3 0 100-6 3 3 0 000 6z M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"
+        stroke={color}
+        strokeWidth={1.6}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </Svg>
   );
 }
 
 function AboutIcon({ color }: MenuIconProps) {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" accessible={false}>
+    <Svg width={MENU_ICON_SIZE} height={MENU_ICON_SIZE} viewBox="0 0 24 24" fill="none" accessible={false}>
       <Circle cx={12} cy={12} r={9} stroke={color} strokeWidth={1.8} />
       <Line x1={12} y1={11} x2={12} y2={16} stroke={color} strokeWidth={1.8} strokeLinecap="round" />
       <Circle cx={12} cy={7.5} r={1} fill={color} stroke={color} />
@@ -62,7 +65,7 @@ function AboutIcon({ color }: MenuIconProps) {
 
 function TermsIcon({ color }: MenuIconProps) {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" accessible={false}>
+    <Svg width={MENU_ICON_SIZE} height={MENU_ICON_SIZE} viewBox="0 0 24 24" fill="none" accessible={false}>
       <Path d="M6 3h9l4 4v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" stroke={color} strokeWidth={1.8} strokeLinejoin="round" />
       <Path d="M15 3v4h4" stroke={color} strokeWidth={1.8} strokeLinejoin="round" />
       <Line x1={8} y1={12} x2={16} y2={12} stroke={color} strokeWidth={1.8} strokeLinecap="round" />
