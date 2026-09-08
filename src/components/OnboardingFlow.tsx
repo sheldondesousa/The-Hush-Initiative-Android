@@ -83,7 +83,6 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         <Text accessibilityLabel="Hush" style={styles.headerWordmark}>
           Hush<Text style={styles.headerWordmarkDot}>.</Text>
         </Text>
-        <Text style={styles.stepLabel}>{page + 1} / 3</Text>
       </View>
 
       <View style={styles.illustrationPanel}>
@@ -101,45 +100,6 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
           {page === 1 && <ToolkitIllustration />}
           {page === 2 && <FollowPatternIllustration />}
         </Animated.View>
-
-        <View style={styles.pageNavigation}>
-          <Pressable
-            onPress={goBack}
-            disabled={page === 0}
-            accessibilityRole="button"
-            accessibilityLabel="Previous onboarding screen"
-            accessibilityState={{ disabled: page === 0 }}
-            style={({ pressed }) => [
-              styles.navigationButton,
-              page === 0 && styles.navigationButtonHidden,
-              pressed && styles.navigationButtonPressed,
-            ]}
-          >
-            <Text style={styles.navigationArrow}>‹</Text>
-          </Pressable>
-          <View style={styles.dots} accessibilityLabel={`Onboarding page ${page + 1} of 3`}>
-            {[0, 1, 2].map((index) => (
-              <View
-                key={index}
-                style={[styles.dot, index === page && styles.dotActive]}
-              />
-            ))}
-          </View>
-          <Pressable
-            onPress={goForward}
-            disabled={page === 2}
-            accessibilityRole="button"
-            accessibilityLabel="Next onboarding screen"
-            accessibilityState={{ disabled: page === 2 }}
-            style={({ pressed }) => [
-              styles.navigationButton,
-              page === 2 && styles.navigationButtonHidden,
-              pressed && styles.navigationButtonPressed,
-            ]}
-          >
-            <Text style={styles.navigationArrow}>›</Text>
-          </Pressable>
-        </View>
       </View>
 
       <View style={styles.copyPanel}>
@@ -166,14 +126,41 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         </Animated.View>
       </View>
 
-      <Pressable
-        onPress={onComplete}
-        accessibilityRole="button"
-        accessibilityLabel="Skip onboarding and go to the home page"
-        style={({ pressed }) => [styles.skipButton, pressed && styles.skipButtonPressed]}
+      <View
+        style={[
+          styles.bottomNav,
+          { justifyContent: page === 0 ? 'flex-end' : page === 2 ? 'flex-start' : 'space-between' },
+        ]}
       >
-        <Text style={styles.skipText}>SKIP</Text>
-      </Pressable>
+        {page > 0 && (
+          <Pressable
+            onPress={goBack}
+            accessibilityRole="button"
+            accessibilityLabel="Previous onboarding screen"
+            style={({ pressed }) => [styles.navigationButton, pressed && styles.navigationButtonPressed]}
+          >
+            <Text style={styles.navigationArrow}>‹</Text>
+          </Pressable>
+        )}
+        <Pressable
+          onPress={onComplete}
+          accessibilityRole="button"
+          accessibilityLabel="Skip onboarding and go to the home page"
+          style={({ pressed }) => [styles.skipButton, pressed && styles.skipButtonPressed]}
+        >
+          <Text style={styles.skipText}>SKIP</Text>
+        </Pressable>
+        {page < 2 && (
+          <Pressable
+            onPress={goForward}
+            accessibilityRole="button"
+            accessibilityLabel="Next onboarding screen"
+            style={({ pressed }) => [styles.navigationButton, pressed && styles.navigationButtonPressed]}
+          >
+            <Text style={styles.navigationArrow}>›</Text>
+          </Pressable>
+        )}
+      </View>
     </SafeAreaView>
   );
 }
@@ -407,7 +394,6 @@ const styles = StyleSheet.create({
     letterSpacing: -0.56,
   },
   headerWordmarkDot: { color: colors.accent },
-  stepLabel: { color: colors.muted, fontSize: 12, fontWeight: '600', letterSpacing: 1.1 },
   illustrationCanvas: {
     position: 'absolute',
     top: 12,
@@ -420,29 +406,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  pageNavigation: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 4,
-    height: 48,
-    paddingHorizontal: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   navigationButton: {
     width: 48,
     height: 48,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  navigationButtonHidden: { opacity: 0 },
   navigationButtonPressed: { opacity: 0.48 },
   navigationArrow: { color: colors.accent, fontSize: 36, lineHeight: 38, fontWeight: '300' },
-  dots: { width: 78, height: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 },
-  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#AABCB3' },
-  dotActive: { width: 22, backgroundColor: colors.accent },
+  bottomNav: {
+    height: 56,
+    paddingHorizontal: 24,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   copyPanel: {
     flex: 1,
     alignItems: 'center',
@@ -452,10 +429,10 @@ const styles = StyleSheet.create({
   eyebrow: { color: colors.accent, fontSize: 12, fontWeight: '700', letterSpacing: 1.68, marginBottom: 10 },
   title: { color: colors.text, fontSize: 40, lineHeight: 47.2, fontWeight: '400', letterSpacing: -0.2 },
   skipButton: {
-    height: 56,
+    height: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: 12,
   },
   skipButtonPressed: { opacity: 0.48 },
   skipText: { color: colors.accent, fontSize: 12, fontWeight: '700', letterSpacing: 1.8 },
