@@ -1513,7 +1513,7 @@ function TabBar({
       style={[
         styles.tabBar,
         {
-          backgroundColor: isLight ? '#EDE9E3' : palette.surface,
+          backgroundColor: isLight ? '#E2DDD4' : palette.surface,
           borderTopColor: palette.border,
         },
       ]}
