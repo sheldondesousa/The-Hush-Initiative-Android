@@ -31,10 +31,11 @@ function ProfileIcon({ color }: MenuIconProps) {
 function DashboardIcon({ color }: MenuIconProps) {
   return (
     <Svg width={MENU_ICON_SIZE} height={MENU_ICON_SIZE} viewBox="0 0 24 24" fill="none" accessible={false}>
-      <Line x1={4} y1={20} x2={20} y2={20} stroke={color} strokeWidth={1.8} strokeLinecap="round" />
-      <Line x1={7} y1={20} x2={7} y2={13} stroke={color} strokeWidth={2.2} strokeLinecap="round" />
-      <Line x1={12} y1={20} x2={12} y2={7} stroke={color} strokeWidth={2.2} strokeLinecap="round" />
-      <Line x1={17} y1={20} x2={17} y2={10} stroke={color} strokeWidth={2.2} strokeLinecap="round" />
+      <Path d="M4 17 L9 11 L13 14 L19 5" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
+      <Circle cx={4} cy={17} r={1.3} fill={color} />
+      <Circle cx={9} cy={11} r={1.3} fill={color} />
+      <Circle cx={13} cy={14} r={1.3} fill={color} />
+      <Circle cx={19} cy={5} r={1.3} fill={color} />
     </Svg>
   );
 }

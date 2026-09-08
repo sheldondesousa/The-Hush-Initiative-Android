@@ -309,7 +309,7 @@ function Header({ palette, themeMode }: { palette: Palette; themeMode: ThemeMode
         ]}
       />
       <Text style={[styles.wordmark, { color: palette.text, zIndex: 1 }]}>
-        Hush<Text style={{ color: themeMode === 'dark' ? '#A89BFF' : '#4A7C68' }}>.</Text>
+        Hush<Text style={{ color: themeMode === 'dark' ? '#A8C8BA' : '#4A7C68' }}>.</Text>
       </Text>
     </View>
   );
@@ -486,7 +486,7 @@ function ExerciseInfoScreen({
         <Pressable onPress={onBack} hitSlop={12}><Text style={[styles.back, { color: palette.text }]}>‹ Back</Text></Pressable>
         {isExercise ? (
           <Text accessibilityLabel="Hush" style={[styles.detailWordmark, { color: palette.text }]}>
-            Hush<Text style={{ color: '#4A7C68' }}>.</Text>
+            Hush<Text style={{ color: palette === palettes.dark ? '#A8C8BA' : '#4A7C68' }}>.</Text>
           </Text>
         ) : (
           <Text style={[styles.detailHeaderLabel, { color: palette.muted }]}>MEDITATION</Text>
