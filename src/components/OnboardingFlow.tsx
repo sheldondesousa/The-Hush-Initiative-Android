@@ -424,7 +424,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  navigationArrow: { color: colors.accent, fontSize: 20, lineHeight: 22, fontWeight: '400', textAlign: 'center' },
+  navigationArrow: { color: colors.accent, fontSize: 26, lineHeight: 28, fontWeight: '500', textAlign: 'center' },
   bottomNav: {
     height: 56,
     paddingHorizontal: 24,
