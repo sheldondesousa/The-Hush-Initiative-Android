@@ -314,9 +314,9 @@ function Header({ palette, themeMode }: { palette: Palette; themeMode: ThemeMode
     <View style={[styles.header, { backgroundColor: palette.bg, borderBottomColor: palette.border }]}>
       <View
         pointerEvents="none"
-        style={[styles.headerDarkenOverlay, { top: -insets.top, height: insets.top + HEADER_HEIGHT }]}
+        style={[styles.headerDarkenOverlay, { top: -insets.top, height: insets.top + HEADER_HEIGHT, zIndex: 0 }]}
       />
-      <Text style={[styles.wordmark, { color: palette.text }]}>
+      <Text style={[styles.wordmark, { color: palette.text, zIndex: 1 }]}>
         Hush<Text style={{ color: themeMode === 'dark' ? '#A89BFF' : '#4A7C68' }}>.</Text>
       </Text>
     </View>
