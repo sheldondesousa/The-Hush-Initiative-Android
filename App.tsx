@@ -243,7 +243,7 @@ export default function App() {
       <View style={styles.content}>
         {tab === 'breathe' && (
           <Library
-            title="Breathe"
+            title="Just Breathe"
             items={exercises}
             palette={palette}
             accent="breath"
