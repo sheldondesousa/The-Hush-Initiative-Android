@@ -284,8 +284,12 @@ export default function App() {
         tab={tab}
         palette={palette}
         onTabPress={(nextTab) => {
-          if (nextTab === 'menu') setMenuOpen(true);
-          else setTab(nextTab);
+          if (nextTab === 'menu') {
+            setTab('menu');
+            setMenuOpen(true);
+          } else {
+            setTab(nextTab);
+          }
         }}
       />
       <MenuSheet
