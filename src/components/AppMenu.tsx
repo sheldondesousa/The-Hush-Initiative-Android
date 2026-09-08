@@ -93,25 +93,17 @@ export function MenuHome({ palette, onSelect }: { palette: MenuPalette; onSelect
         <Text style={[styles.eyebrow, { color: palette.accent }]}>NAVIGATE</Text>
         <Text style={[styles.pageTitle, { color: palette.text }]}>Menu</Text>
       </View>
-      <View style={[styles.menuList, { borderColor: palette.border }]}>
-        {MENU_ITEMS.map((item, index) => (
-          <Pressable
-            key={item.id}
-            onPress={() => onSelect(item.id)}
-            accessibilityRole="button"
-            style={[
-              styles.menuRow,
-              index < MENU_ITEMS.length - 1 && {
-                borderBottomColor: palette.border,
-                borderBottomWidth: StyleSheet.hairlineWidth,
-              },
-            ]}
-          >
-            <Text style={[styles.menuLabel, { color: palette.text }]}>{item.label}</Text>
-            <Text style={[styles.menuChevron, { color: palette.muted }]}>›</Text>
-          </Pressable>
-        ))}
-      </View>
+      {MENU_ITEMS.map((item) => (
+        <Pressable
+          key={item.id}
+          onPress={() => onSelect(item.id)}
+          accessibilityRole="button"
+          style={[styles.menuTile, { backgroundColor: palette.surface, borderColor: palette.border }]}
+        >
+          <Text style={[styles.menuLabel, { color: palette.text }]}>{item.label}</Text>
+          <Text style={[styles.menuChevron, { color: palette.muted }]}>›</Text>
+        </Pressable>
+      ))}
     </ScrollView>
   );
 }
@@ -365,8 +357,10 @@ export function MenuSectionScreen({
 
 const styles = StyleSheet.create({
   eyebrow: { fontSize: 11, lineHeight: 17, fontWeight: '700', letterSpacing: 1.7 },
-  menuList: { borderTopWidth: StyleSheet.hairlineWidth },
-  menuRow: { minHeight: 58, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  menuTile: {
+    minHeight: 58, borderWidth: 1, borderRadius: 14, marginBottom: 9, paddingHorizontal: 17,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+  },
   menuLabel: { fontSize: 16, lineHeight: 22 },
   menuChevron: { fontSize: 27, lineHeight: 30, fontWeight: '300' },
   pageContent: { paddingHorizontal: 20, paddingTop: 30, paddingBottom: 48 },
