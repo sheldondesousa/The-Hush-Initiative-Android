@@ -608,10 +608,10 @@ function ExerciseRhythm({ config, palette }: { config: ExerciseDetailConfig; pal
   const [previewExpanded, setPreviewExpanded] = useState(false);
   const { width: screenWidth } = useWindowDimensions();
   const isDark = palette === palettes.dark;
-  const usesWhiteGraphOutline = isDark || palette === palettes.minimal;
-  const graphStroke = usesWhiteGraphOutline ? '#FFFFFF' : '#4A7C68';
-  const graphFill = isDark ? 'rgba(240,240,240,0.08)' : 'rgba(74,124,104,0.10)';
-  const guideLine = isDark ? 'rgba(240,240,240,0.40)' : 'rgba(74,124,104,0.42)';
+  const isMinimal = palette === palettes.minimal;
+  const graphStroke = isDark ? '#FFFFFF' : isMinimal ? palette.accent : '#4A7C68';
+  const graphFill = isDark ? 'rgba(240,240,240,0.08)' : isMinimal ? palette.tint : 'rgba(74,124,104,0.10)';
+  const guideLine = isDark ? 'rgba(240,240,240,0.40)' : isMinimal ? 'rgba(17,17,17,0.35)' : 'rgba(74,124,104,0.42)';
   const previewScale = Math.min(Math.max(screenWidth - 74, 1) / 360, 259 / 286);
   // SVG text renders optically smaller than native React Native Text at the
   // same nominal size, so use a 13px SVG target to match the 12px phase labels.
@@ -702,10 +702,11 @@ function ExercisePreviewGraphic({
   unitFontSize: number;
 }) {
   const isDark = palette === palettes.dark;
+  const isMinimal = palette === palettes.minimal;
   const ghost = isDark ? 'rgba(255,255,255,0.32)' : 'rgba(0,0,0,0.30)';
   const active = isDark ? 'rgba(255,255,255,0.72)' : palette.accent;
   const leader = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.14)';
-  const softFill = isDark ? 'rgba(255,255,255,0.09)' : 'rgba(49,95,77,0.08)';
+  const softFill = isDark ? 'rgba(255,255,255,0.09)' : isMinimal ? palette.tint : 'rgba(49,95,77,0.08)';
   const phaseColor = palette.accent;
 
   const metric = (
@@ -849,7 +850,7 @@ function ExercisePreviewGraphic({
       {config.preview === 'sigh' && (
         <>
           <Circle cx={cx} cy={cy} r={radius} fill={softFill} stroke={ghost} strokeWidth={1.75} />
-          <Circle cx={cx} cy={cy} r={55} fill={isDark ? 'rgba(255,255,255,0.07)' : 'rgba(49,95,77,0.04)'} />
+          <Circle cx={cx} cy={cy} r={55} fill={isDark ? 'rgba(255,255,255,0.07)' : isMinimal ? palette.tint : 'rgba(49,95,77,0.04)'} />
         </>
       )}
       {arcs.map((arc, index) => (
