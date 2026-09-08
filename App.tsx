@@ -100,17 +100,20 @@ const SPLASH_DURATION_MS = 1200;
 const ENABLE_BOX_ORB_PROTOTYPE = false;
 
 // Approximates box-shadow: 0 -6px 16px rgba(26,46,32,0.10) above the nav
-// bar with stacked bands, since RN has no cross-platform box-shadow.
-const TAB_BAR_SHADOW_BANDS = [
-  { height: 1, opacity: 0.01 },
-  { height: 1, opacity: 0.02 },
-  { height: 1, opacity: 0.035 },
-  { height: 1, opacity: 0.05 },
-  { height: 1, opacity: 0.065 },
-  { height: 1, opacity: 0.08 },
-  { height: 1, opacity: 0.09 },
-  { height: 1, opacity: 0.1 },
-];
+// bar with many thin stacked bands on a quadratic ease-out curve, since
+// RN has no cross-platform box-shadow. A high band count keeps the
+// opacity step between adjacent bands small enough to read as a smooth
+// gradient rather than visible stripes.
+const TAB_BAR_SHADOW_HEIGHT = 16;
+const TAB_BAR_SHADOW_MAX_OPACITY = 0.1;
+const TAB_BAR_SHADOW_BAND_COUNT = 32;
+const TAB_BAR_SHADOW_BANDS = Array.from({ length: TAB_BAR_SHADOW_BAND_COUNT }, (_, index) => {
+  const t = (index + 1) / TAB_BAR_SHADOW_BAND_COUNT;
+  return {
+    height: TAB_BAR_SHADOW_HEIGHT / TAB_BAR_SHADOW_BAND_COUNT,
+    opacity: TAB_BAR_SHADOW_MAX_OPACITY * t * t,
+  };
+});
 
 export default function App() {
   const [launchState, setLaunchState] = useState<'splash' | 'onboarding' | 'app'>('splash');
@@ -1527,7 +1530,7 @@ function TabBar({
         {TAB_BAR_SHADOW_BANDS.map((band, index) => (
           <View
             key={index}
-            style={{ flex: band.height, backgroundColor: `rgba(26,46,32,${band.opacity})` }}
+            style={{ height: band.height, backgroundColor: `rgba(26,46,32,${band.opacity})` }}
           />
         ))}
       </View>
@@ -1876,7 +1879,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: '100%',
-    height: 16,
+    height: TAB_BAR_SHADOW_HEIGHT,
     flexDirection: 'column',
   },
   tabBar: { borderTopWidth: StyleSheet.hairlineWidth },
