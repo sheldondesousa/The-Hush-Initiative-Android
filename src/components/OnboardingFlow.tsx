@@ -449,8 +449,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   copy: { width: '100%', paddingHorizontal: 26 },
-  eyebrow: { color: colors.accent, fontSize: 10.5, fontWeight: '700', letterSpacing: 1.47, marginBottom: 10 },
-  title: { color: colors.text, fontSize: 32, lineHeight: 37.76, fontWeight: '400', letterSpacing: -0.16 },
+  eyebrow: { color: colors.accent, fontSize: 12, fontWeight: '700', letterSpacing: 1.68, marginBottom: 10 },
+  title: { color: colors.text, fontSize: 40, lineHeight: 47.2, fontWeight: '400', letterSpacing: -0.2 },
   skipButton: {
     height: 56,
     alignItems: 'center',
