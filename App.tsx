@@ -1508,9 +1508,15 @@ function TabBar({
     { id: 'recommend', label: 'Guide Me', icon: '' },
     { id: 'menu', label: 'Menu', icon: '' },
   ];
+  const activeTabColor: Record<Tab, string> = {
+    breathe: palette.accent,
+    meditate: palette.meditation,
+    recommend: palette.text,
+    menu: palette.text,
+  };
   const tabItems = tabs.map((item) => {
     const selected = tab === item.id;
-    const iconColor = selected ? palette.accent : palette.muted;
+    const iconColor = selected ? activeTabColor[item.id] : palette.muted;
     return (
       <Pressable key={item.id} onPress={() => onTabPress(item.id)} style={styles.tab} accessibilityRole="tab" accessibilityState={{ selected }}>
         {item.id === 'breathe' ? (
