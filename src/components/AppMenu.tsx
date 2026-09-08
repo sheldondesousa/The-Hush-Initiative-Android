@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import Svg, { Circle, Line, Path, Rect } from 'react-native-svg';
 
 export type MenuSection = 'profile' | 'dashboard' | 'configuration' | 'about' | 'terms';
 export type MenuThemeMode = 'light' | 'dark' | 'minimal';
@@ -12,6 +13,70 @@ type MenuPalette = {
   accent: string;
   tint: string;
   border: string;
+};
+
+type MenuIconProps = { color: string };
+
+function ProfileIcon({ color }: MenuIconProps) {
+  return (
+    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" accessible={false}>
+      <Circle cx={12} cy={8} r={3.2} stroke={color} strokeWidth={1.8} />
+      <Path d="M4.5 20c0-4 3.5-6.5 7.5-6.5s7.5 2.5 7.5 6.5" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
+    </Svg>
+  );
+}
+
+function DashboardIcon({ color }: MenuIconProps) {
+  return (
+    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" accessible={false}>
+      <Rect x={4} y={4} width={7} height={7} rx={1.5} stroke={color} strokeWidth={1.8} />
+      <Rect x={13} y={4} width={7} height={7} rx={1.5} stroke={color} strokeWidth={1.8} />
+      <Rect x={4} y={13} width={7} height={7} rx={1.5} stroke={color} strokeWidth={1.8} />
+      <Rect x={13} y={13} width={7} height={7} rx={1.5} stroke={color} strokeWidth={1.8} />
+    </Svg>
+  );
+}
+
+function ConfigurationIcon({ color }: MenuIconProps) {
+  return (
+    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" accessible={false}>
+      <Line x1={3} y1={6} x2={21} y2={6} stroke={color} strokeWidth={1.8} strokeLinecap="round" />
+      <Circle cx={9} cy={6} r={2} stroke={color} strokeWidth={1.8} />
+      <Line x1={3} y1={12} x2={21} y2={12} stroke={color} strokeWidth={1.8} strokeLinecap="round" />
+      <Circle cx={15} cy={12} r={2} stroke={color} strokeWidth={1.8} />
+      <Line x1={3} y1={18} x2={21} y2={18} stroke={color} strokeWidth={1.8} strokeLinecap="round" />
+      <Circle cx={7} cy={18} r={2} stroke={color} strokeWidth={1.8} />
+    </Svg>
+  );
+}
+
+function AboutIcon({ color }: MenuIconProps) {
+  return (
+    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" accessible={false}>
+      <Circle cx={12} cy={12} r={9} stroke={color} strokeWidth={1.8} />
+      <Line x1={12} y1={11} x2={12} y2={16} stroke={color} strokeWidth={1.8} strokeLinecap="round" />
+      <Circle cx={12} cy={7.5} r={1} fill={color} stroke={color} />
+    </Svg>
+  );
+}
+
+function TermsIcon({ color }: MenuIconProps) {
+  return (
+    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" accessible={false}>
+      <Path d="M6 3h9l4 4v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" stroke={color} strokeWidth={1.8} strokeLinejoin="round" />
+      <Path d="M15 3v4h4" stroke={color} strokeWidth={1.8} strokeLinejoin="round" />
+      <Line x1={8} y1={12} x2={16} y2={12} stroke={color} strokeWidth={1.8} strokeLinecap="round" />
+      <Line x1={8} y1={16} x2={16} y2={16} stroke={color} strokeWidth={1.8} strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+const MENU_ICONS: Record<MenuSection, React.ComponentType<MenuIconProps>> = {
+  profile: ProfileIcon,
+  dashboard: DashboardIcon,
+  configuration: ConfigurationIcon,
+  about: AboutIcon,
+  terms: TermsIcon,
 };
 
 const MENU_ITEMS: Array<{ id: MenuSection; label: string }> = [
@@ -93,17 +158,23 @@ export function MenuHome({ palette, onSelect }: { palette: MenuPalette; onSelect
         <Text style={[styles.eyebrow, { color: palette.accent }]}>NAVIGATE</Text>
         <Text style={[styles.pageTitle, { color: palette.text }]}>Menu</Text>
       </View>
-      {MENU_ITEMS.map((item) => (
-        <Pressable
-          key={item.id}
-          onPress={() => onSelect(item.id)}
-          accessibilityRole="button"
-          style={[styles.menuTile, { backgroundColor: palette.surface, borderColor: palette.border }]}
-        >
-          <Text style={[styles.menuLabel, { color: palette.text }]}>{item.label}</Text>
-          <Text style={[styles.menuChevron, { color: palette.muted }]}>›</Text>
-        </Pressable>
-      ))}
+      {MENU_ITEMS.map((item) => {
+        const Icon = MENU_ICONS[item.id];
+        return (
+          <Pressable
+            key={item.id}
+            onPress={() => onSelect(item.id)}
+            accessibilityRole="button"
+            style={[styles.menuTile, { backgroundColor: palette.surface, borderColor: palette.border }]}
+          >
+            <View style={styles.menuTileLeft}>
+              <Icon color={palette.text} />
+              <Text style={[styles.menuLabel, { color: palette.text }]}>{item.label}</Text>
+            </View>
+            <Text style={[styles.menuChevron, { color: palette.muted }]}>›</Text>
+          </Pressable>
+        );
+      })}
     </ScrollView>
   );
 }
@@ -361,6 +432,7 @@ const styles = StyleSheet.create({
     minHeight: 58, borderWidth: 1, borderRadius: 14, marginBottom: 9, paddingHorizontal: 17,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
   },
+  menuTileLeft: { flexDirection: 'row', alignItems: 'center', gap: 14 },
   menuLabel: { fontSize: 16, lineHeight: 22 },
   menuChevron: { fontSize: 27, lineHeight: 30, fontWeight: '300' },
   pageContent: { paddingHorizontal: 20, paddingTop: 30, paddingBottom: 48 },
