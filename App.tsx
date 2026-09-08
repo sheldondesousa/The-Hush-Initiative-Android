@@ -296,11 +296,16 @@ export default function App() {
 
 function Header({ palette, themeMode }: { palette: Palette; themeMode: ThemeMode }) {
   const insets = useSafeAreaInsets();
+  const isLight = palette === palettes.light;
+  const overlayColor = isLight ? 'rgba(74,55,35,0.15)' : 'rgba(0,0,0,0.15)';
   return (
     <View style={[styles.header, { backgroundColor: palette.bg, borderBottomColor: palette.border }]}>
       <View
         pointerEvents="none"
-        style={[styles.headerDarkenOverlay, { top: -insets.top, height: insets.top + HEADER_HEIGHT, zIndex: 0 }]}
+        style={[
+          styles.headerDarkenOverlay,
+          { top: -insets.top, height: insets.top + HEADER_HEIGHT, backgroundColor: overlayColor, zIndex: 0 },
+        ]}
       />
       <Text style={[styles.wordmark, { color: palette.text, zIndex: 1 }]}>
         Hush<Text style={{ color: themeMode === 'dark' ? '#A89BFF' : '#4A7C68' }}>.</Text>
@@ -1625,7 +1630,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end', borderBottomWidth: StyleSheet.hairlineWidth,
     position: 'relative',
   },
-  headerDarkenOverlay: { position: 'absolute', left: 0, right: 0, backgroundColor: 'rgba(74,55,35,0.15)' },
+  headerDarkenOverlay: { position: 'absolute', left: 0, right: 0 },
   wordmark: {
     position: 'absolute',
     left: 0,
