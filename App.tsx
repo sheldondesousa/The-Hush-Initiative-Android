@@ -98,6 +98,7 @@ const EXERCISE_DEFAULTS_STORAGE_KEY = 'hush.exercise-defaults.v1';
 const SHOW_ONBOARDING_STORAGE_KEY = 'hush.show-onboarding-after-splash.v1';
 const SPLASH_DURATION_MS = 1200;
 const ENABLE_BOX_ORB_PROTOTYPE = false;
+const HEADER_HEIGHT = 70;
 
 export default function App() {
   const [launchState, setLaunchState] = useState<'splash' | 'onboarding' | 'app'>('splash');
@@ -308,9 +309,13 @@ export default function App() {
 }
 
 function Header({ palette, themeMode }: { palette: Palette; themeMode: ThemeMode }) {
+  const insets = useSafeAreaInsets();
   return (
     <View style={[styles.header, { backgroundColor: palette.bg, borderBottomColor: palette.border }]}>
-      <View pointerEvents="none" style={styles.headerDarkenOverlay} />
+      <View
+        pointerEvents="none"
+        style={[styles.headerDarkenOverlay, { top: -insets.top, height: insets.top + HEADER_HEIGHT }]}
+      />
       <Text style={[styles.wordmark, { color: palette.text }]}>
         Hush<Text style={{ color: themeMode === 'dark' ? '#A89BFF' : '#4A7C68' }}>.</Text>
       </Text>
@@ -1644,11 +1649,11 @@ const styles = StyleSheet.create({
   safe: { flex: 1 },
   content: { flex: 1 },
   header: {
-    height: 70, paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center',
+    height: HEADER_HEIGHT, paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center',
     justifyContent: 'flex-end', borderBottomWidth: StyleSheet.hairlineWidth,
     position: 'relative',
   },
-  headerDarkenOverlay: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.2)' },
+  headerDarkenOverlay: { position: 'absolute', left: 0, right: 0, backgroundColor: 'rgba(0,0,0,0.1)' },
   wordmark: {
     position: 'absolute',
     left: 0,
