@@ -297,7 +297,8 @@ export default function App() {
 function Header({ palette, themeMode }: { palette: Palette; themeMode: ThemeMode }) {
   const insets = useSafeAreaInsets();
   const isLight = palette === palettes.light;
-  const overlayColor = isLight ? 'rgba(74,55,35,0.15)' : 'rgba(0,0,0,0.15)';
+  const isDark = palette === palettes.dark;
+  const overlayColor = isLight ? 'rgba(74,55,35,0.15)' : isDark ? 'rgba(168,200,186,0.15)' : 'rgba(0,0,0,0.15)';
   return (
     <View style={[styles.header, { backgroundColor: palette.bg, borderBottomColor: palette.border }]}>
       <View
