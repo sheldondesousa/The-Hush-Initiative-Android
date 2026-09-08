@@ -1514,9 +1514,11 @@ function TabBar({
     recommend: palette.text,
     menu: palette.text,
   };
-  const activeTabTint: Partial<Record<Tab, string>> = {
+  const activeTabTint: Record<Tab, string> = {
     breathe: palette.tint,
     meditate: palette.meditationTint,
+    recommend: palette.bg,
+    menu: palette.bg,
   };
   const tabItems = tabs.map((item) => {
     const selected = tab === item.id;
@@ -1880,7 +1882,7 @@ const styles = StyleSheet.create({
   tabBar: { borderTopWidth: StyleSheet.hairlineWidth },
   tabItems: { height: 70, flexDirection: 'row', paddingVertical: 4 },
   tab: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 2 },
-  tabIconBadge: { width: 32, height: 32, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  tabIconBadge: { width: 32, height: 32, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
   tabIcon: { fontSize: 20 },
   tabLabel: { fontSize: 12 },
 });
