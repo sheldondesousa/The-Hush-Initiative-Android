@@ -99,22 +99,6 @@ const SHOW_ONBOARDING_STORAGE_KEY = 'hush.show-onboarding-after-splash.v1';
 const SPLASH_DURATION_MS = 1200;
 const ENABLE_BOX_ORB_PROTOTYPE = false;
 
-// Approximates box-shadow: 0 -6px 16px rgba(26,46,32,0.10) above the nav
-// bar with many thin stacked bands on a quadratic ease-out curve, since
-// RN has no cross-platform box-shadow. A high band count keeps the
-// opacity step between adjacent bands small enough to read as a smooth
-// gradient rather than visible stripes.
-const TAB_BAR_SHADOW_HEIGHT = 16;
-const TAB_BAR_SHADOW_MAX_OPACITY = 0.1;
-const TAB_BAR_SHADOW_BAND_COUNT = 32;
-const TAB_BAR_SHADOW_BANDS = Array.from({ length: TAB_BAR_SHADOW_BAND_COUNT }, (_, index) => {
-  const t = (index + 1) / TAB_BAR_SHADOW_BAND_COUNT;
-  return {
-    height: TAB_BAR_SHADOW_HEIGHT / TAB_BAR_SHADOW_BAND_COUNT,
-    opacity: TAB_BAR_SHADOW_MAX_OPACITY * t * t,
-  };
-});
-
 export default function App() {
   const [launchState, setLaunchState] = useState<'splash' | 'onboarding' | 'app'>('splash');
   const [tab, setTab] = useState<Tab>('breathe');
@@ -1524,49 +1508,45 @@ function TabBar({
     { id: 'recommend', label: 'Guide Me', icon: '' },
     { id: 'menu', label: 'Menu', icon: '' },
   ];
-  return (
-    <View style={styles.tabBarWrapper}>
-      <View style={styles.tabBarShadowStack} pointerEvents="none">
-        {TAB_BAR_SHADOW_BANDS.map((band, index) => (
-          <View
-            key={index}
-            style={{ height: band.height, backgroundColor: `rgba(26,46,32,${band.opacity})` }}
-          />
-        ))}
-      </View>
-      <View
-        style={[
-          styles.tabBar,
-          {
-            backgroundColor: isLight ? '#E2DDD4' : palette.surface,
-            borderTopColor: palette.border,
-          },
-        ]}
-      >
-        <View style={styles.tabItems} accessibilityRole="tablist">
-          {tabs.map((item) => {
-            const selected = tab === item.id;
-            const color = selected ? palette.accent : palette.muted;
-            return (
-              <Pressable key={item.id} onPress={() => onTabPress(item.id)} style={styles.tab} accessibilityRole="tab" accessibilityState={{ selected }}>
-                {item.id === 'breathe' ? (
-                  <WindIcon color={color} />
-                ) : item.id === 'meditate' ? (
-                  <FocusIcon color={color} />
-                ) : item.id === 'recommend' ? (
-                  <SmartAssistIcon color={color} />
-                ) : item.id === 'menu' ? (
-                  <MenuIcon color={color} />
-                ) : (
-                  <Text style={[styles.tabIcon, { color }]}>{item.icon}</Text>
-                )}
-                <Text style={[styles.tabLabel, { color: selected ? palette.text : palette.muted, fontWeight: selected ? '700' : '400' }]}>{item.label}</Text>
-              </Pressable>
-            );
-          })}
+  const tabItems = tabs.map((item) => {
+    const selected = tab === item.id;
+    const iconColor = selected ? palette.accent : palette.muted;
+    return (
+      <Pressable key={item.id} onPress={() => onTabPress(item.id)} style={styles.tab} accessibilityRole="tab" accessibilityState={{ selected }}>
+        {item.id === 'breathe' ? (
+          <WindIcon color={iconColor} />
+        ) : item.id === 'meditate' ? (
+          <FocusIcon color={iconColor} />
+        ) : item.id === 'recommend' ? (
+          <SmartAssistIcon color={iconColor} />
+        ) : item.id === 'menu' ? (
+          <MenuIcon color={iconColor} />
+        ) : (
+          <Text style={[styles.tabIcon, { color: iconColor }]}>{item.icon}</Text>
+        )}
+        <Text style={[styles.tabLabel, { color: selected ? palette.text : palette.muted, fontWeight: selected ? '700' : '400' }]}>{item.label}</Text>
+      </Pressable>
+    );
+  });
+
+  if (isLight) {
+    return (
+      <View style={[styles.tabBarFloatingWrapper, { paddingBottom: Math.max(insets.bottom, 16) }]}>
+        <View style={styles.tabBarFloatingCard}>
+          <View style={styles.tabItems} accessibilityRole="tablist">
+            {tabItems}
+          </View>
         </View>
-        <View style={{ height: insets.bottom }} />
       </View>
+    );
+  }
+
+  return (
+    <View style={[styles.tabBar, { backgroundColor: palette.surface, borderTopColor: palette.border }]}>
+      <View style={styles.tabItems} accessibilityRole="tablist">
+        {tabItems}
+      </View>
+      <View style={{ height: insets.bottom }} />
     </View>
   );
 }
@@ -1873,14 +1853,15 @@ const styles = StyleSheet.create({
   chipLabel: { textAlign: 'center', fontSize: 15, fontWeight: '600' },
   chipDescription: { textAlign: 'center', fontSize: 12, marginTop: 3 },
   results: { gap: 12 },
-  tabBarWrapper: { position: 'relative' },
-  tabBarShadowStack: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: '100%',
-    height: TAB_BAR_SHADOW_HEIGHT,
-    flexDirection: 'column',
+  tabBarFloatingWrapper: { paddingHorizontal: 16, paddingTop: 8 },
+  tabBarFloatingCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 28,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 6,
   },
   tabBar: { borderTopWidth: StyleSheet.hairlineWidth },
   tabItems: { height: 70, flexDirection: 'row', paddingVertical: 4 },
