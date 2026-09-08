@@ -126,24 +126,21 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         </Animated.View>
       </View>
 
-      <View
-        style={[
-          styles.bottomNav,
-          { justifyContent: page === 0 ? 'flex-end' : page === 2 ? 'flex-start' : 'space-between' },
-        ]}
-      >
-        {page > 0 && (
-          <Pressable
-            onPress={goBack}
-            accessibilityRole="button"
-            accessibilityLabel="Previous onboarding screen"
-            style={({ pressed }) => [styles.navigationButton, pressed && styles.navigationButtonPressed]}
-          >
-            <View style={styles.chevronCircle}>
-              <Text style={styles.navigationArrow}>‹</Text>
-            </View>
-          </Pressable>
-        )}
+      <View style={styles.bottomNav}>
+        <View style={styles.bottomNavSide}>
+          {page > 0 && (
+            <Pressable
+              onPress={goBack}
+              accessibilityRole="button"
+              accessibilityLabel="Previous onboarding screen"
+              style={({ pressed }) => [styles.navigationButton, pressed && styles.navigationButtonPressed]}
+            >
+              <View style={styles.chevronCircle}>
+                <Text style={styles.navigationArrow}>‹</Text>
+              </View>
+            </Pressable>
+          )}
+        </View>
         <Pressable
           onPress={onComplete}
           accessibilityRole="button"
@@ -152,18 +149,20 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         >
           <Text style={styles.skipText}>SKIP</Text>
         </Pressable>
-        {page < 2 && (
-          <Pressable
-            onPress={goForward}
-            accessibilityRole="button"
-            accessibilityLabel="Next onboarding screen"
-            style={({ pressed }) => [styles.navigationButton, pressed && styles.navigationButtonPressed]}
-          >
-            <View style={styles.chevronCircle}>
-              <Text style={styles.navigationArrow}>›</Text>
-            </View>
-          </Pressable>
-        )}
+        <View style={[styles.bottomNavSide, styles.bottomNavSideEnd]}>
+          {page < 2 && (
+            <Pressable
+              onPress={goForward}
+              accessibilityRole="button"
+              accessibilityLabel="Next onboarding screen"
+              style={({ pressed }) => [styles.navigationButton, pressed && styles.navigationButtonPressed]}
+            >
+              <View style={styles.chevronCircle}>
+                <Text style={styles.navigationArrow}>›</Text>
+              </View>
+            </Pressable>
+          )}
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -425,13 +424,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  navigationArrow: { color: colors.accent, fontSize: 36, lineHeight: 38, fontWeight: '300' },
+  navigationArrow: { color: colors.accent, fontSize: 20, lineHeight: 22, fontWeight: '400', textAlign: 'center' },
   bottomNav: {
     height: 56,
     paddingHorizontal: 24,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
+  bottomNavSide: { flex: 1, flexDirection: 'row', alignItems: 'center' },
+  bottomNavSideEnd: { justifyContent: 'flex-end' },
   copyPanel: {
     flex: 1,
     alignItems: 'center',
