@@ -1653,7 +1653,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end', borderBottomWidth: StyleSheet.hairlineWidth,
     position: 'relative',
   },
-  headerDarkenOverlay: { position: 'absolute', left: 0, right: 0, backgroundColor: 'rgba(0,0,0,0.1)' },
+  headerDarkenOverlay: { position: 'absolute', left: 0, right: 0, backgroundColor: 'rgba(74,55,35,0.15)' },
   wordmark: {
     position: 'absolute',
     left: 0,
