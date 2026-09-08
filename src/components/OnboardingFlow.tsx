@@ -1,3 +1,6 @@
+import { CormorantGaramond_400Regular } from '@expo-google-fonts/cormorant-garamond';
+import { DMSans_700Bold } from '@expo-google-fonts/dm-sans';
+import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -37,6 +40,7 @@ export function SplashScreen() {
 }
 
 export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
+  const [fontsLoaded] = useFonts({ DMSans_700Bold, CormorantGaramond_400Regular });
   const [page, setPage] = useState(0);
   const opacity = useRef(new Animated.Value(1)).current;
   const translateX = useRef(new Animated.Value(0)).current;
@@ -149,10 +153,10 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             },
           ]}
         >
-          <Text style={styles.eyebrow}>
+          <Text style={[styles.eyebrow, fontsLoaded && { fontFamily: 'DMSans_700Bold' }]}>
             {page === 0 ? 'FIND YOUR PRACTICE' : page === 1 ? 'MAKE IT YOURS' : 'BREATHE WITH THE GUIDE'}
           </Text>
-          <Text accessibilityRole="header" style={styles.title}>
+          <Text accessibilityRole="header" style={[styles.title, fontsLoaded && { fontFamily: 'CormorantGaramond_400Regular' }]}>
             {page === 0
               ? 'Choose from 8 guided breathing exercises.'
               : page === 1
@@ -445,8 +449,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   copy: { width: '100%', paddingHorizontal: 26 },
-  eyebrow: { color: colors.accent, fontSize: 11, fontWeight: '700', letterSpacing: 1.65, marginBottom: 10 },
-  title: { color: colors.text, fontSize: 28, lineHeight: 35, fontWeight: '500', letterSpacing: -0.7 },
+  eyebrow: { color: colors.accent, fontSize: 10.5, fontWeight: '700', letterSpacing: 1.47, marginBottom: 10 },
+  title: { color: colors.text, fontSize: 32, lineHeight: 37.76, fontWeight: '400', letterSpacing: -0.16 },
   skipButton: {
     height: 56,
     alignItems: 'center',
