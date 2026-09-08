@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef } from 'react';
-import { Animated, StyleSheet, Text, View } from 'react-native';
+import { Animated, Image, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, ClipPath, Defs, LinearGradient, Line, Path, RadialGradient, Rect, Stop, Text as SvgText } from 'react-native-svg';
+import facialBreathImage from '../../assets/facial-breath.png';
 
 export const BREATHING_READOUT_HEIGHT = 120;
 
@@ -15,6 +16,7 @@ type VisualPalette = {
 
 type Props = {
   exerciseId: string;
+  animationChoice?: 'geometric' | 'facial';
   level: Animated.Value;
   phaseProgress?: Animated.Value;
   phaseIndex?: number;
@@ -62,6 +64,7 @@ const airWisps = Array.from({ length: 12 }, (_, index) => index);
 
 export default function BreathingVisual({
   exerciseId,
+  animationChoice = 'geometric',
   level,
   phaseProgress,
   phaseIndex = 0,
@@ -88,6 +91,9 @@ export default function BreathingVisual({
   }, [drift]);
 
   const visual = useMemo(() => {
+    if (animationChoice === 'facial') {
+      return <FacialVisual level={level} palette={palette} width={width} height={height} />;
+    }
     if (family === 'gradient-orb') {
       return (
         <GradientBreathVisual
@@ -188,7 +194,7 @@ export default function BreathingVisual({
       return <BodyVisual level={level} drift={drift} palette={palette} width={width} height={height} />;
     }
     return <BreathprintVisual level={level} drift={drift} palette={palette} width={width} height={height} />;
-  }, [cycle, drift, family, height, level, palette, phaseCount, phaseIndex, phaseProgress, width]);
+  }, [animationChoice, cycle, drift, family, height, level, palette, phaseCount, phaseIndex, phaseProgress, width]);
 
   const displayPhase = (phaseLabel ?? 'BREATHE').toUpperCase();
   const normalizedPhase = displayPhase.toLowerCase();
@@ -1371,6 +1377,65 @@ function Orbit478Visual({
   );
 }
 
+const FACE_VISUAL_SIZE_RATIO = 0.86;
+
+function FacialVisual({
+  level,
+  palette,
+  width,
+  height,
+}: {
+  level: Animated.Value;
+  palette: VisualPalette;
+  width: number;
+  height: number;
+}) {
+  const size = Math.min(width, height) * FACE_VISUAL_SIZE_RATIO;
+  const scale = level.interpolate({ inputRange: [0, 1], outputRange: [0.88, 1.04] });
+  const opacity = level.interpolate({ inputRange: [0, 1], outputRange: [0.75, 1] });
+  const glowScale = level.interpolate({ inputRange: [0, 1], outputRange: [0.92, 1.16] });
+  const glowOpacity = level.interpolate({ inputRange: [0, 1], outputRange: [0.1, 0.3] });
+
+  return (
+    <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+      <Animated.View
+        style={[
+          styles.faceGlow,
+          {
+            width: size,
+            height: size,
+            marginLeft: -size / 2,
+            marginTop: -size / 2,
+            borderRadius: size / 2,
+            backgroundColor: palette.accent,
+            opacity: glowOpacity,
+            transform: [{ scale: glowScale }],
+          },
+        ]}
+      />
+      <Animated.View
+        style={[
+          styles.faceImageWrap,
+          {
+            width: size,
+            height: size,
+            marginLeft: -size / 2,
+            marginTop: -size / 2,
+            opacity,
+            transform: [{ scale }],
+          },
+        ]}
+      >
+        <Image
+          source={facialBreathImage}
+          resizeMode="contain"
+          style={[styles.faceImage, { tintColor: palette.text }]}
+        />
+      </Animated.View>
+    </View>
+  );
+}
+
 function SmokeVisual({
   level,
   drift,
@@ -1808,6 +1873,20 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
+  },
+  faceGlow: {
+    position: 'absolute',
+    left: '50%',
+    top: '50%',
+  },
+  faceImageWrap: {
+    position: 'absolute',
+    left: '50%',
+    top: '50%',
+  },
+  faceImage: {
+    width: '100%',
+    height: '100%',
   },
   smokeWisp: {
     position: 'absolute',
