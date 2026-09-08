@@ -139,7 +139,9 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             accessibilityLabel="Previous onboarding screen"
             style={({ pressed }) => [styles.navigationButton, pressed && styles.navigationButtonPressed]}
           >
-            <Text style={styles.navigationArrow}>‹</Text>
+            <View style={styles.chevronCircle}>
+              <Text style={styles.navigationArrow}>‹</Text>
+            </View>
           </Pressable>
         )}
         <Pressable
@@ -157,7 +159,9 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             accessibilityLabel="Next onboarding screen"
             style={({ pressed }) => [styles.navigationButton, pressed && styles.navigationButtonPressed]}
           >
-            <Text style={styles.navigationArrow}>›</Text>
+            <View style={styles.chevronCircle}>
+              <Text style={styles.navigationArrow}>›</Text>
+            </View>
           </Pressable>
         )}
       </View>
@@ -413,6 +417,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   navigationButtonPressed: { opacity: 0.48 },
+  chevronCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(74,55,35,0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   navigationArrow: { color: colors.accent, fontSize: 36, lineHeight: 38, fontWeight: '300' },
   bottomNav: {
     height: 56,
