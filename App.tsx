@@ -29,7 +29,7 @@ import BreathingVisual, { BREATHING_READOUT_HEIGHT } from './src/components/Brea
 import ExerciseCardVisual from './src/components/ExerciseCardVisual';
 import PersonalizeSheet from './src/components/PersonalizeSheet';
 import OnboardingFlow, { SplashScreen } from './src/components/OnboardingFlow';
-import { MenuSectionScreen, MenuSheet, type MenuSection } from './src/components/AppMenu';
+import { MenuSectionScreen, type MenuSection } from './src/components/AppMenu';
 import {
   BreathIntensityId,
   breathIntensities,
@@ -110,8 +110,7 @@ export default function App() {
   const [completedSessions, setCompletedSessions] = useState(0);
   const [mindfulMinutes, setMindfulMinutes] = useState(0);
   const [exerciseDefaults, setExerciseDefaults] = useState<ExerciseDefaults>({});
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [menuSection, setMenuSection] = useState<MenuSection>('profile');
+  const [menuSection, setMenuSection] = useState<MenuSection | null>(null);
   const [showOnboardingAfterSplash, setShowOnboardingAfterSplash] = useState(true);
   const palette = palettes[themeMode];
 
@@ -277,6 +276,8 @@ export default function App() {
             setThemeMode={setThemeMode}
             showOnboardingAfterSplash={showOnboardingAfterSplash}
             setShowOnboardingAfterSplash={updateOnboardingVisibility}
+            onSelectSection={setMenuSection}
+            onBack={() => setMenuSection(null)}
           />
         )}
       </View>
@@ -285,23 +286,8 @@ export default function App() {
         tab={tab}
         palette={palette}
         onTabPress={(nextTab) => {
-          if (nextTab === 'menu') {
-            setTab('menu');
-            setMenuOpen(true);
-          } else {
-            setTab(nextTab);
-          }
-        }}
-      />
-      <MenuSheet
-        visible={menuOpen}
-        selected={tab === 'menu' ? menuSection : undefined}
-        palette={palette}
-        onClose={() => setMenuOpen(false)}
-        onSelect={(section) => {
-          setMenuSection(section);
-          setTab('menu');
-          setMenuOpen(false);
+          if (nextTab === 'menu') setMenuSection(null);
+          setTab(nextTab);
         }}
       />
     </SafeAreaView>

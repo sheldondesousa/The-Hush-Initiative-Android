@@ -1,7 +1,5 @@
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import BottomSheetModal from './BottomSheetModal';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export type MenuSection = 'profile' | 'dashboard' | 'configuration' | 'about' | 'terms';
 export type MenuThemeMode = 'light' | 'dark' | 'minimal';
@@ -88,80 +86,58 @@ const TERMS_SECTIONS: Array<{ title: string; body: string; bullets?: string[] }>
   },
 ];
 
-export function MenuSheet({
-  visible,
-  selected,
-  palette,
-  onClose,
-  onSelect,
-}: {
-  visible: boolean;
-  selected?: MenuSection;
-  palette: MenuPalette;
-  onClose: () => void;
-  onSelect: (section: MenuSection) => void;
-}) {
-  const insets = useSafeAreaInsets();
+export function MenuHome({ palette, onSelect }: { palette: MenuPalette; onSelect: (section: MenuSection) => void }) {
   return (
-    <BottomSheetModal
-      visible={visible}
-      surfaceColor={palette.surface}
-      borderColor={palette.border}
-      onClose={onClose}
-      sheetStyle={[styles.sheet, { paddingBottom: Math.max(22, insets.bottom + 12) }]}
-    >
-      {(dismiss) => (
-        <>
-          <View style={styles.handleRow}>
-            <View style={[styles.handle, { backgroundColor: palette.border }]} />
-          </View>
-          <View style={styles.sheetHeader}>
-            <View>
-              <Text style={[styles.eyebrow, { color: palette.accent }]}>NAVIGATE</Text>
-              <Text style={[styles.sheetTitle, { color: palette.text }]}>Menu</Text>
-            </View>
-            <Pressable
-              onPress={() => dismiss()}
-              hitSlop={12}
-              accessibilityRole="button"
-              accessibilityLabel="Close menu"
-            >
-              <Text style={[styles.close, { color: palette.text }]}>×</Text>
-            </Pressable>
-          </View>
-          <View style={[styles.sheetDivider, { backgroundColor: palette.border }]} />
-          {MENU_ITEMS.map((item, index) => {
-            const active = selected === item.id;
-            return (
-              <Pressable
-                key={item.id}
-                onPress={() => dismiss(() => onSelect(item.id))}
-                accessibilityRole="button"
-                accessibilityState={{ selected: active }}
-                style={[
-                  styles.menuRow,
-                  index < MENU_ITEMS.length - 1 && {
-                    borderBottomColor: palette.border,
-                    borderBottomWidth: StyleSheet.hairlineWidth,
-                  },
-                ]}
-              >
-                <Text style={[styles.menuLabel, { color: active ? palette.text : palette.muted, fontWeight: active ? '600' : '400' }]}>
-                  {item.label}
-                </Text>
-                <Text style={[styles.menuChevron, { color: active ? palette.accent : palette.muted }]}>›</Text>
-              </Pressable>
-            );
-          })}
-        </>
-      )}
-    </BottomSheetModal>
+    <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
+      <View style={styles.pageHeader}>
+        <Text style={[styles.eyebrow, { color: palette.accent }]}>NAVIGATE</Text>
+        <Text style={[styles.pageTitle, { color: palette.text }]}>Menu</Text>
+      </View>
+      <View style={[styles.menuList, { borderColor: palette.border }]}>
+        {MENU_ITEMS.map((item, index) => (
+          <Pressable
+            key={item.id}
+            onPress={() => onSelect(item.id)}
+            accessibilityRole="button"
+            style={[
+              styles.menuRow,
+              index < MENU_ITEMS.length - 1 && {
+                borderBottomColor: palette.border,
+                borderBottomWidth: StyleSheet.hairlineWidth,
+              },
+            ]}
+          >
+            <Text style={[styles.menuLabel, { color: palette.text }]}>{item.label}</Text>
+            <Text style={[styles.menuChevron, { color: palette.muted }]}>›</Text>
+          </Pressable>
+        ))}
+      </View>
+    </ScrollView>
   );
 }
 
-function PageHeader({ eyebrow, title, palette }: { eyebrow: string; title: string; palette: MenuPalette }) {
+function PageHeader({
+  eyebrow,
+  title,
+  palette,
+  onBack,
+}: {
+  eyebrow: string;
+  title: string;
+  palette: MenuPalette;
+  onBack: () => void;
+}) {
   return (
     <View style={styles.pageHeader}>
+      <Pressable
+        onPress={onBack}
+        hitSlop={12}
+        accessibilityRole="button"
+        accessibilityLabel="Back to menu"
+        style={styles.backRow}
+      >
+        <Text style={[styles.backText, { color: palette.text }]}>‹ Menu</Text>
+      </Pressable>
       <Text style={[styles.eyebrow, { color: palette.accent }]}>{eyebrow}</Text>
       <Text style={[styles.pageTitle, { color: palette.text }]}>{title}</Text>
     </View>
@@ -177,10 +153,10 @@ function InfoRow({ label, value, palette, last = false }: { label: string; value
   );
 }
 
-function ProfilePage({ palette }: { palette: MenuPalette }) {
+function ProfilePage({ palette, onBack }: { palette: MenuPalette; onBack: () => void }) {
   return (
     <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
-      <PageHeader eyebrow="YOUR SPACE" title="Profile" palette={palette} />
+      <PageHeader eyebrow="YOUR SPACE" title="Profile" palette={palette} onBack={onBack} />
       <View style={styles.identityBlock}>
         <View style={[styles.avatar, { backgroundColor: palette.tint, borderColor: palette.border }]}>
           <Text style={[styles.avatarText, { color: palette.accent }]}>H</Text>
@@ -206,14 +182,16 @@ function DashboardPage({
   palette,
   completedSessions,
   mindfulMinutes,
+  onBack,
 }: {
   palette: MenuPalette;
   completedSessions: number;
   mindfulMinutes: number;
+  onBack: () => void;
 }) {
   return (
     <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
-      <PageHeader eyebrow="YOUR PRACTICE" title="Dashboard" palette={palette} />
+      <PageHeader eyebrow="YOUR PRACTICE" title="Dashboard" palette={palette} onBack={onBack} />
       <Text style={[styles.dashboardLead, { color: palette.text }]}>Take a deep breath and relax.</Text>
       <View style={styles.metrics}>
         <View style={[styles.metric, { backgroundColor: palette.surface, borderColor: palette.border }]}>
@@ -239,16 +217,18 @@ function ConfigurationPage({
   setThemeMode,
   showOnboardingAfterSplash,
   setShowOnboardingAfterSplash,
+  onBack,
 }: {
   palette: MenuPalette;
   themeMode: MenuThemeMode;
   setThemeMode: (mode: MenuThemeMode) => void;
   showOnboardingAfterSplash: boolean;
   setShowOnboardingAfterSplash: (enabled: boolean) => void;
+  onBack: () => void;
 }) {
   return (
     <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
-      <PageHeader eyebrow="PREFERENCES" title="Configuration" palette={palette} />
+      <PageHeader eyebrow="PREFERENCES" title="Configuration" palette={palette} onBack={onBack} />
       <Text style={[styles.sectionTitle, { color: palette.text }]}>Appearance</Text>
       {(['light', 'dark', 'minimal'] as MenuThemeMode[]).map((mode) => {
         const selected = themeMode === mode;
@@ -296,10 +276,10 @@ function ConfigurationPage({
   );
 }
 
-function AboutPage({ palette }: { palette: MenuPalette }) {
+function AboutPage({ palette, onBack }: { palette: MenuPalette; onBack: () => void }) {
   return (
     <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
-      <PageHeader eyebrow="OUR STORY" title="About Hush" palette={palette} />
+      <PageHeader eyebrow="OUR STORY" title="About Hush" palette={palette} onBack={onBack} />
       {ABOUT_SECTIONS.map((section, index) => (
         <View key={section.title} style={[styles.copySection, index > 0 && { borderTopColor: palette.border, borderTopWidth: StyleSheet.hairlineWidth }]}>
           <Text style={[styles.copyTitle, { color: palette.text }]}>{section.title}</Text>
@@ -310,10 +290,10 @@ function AboutPage({ palette }: { palette: MenuPalette }) {
   );
 }
 
-function TermsPage({ palette }: { palette: MenuPalette }) {
+function TermsPage({ palette, onBack }: { palette: MenuPalette; onBack: () => void }) {
   return (
     <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
-      <PageHeader eyebrow="LEGAL" title="Terms & Conditions" palette={palette} />
+      <PageHeader eyebrow="LEGAL" title="Terms & Conditions" palette={palette} onBack={onBack} />
       <Text style={[styles.updatedText, { color: palette.muted }]}>Last updated: January 9, 2026</Text>
       <Text style={[styles.termsIntro, { color: palette.muted }]}>Please read these Terms and Conditions carefully before using Hush. By accessing or using the app, you agree to be bound by these Terms.</Text>
       {TERMS_SECTIONS.map((section) => (
@@ -341,8 +321,10 @@ export function MenuSectionScreen({
   setThemeMode,
   showOnboardingAfterSplash,
   setShowOnboardingAfterSplash,
+  onSelectSection,
+  onBack,
 }: {
-  section: MenuSection;
+  section: MenuSection | null;
   palette: MenuPalette;
   completedSessions: number;
   mindfulMinutes: number;
@@ -350,10 +332,20 @@ export function MenuSectionScreen({
   setThemeMode: (mode: MenuThemeMode) => void;
   showOnboardingAfterSplash: boolean;
   setShowOnboardingAfterSplash: (enabled: boolean) => void;
+  onSelectSection: (section: MenuSection) => void;
+  onBack: () => void;
 }) {
-  if (section === 'profile') return <ProfilePage palette={palette} />;
+  if (section === null) return <MenuHome palette={palette} onSelect={onSelectSection} />;
+  if (section === 'profile') return <ProfilePage palette={palette} onBack={onBack} />;
   if (section === 'dashboard') {
-    return <DashboardPage palette={palette} completedSessions={completedSessions} mindfulMinutes={mindfulMinutes} />;
+    return (
+      <DashboardPage
+        palette={palette}
+        completedSessions={completedSessions}
+        mindfulMinutes={mindfulMinutes}
+        onBack={onBack}
+      />
+    );
   }
   if (section === 'configuration') {
     return (
@@ -363,29 +355,24 @@ export function MenuSectionScreen({
         setThemeMode={setThemeMode}
         showOnboardingAfterSplash={showOnboardingAfterSplash}
         setShowOnboardingAfterSplash={setShowOnboardingAfterSplash}
+        onBack={onBack}
       />
     );
   }
-  if (section === 'about') return <AboutPage palette={palette} />;
-  return <TermsPage palette={palette} />;
+  if (section === 'about') return <AboutPage palette={palette} onBack={onBack} />;
+  return <TermsPage palette={palette} onBack={onBack} />;
 }
 
 const styles = StyleSheet.create({
-  sheet: {
-    paddingHorizontal: 22,
-  },
-  handleRow: { height: 24, alignItems: 'center', justifyContent: 'center' },
-  handle: { width: 42, height: 4, borderRadius: 2 },
-  sheetHeader: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
   eyebrow: { fontSize: 11, lineHeight: 17, fontWeight: '700', letterSpacing: 1.7 },
-  sheetTitle: { marginTop: 3, fontSize: 28, lineHeight: 34, fontWeight: '500', letterSpacing: -0.7 },
-  close: { fontSize: 32, lineHeight: 34, fontWeight: '300' },
-  sheetDivider: { height: StyleSheet.hairlineWidth, marginTop: 18 },
+  menuList: { borderTopWidth: StyleSheet.hairlineWidth },
   menuRow: { minHeight: 58, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   menuLabel: { fontSize: 16, lineHeight: 22 },
   menuChevron: { fontSize: 27, lineHeight: 30, fontWeight: '300' },
   pageContent: { paddingHorizontal: 20, paddingTop: 30, paddingBottom: 48 },
   pageHeader: { marginBottom: 28 },
+  backRow: { marginBottom: 14 },
+  backText: { fontSize: 15, lineHeight: 20, fontWeight: '500' },
   pageTitle: { marginTop: 7, fontSize: 38, lineHeight: 44, fontWeight: '500', letterSpacing: -1.2 },
   identityBlock: { flexDirection: 'row', alignItems: 'center', marginBottom: 30 },
   avatar: { width: 72, height: 72, borderRadius: 36, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
