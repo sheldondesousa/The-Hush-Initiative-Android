@@ -1757,7 +1757,7 @@ const styles = StyleSheet.create({
   cardMarkText: { fontSize: 13, fontWeight: '700', letterSpacing: 1 },
   cardBody: { flex: 1, paddingRight: 28 },
   cardCategoryRow: { minHeight: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 6 },
-  cardCategory: { flex: 1, fontSize: 13, fontWeight: '700', letterSpacing: 1.2 },
+  cardCategory: { flex: 1, fontSize: 12, fontWeight: '600', letterSpacing: 1.2 },
   confidence: { overflow: 'hidden', borderRadius: 10, paddingVertical: 3, paddingHorizontal: 7, fontSize: 9, fontWeight: '700', letterSpacing: 0.5 },
   cardTitle: { fontSize: 28, fontWeight: '600', lineHeight: 34 },
   recommendationNote: { fontSize: 12, lineHeight: 17, fontWeight: '500', marginTop: 8 },
