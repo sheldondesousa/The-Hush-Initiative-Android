@@ -14,6 +14,7 @@ type Props = {
   exerciseName: string;
   color: string;
   backgroundColor: string;
+  size?: number;
 };
 
 type IllustrationProps = {
@@ -135,17 +136,18 @@ export default function ExerciseCardVisual({
   exerciseName,
   color,
   backgroundColor,
+  size = 80,
 }: Props) {
   const Illustration = illustrations[exerciseName] ?? BoxVisual;
 
   return (
     <View
-      style={[styles.container, { backgroundColor }]}
+      style={[styles.container, { width: size, height: size, borderRadius: size / 4, backgroundColor }]}
       accessible={false}
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     >
-      <Svg width={80} height={80} viewBox="0 0 80 80">
+      <Svg width={size} height={size} viewBox="0 0 80 80">
         <Illustration color={color} />
       </Svg>
     </View>
@@ -154,9 +156,6 @@ export default function ExerciseCardVisual({
 
 const styles = StyleSheet.create({
   container: {
-    width: 80,
-    height: 80,
-    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },

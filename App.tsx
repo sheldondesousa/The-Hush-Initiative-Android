@@ -611,7 +611,7 @@ function ExerciseInfoScreen({
         <Text style={[styles.eyebrow, { color: accent }]}>{item.bestFor.toUpperCase()}</Text>
         <View style={styles.detailTitleRow}>
           {isExercise && (
-            <ExerciseCardVisual exerciseName={item.name} color={palette.text} backgroundColor={palette.tint} />
+            <ExerciseCardVisual exerciseName={item.name} color={palette.text} backgroundColor={palette.tint} size={64} />
           )}
           <Text style={[styles.detailTitle, styles.detailTitleText, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>{item.name}</Text>
         </View>
@@ -742,7 +742,9 @@ function ExerciseRhythm({ config, palette, titleFontsLoaded }: { config: Exercis
   return (
     <View style={styles.infoSection}>
       <View style={styles.infoHeadingRow}>
-        <PulseIcon color="#000000" />
+        <View style={[styles.infoHeadingBadge, { backgroundColor: palette.tint }]}>
+          <PulseIcon color="#000000" size={18} />
+        </View>
         <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 24, marginBottom: 0 }, titleFontsLoaded && { fontFamily: CARD_TITLE_FONT_FAMILY }]}>Rhythm</Text>
       </View>
       <View
@@ -986,7 +988,9 @@ function ExerciseGuide({ sections, palette, titleFontsLoaded }: { sections: Exer
   return (
     <View style={styles.infoSection}>
       <View style={styles.infoHeadingRow}>
-        <BookIcon color="#000000" />
+        <View style={[styles.infoHeadingBadge, { backgroundColor: palette.tint }]}>
+          <BookIcon color="#000000" size={18} />
+        </View>
         <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 24, marginBottom: 0 }, titleFontsLoaded && { fontFamily: CARD_TITLE_FONT_FAMILY }]}>Guide</Text>
       </View>
       <View style={[styles.guideBox, { borderColor: palette.border }]}>
@@ -1830,6 +1834,7 @@ const styles = StyleSheet.create({
   infoSection: { marginTop: 34 },
   infoTitle: { fontSize: 20, fontWeight: '600', marginBottom: 12 },
   infoHeadingRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
+  infoHeadingBadge: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   infoBox: { borderWidth: 1, borderRadius: 16, overflow: 'hidden' },
   infoRow: { minHeight: 60, padding: 14, flexDirection: 'row', borderBottomWidth: StyleSheet.hairlineWidth, gap: 14 },
   infoNumber: { width: 24, fontSize: 11, letterSpacing: 1 },
