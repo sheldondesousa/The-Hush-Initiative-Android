@@ -1693,7 +1693,7 @@ const styles = StyleSheet.create({
   categoryHeading: { fontSize: 13, fontWeight: '700', letterSpacing: 1.2, marginBottom: 12 },
   categoryCardSpacing: { marginBottom: 12 },
   featuredCard: {
-    marginTop: 22, minHeight: 168, borderRadius: 22, padding: 22,
+    marginTop: 22, minHeight: 192, borderRadius: 22, padding: 22,
     flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between',
   },
   featuredCardBody: { flex: 1, paddingRight: 12 },
