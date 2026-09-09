@@ -98,6 +98,7 @@ const SHOW_ONBOARDING_STORAGE_KEY = 'hush.show-onboarding-after-splash.v1';
 const SPLASH_DURATION_MS = 1200;
 const ENABLE_BOX_ORB_PROTOTYPE = false;
 const HEADER_HEIGHT = 70;
+const FOREST_SAGE = '#4A7C68';
 
 export default function App() {
   const [launchState, setLaunchState] = useState<'splash' | 'onboarding' | 'app'>('splash');
@@ -346,7 +347,7 @@ function Library<T extends Exercise | Meditation>({
       </View>
       {categories.map((group, groupIndex) => (
         <View key={group.category} style={groupIndex > 0 ? styles.categorySection : undefined}>
-          {groupIndex > 0 && <View style={[styles.categorySeparator, { backgroundColor: palette.border }]} />}
+          {groupIndex > 0 && <View style={[styles.categorySeparator, { backgroundColor: FOREST_SAGE }]} />}
           <Text style={[styles.categoryHeading, { color: accent === 'breath' ? palette.accent : palette.meditation }]}>
             {group.category.toUpperCase()}
           </Text>
