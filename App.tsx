@@ -1732,7 +1732,7 @@ const styles = StyleSheet.create({
   featuredCardGraphLabel: { position: 'absolute', width: 28, marginLeft: -14, textAlign: 'center', fontSize: 10, fontWeight: '600', opacity: 0.8 },
   featuredCardBody: { flex: 1, paddingRight: 12, alignSelf: 'flex-start', zIndex: 1 },
   featuredCardTitle: { fontSize: 26, fontWeight: '700', letterSpacing: -0.6 },
-  featuredCardMeta: { marginTop: 8, fontSize: 14 },
+  featuredCardMeta: { marginTop: 4, fontSize: 14 },
   featuredCardTryButton: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', alignSelf: 'flex-start', zIndex: 1 },
   featuredCardTryLabel: { fontSize: 14, fontWeight: '700' },
   card: { borderWidth: 1, borderRadius: 18, padding: 16, flexDirection: 'row', alignItems: 'flex-start', gap: 14 },
@@ -1744,7 +1744,7 @@ const styles = StyleSheet.create({
   confidence: { overflow: 'hidden', borderRadius: 10, paddingVertical: 3, paddingHorizontal: 7, fontSize: 9, fontWeight: '700', letterSpacing: 0.5 },
   cardTitle: { fontSize: 22, fontWeight: '600', lineHeight: 27 },
   recommendationNote: { fontSize: 12, lineHeight: 17, fontWeight: '500', marginTop: 8 },
-  cardFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 },
+  cardFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 },
   meta: { fontSize: 11 },
   arrow: { fontSize: 20 },
   detailHeader: {
