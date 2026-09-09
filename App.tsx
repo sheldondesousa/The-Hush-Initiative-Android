@@ -6,7 +6,6 @@ import {
   Animated,
   BackHandler,
   Easing,
-  FlatList,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -327,34 +326,45 @@ function Library<T extends Exercise | Meditation>({
   accent: 'breath' | 'meditation';
   onPress: (item: T) => void;
 }) {
+  const categories: { category: string; items: T[] }[] = [];
+  for (const item of items) {
+    const group = categories.find((entry) => entry.category === item.bestFor);
+    if (group) group.items.push(item);
+    else categories.push({ category: item.bestFor, items: [item] });
+  }
+
   return (
-    <FlatList
-      data={items}
-      keyExtractor={(item) => item.id}
-      contentContainerStyle={styles.listContent}
-      ListHeaderComponent={
-        <View style={styles.libraryHeading}>
-          <Text style={[styles.eyebrow, { color: accent === 'breath' ? palette.accent : palette.meditation }]}>
-            {accent === 'breath' ? 'CHOOSE YOUR PATH' : 'FIND YOUR CALM'}
+    <ScrollView contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
+      <View style={styles.libraryHeading}>
+        <Text style={[styles.eyebrow, { color: accent === 'breath' ? palette.accent : palette.meditation }]}>
+          {accent === 'breath' ? 'CHOOSE YOUR PATH' : 'FIND YOUR CALM'}
+        </Text>
+        <Text style={[styles.title, styles.libraryTitle, { color: palette.text }]}>{title}</Text>
+        {accent === 'breath' && items.length > 0 && (
+          <FeaturedCard item={items[0] as unknown as Exercise} palette={palette} onPress={() => onPress(items[0])} />
+        )}
+      </View>
+      {categories.map((group, groupIndex) => (
+        <View key={group.category} style={groupIndex > 0 ? styles.categorySection : undefined}>
+          {groupIndex > 0 && <View style={[styles.categorySeparator, { backgroundColor: palette.border }]} />}
+          <Text style={[styles.categoryHeading, { color: accent === 'breath' ? palette.accent : palette.meditation }]}>
+            {group.category.toUpperCase()}
           </Text>
-          <Text style={[styles.title, styles.libraryTitle, { color: palette.text }]}>{title}</Text>
-          {accent === 'breath' && items.length > 0 && (
-            <FeaturedCard item={items[0] as unknown as Exercise} palette={palette} onPress={() => onPress(items[0])} />
-          )}
+          {group.items.map((item, index) => (
+            <View key={item.id} style={styles.categoryCardSpacing}>
+              <PracticeCard
+                item={item}
+                index={index}
+                palette={palette}
+                accent={accent}
+                onPress={() => onPress(item)}
+                showCategory={false}
+              />
+            </View>
+          ))}
         </View>
-      }
-      renderItem={({ item, index }) => (
-        <PracticeCard
-          item={item}
-          index={index}
-          palette={palette}
-          accent={accent}
-          onPress={() => onPress(item)}
-        />
-      )}
-      ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-      showsVerticalScrollIndicator={false}
-    />
+      ))}
+    </ScrollView>
   );
 }
 
@@ -394,6 +404,7 @@ function PracticeCard({
   onPress,
   confidence,
   recommendationNote,
+  showCategory = true,
 }: {
   item: Exercise | Meditation;
   index: number;
@@ -402,6 +413,7 @@ function PracticeCard({
   onPress: () => void;
   confidence?: number;
   recommendationNote?: string;
+  showCategory?: boolean;
 }) {
   const color = accent === 'breath' ? palette.accent : palette.meditation;
   const tint = accent === 'breath' ? palette.tint : palette.meditationTint;
@@ -431,12 +443,14 @@ function PracticeCard({
         </View>
       )}
       <View style={styles.cardBody}>
-        <View style={styles.cardCategoryRow}>
-          <Text style={[styles.cardCategory, { color }]}>{item.bestFor.toUpperCase()}</Text>
-          {confidence !== undefined && (
-            <Text style={[styles.confidence, { color, backgroundColor: tint }]}>{confidence}% MATCH</Text>
-          )}
-        </View>
+        {(showCategory || confidence !== undefined) && (
+          <View style={styles.cardCategoryRow}>
+            {showCategory && <Text style={[styles.cardCategory, { color }]}>{item.bestFor.toUpperCase()}</Text>}
+            {confidence !== undefined && (
+              <Text style={[styles.confidence, { color, backgroundColor: tint }]}>{confidence}% MATCH</Text>
+            )}
+          </View>
+        )}
         <Text style={[styles.cardTitle, { color: palette.text }]}>{item.name}</Text>
         {recommendationNote && (
           <Text style={[styles.recommendationNote, { color }]}>{recommendationNote}</Text>
@@ -1673,6 +1687,10 @@ const styles = StyleSheet.create({
   eyebrow: { fontSize: 11, fontWeight: '700', letterSpacing: 1.8, marginBottom: 8 },
   title: { fontSize: 38, fontWeight: '500', letterSpacing: -1.2 },
   libraryTitle: { fontSize: 36 },
+  categorySection: { marginTop: 24 },
+  categorySeparator: { height: StyleSheet.hairlineWidth, marginBottom: 24 },
+  categoryHeading: { fontSize: 13, fontWeight: '700', letterSpacing: 1.2, marginBottom: 12 },
+  categoryCardSpacing: { marginBottom: 12 },
   featuredCard: {
     marginTop: 22, minHeight: 168, borderRadius: 22, padding: 22,
     flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between',
