@@ -464,7 +464,7 @@ const styles = StyleSheet.create({
   pageHeader: { paddingHorizontal: 20, paddingTop: 30, marginBottom: 28 },
   menuHeading: { paddingHorizontal: 20, paddingTop: 30, marginBottom: 28 },
   menuListContent: { paddingHorizontal: 20, paddingBottom: 48 },
-  pageTitle: { fontSize: 38, fontWeight: '500', letterSpacing: -1.2 },
+  pageTitle: { fontSize: 42, fontWeight: '500', letterSpacing: -1.2 },
   identityBlock: { flexDirection: 'row', alignItems: 'center', marginBottom: 30 },
   avatar: { width: 72, height: 72, borderRadius: 36, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   avatarText: { fontSize: 30, lineHeight: 36, fontWeight: '500' },
