@@ -1,6 +1,11 @@
+import { CormorantGaramond_500Medium } from '@expo-google-fonts/cormorant-garamond';
+import { useFonts } from 'expo-font';
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
+
+const TERRACOTTA = '#D97D46';
+const TITLE_FONT_FAMILY = 'CormorantGaramond_500Medium';
 
 export type MenuSection = 'profile' | 'dashboard' | 'configuration' | 'about' | 'terms';
 export type MenuThemeMode = 'light' | 'dark' | 'minimal';
@@ -155,31 +160,46 @@ const TERMS_SECTIONS: Array<{ title: string; body: string; bullets?: string[] }>
   },
 ];
 
-export function MenuHome({ palette, onSelect }: { palette: MenuPalette; onSelect: (section: MenuSection) => void }) {
+export function MenuHome({
+  palette,
+  themeMode,
+  onSelect,
+}: {
+  palette: MenuPalette;
+  themeMode: MenuThemeMode;
+  onSelect: (section: MenuSection) => void;
+}) {
+  const badgeColor = themeMode === 'minimal' ? '#000000' : themeMode === 'dark' ? palette.accent : '#FFFFFF';
+  const badgeIconColor = themeMode === 'dark' ? palette.bg : themeMode === 'minimal' ? '#FFFFFF' : TERRACOTTA;
+  const [titleFontsLoaded] = useFonts({ CormorantGaramond_500Medium });
   return (
-    <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
-      <View style={styles.pageHeader}>
-        <Text style={[styles.eyebrow, { color: palette.accent }]}>NAVIGATE</Text>
-        <Text style={[styles.pageTitle, { color: palette.text }]}>Menu</Text>
+    <View style={{ flex: 1 }}>
+      <View style={styles.menuHeading}>
+        <Text style={[styles.eyebrow, { color: '#000000' }]}>NAVIGATE</Text>
+        <Text style={[styles.pageTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>Menu</Text>
       </View>
-      {MENU_ITEMS.map((item) => {
-        const Icon = MENU_ICONS[item.id];
-        return (
-          <Pressable
-            key={item.id}
-            onPress={() => onSelect(item.id)}
-            accessibilityRole="button"
-            style={[styles.menuTile, { backgroundColor: palette.surface, borderColor: palette.border }]}
-          >
-            <View style={styles.menuTileLeft}>
-              <Icon color={palette.text} />
-              <Text style={[styles.menuLabel, { color: palette.text }]}>{item.label}</Text>
-            </View>
-            <Text style={[styles.menuChevron, { color: palette.muted }]}>›</Text>
-          </Pressable>
-        );
-      })}
-    </ScrollView>
+      <ScrollView contentContainerStyle={styles.menuListContent} showsVerticalScrollIndicator={false}>
+        {MENU_ITEMS.map((item) => {
+          const Icon = MENU_ICONS[item.id];
+          return (
+            <Pressable
+              key={item.id}
+              onPress={() => onSelect(item.id)}
+              accessibilityRole="button"
+              style={[styles.menuTile, { backgroundColor: palette.surface, borderColor: palette.border }]}
+            >
+              <View style={styles.menuTileLeft}>
+                <View style={[styles.menuIconBadge, { backgroundColor: badgeColor }]}>
+                  <Icon color={badgeIconColor} />
+                </View>
+                <Text style={[styles.menuLabel, { color: palette.text }]}>{item.label}</Text>
+              </View>
+              <Text style={[styles.menuChevron, { color: palette.muted }]}>›</Text>
+            </Pressable>
+          );
+        })}
+      </ScrollView>
+    </View>
   );
 }
 
@@ -187,26 +207,16 @@ function PageHeader({
   eyebrow,
   title,
   palette,
-  onBack,
 }: {
   eyebrow: string;
   title: string;
   palette: MenuPalette;
-  onBack: () => void;
 }) {
+  const [titleFontsLoaded] = useFonts({ CormorantGaramond_500Medium });
   return (
     <View style={styles.pageHeader}>
-      <Pressable
-        onPress={onBack}
-        hitSlop={12}
-        accessibilityRole="button"
-        accessibilityLabel="Back to menu"
-        style={styles.backRow}
-      >
-        <Text style={[styles.backText, { color: palette.text }]}>‹ Menu</Text>
-      </Pressable>
       <Text style={[styles.eyebrow, { color: palette.accent }]}>{eyebrow}</Text>
-      <Text style={[styles.pageTitle, { color: palette.text }]}>{title}</Text>
+      <Text style={[styles.pageTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>{title}</Text>
     </View>
   );
 }
@@ -221,27 +231,30 @@ function InfoRow({ label, value, palette, last = false }: { label: string; value
 }
 
 function ProfilePage({ palette, onBack }: { palette: MenuPalette; onBack: () => void }) {
+  const [titleFontsLoaded] = useFonts({ CormorantGaramond_500Medium });
   return (
-    <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
-      <PageHeader eyebrow="YOUR SPACE" title="Profile" palette={palette} onBack={onBack} />
-      <View style={styles.identityBlock}>
-        <View style={[styles.avatar, { backgroundColor: palette.tint, borderColor: palette.border }]}>
-          <Text style={[styles.avatarText, { color: palette.accent }]}>H</Text>
+    <View style={{ flex: 1 }}>
+      <PageHeader eyebrow="YOUR SPACE" title="Profile" palette={palette} />
+      <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
+        <View style={styles.identityBlock}>
+          <View style={[styles.avatar, { backgroundColor: palette.tint, borderColor: palette.border }]}>
+            <Text style={[styles.avatarText, { color: palette.accent }]}>H</Text>
+          </View>
+          <View style={styles.identityCopy}>
+            <Text style={[styles.identityName, { color: palette.text }]}>Hush User</Text>
+            <Text style={[styles.identityMeta, { color: palette.muted }]}>Local profile</Text>
+          </View>
         </View>
-        <View style={styles.identityCopy}>
-          <Text style={[styles.identityName, { color: palette.text }]}>Hush User</Text>
-          <Text style={[styles.identityMeta, { color: palette.muted }]}>Local profile</Text>
+        <Text style={[styles.sectionTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>Profile details</Text>
+        <View style={[styles.infoCard, { backgroundColor: palette.surface, borderColor: palette.border }]}>
+          <InfoRow label="Account" value="On this device" palette={palette} />
+          <InfoRow label="Practice data" value="Private" palette={palette} last />
         </View>
-      </View>
-      <Text style={[styles.sectionTitle, { color: palette.text }]}>Profile details</Text>
-      <View style={[styles.infoCard, { backgroundColor: palette.surface, borderColor: palette.border }]}>
-        <InfoRow label="Account" value="On this device" palette={palette} />
-        <InfoRow label="Practice data" value="Private" palette={palette} last />
-      </View>
-      <Text style={[styles.supportingText, { color: palette.muted }]}>
-        Your exercise preferences and local practice activity stay on this device.
-      </Text>
-    </ScrollView>
+        <Text style={[styles.supportingText, { color: palette.muted }]}>
+          Your exercise preferences and local practice activity stay on this device.
+        </Text>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -256,25 +269,28 @@ function DashboardPage({
   mindfulMinutes: number;
   onBack: () => void;
 }) {
+  const [titleFontsLoaded] = useFonts({ CormorantGaramond_500Medium });
   return (
-    <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
-      <PageHeader eyebrow="YOUR PRACTICE" title="Dashboard" palette={palette} onBack={onBack} />
-      <Text style={[styles.dashboardLead, { color: palette.text }]}>Take a deep breath and relax.</Text>
-      <View style={styles.metrics}>
-        <View style={[styles.metric, { backgroundColor: palette.surface, borderColor: palette.border }]}>
-          <Text style={[styles.metricValue, { color: palette.text }]}>{completedSessions}</Text>
-          <Text style={[styles.metricLabel, { color: palette.muted }]}>Sessions complete</Text>
+    <View style={{ flex: 1 }}>
+      <PageHeader eyebrow="YOUR PRACTICE" title="Dashboard" palette={palette} />
+      <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
+        <Text style={[styles.dashboardLead, { color: palette.text }]}>Take a deep breath and relax.</Text>
+        <View style={styles.metrics}>
+          <View style={[styles.metric, { backgroundColor: palette.surface, borderColor: palette.border }]}>
+            <Text style={[styles.metricValue, { color: palette.text }]}>{completedSessions}</Text>
+            <Text style={[styles.metricLabel, { color: palette.muted }]}>Sessions complete</Text>
+          </View>
+          <View style={[styles.metric, { backgroundColor: palette.surface, borderColor: palette.border }]}>
+            <Text style={[styles.metricValue, { color: palette.text }]}>{mindfulMinutes}</Text>
+            <Text style={[styles.metricLabel, { color: palette.muted }]}>Mindful minutes</Text>
+          </View>
         </View>
-        <View style={[styles.metric, { backgroundColor: palette.surface, borderColor: palette.border }]}>
-          <Text style={[styles.metricValue, { color: palette.text }]}>{mindfulMinutes}</Text>
-          <Text style={[styles.metricLabel, { color: palette.muted }]}>Mindful minutes</Text>
+        <View style={[styles.callout, { backgroundColor: palette.tint }]}>
+          <Text style={[styles.calloutTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>Your practice overview</Text>
+          <Text style={[styles.calloutBody, { color: palette.muted }]}>Activity updates whenever you complete a breathing or meditation session.</Text>
         </View>
-      </View>
-      <View style={[styles.callout, { backgroundColor: palette.tint }]}>
-        <Text style={[styles.calloutTitle, { color: palette.text }]}>Your practice overview</Text>
-        <Text style={[styles.calloutBody, { color: palette.muted }]}>Activity updates whenever you complete a breathing or meditation session.</Text>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -293,89 +309,98 @@ function ConfigurationPage({
   setShowOnboardingAfterSplash: (enabled: boolean) => void;
   onBack: () => void;
 }) {
+  const [titleFontsLoaded] = useFonts({ CormorantGaramond_500Medium });
   return (
-    <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
-      <PageHeader eyebrow="PREFERENCES" title="Configuration" palette={palette} onBack={onBack} />
-      <Text style={[styles.sectionTitle, { color: palette.text }]}>Appearance</Text>
-      {(['light', 'dark', 'minimal'] as MenuThemeMode[]).map((mode) => {
-        const selected = themeMode === mode;
-        return (
-          <Pressable
-            key={mode}
-            onPress={() => setThemeMode(mode)}
-            accessibilityRole="radio"
-            accessibilityState={{ selected }}
-            style={[styles.settingRow, { backgroundColor: palette.surface, borderColor: palette.border }]}
-          >
-            <Text style={[styles.settingText, { color: palette.text }]}>{mode[0].toUpperCase() + mode.slice(1)}</Text>
-            <View style={[styles.radioOuter, { borderColor: selected ? palette.accent : palette.border }]}>
-              {selected && <View style={[styles.radioInner, { backgroundColor: palette.accent }]} />}
-            </View>
-          </Pressable>
-        );
-      })}
-      <Text style={[styles.supportingText, { color: palette.muted }]}>Choose the visual mode that feels most comfortable. The change applies immediately.</Text>
-      <Text style={[styles.sectionTitle, styles.configurationSectionTitle, { color: palette.text }]}>Onboarding</Text>
-      <Pressable
-        onPress={() => setShowOnboardingAfterSplash(!showOnboardingAfterSplash)}
-        accessibilityRole="switch"
-        accessibilityLabel="Show onboarding after splash"
-        accessibilityState={{ checked: showOnboardingAfterSplash }}
-        style={[styles.settingRow, { backgroundColor: palette.surface, borderColor: palette.border }]}
-      >
-        <Text style={[styles.settingText, { color: palette.text }]}>Show after splash</Text>
-        <View
-          style={[
-            styles.switchTrack,
-            {
-              backgroundColor: showOnboardingAfterSplash ? palette.accent : palette.border,
-              alignItems: showOnboardingAfterSplash ? 'flex-end' : 'flex-start',
-            },
-          ]}
+    <View style={{ flex: 1 }}>
+      <PageHeader eyebrow="PREFERENCES" title="Configuration" palette={palette} />
+      <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
+        <Text style={[styles.sectionTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>Appearance</Text>
+        {(['light', 'dark', 'minimal'] as MenuThemeMode[]).map((mode) => {
+          const selected = themeMode === mode;
+          return (
+            <Pressable
+              key={mode}
+              onPress={() => setThemeMode(mode)}
+              accessibilityRole="radio"
+              accessibilityState={{ selected }}
+              style={[styles.settingRow, { backgroundColor: palette.surface, borderColor: palette.border }]}
+            >
+              <Text style={[styles.settingText, { color: palette.text }]}>{mode[0].toUpperCase() + mode.slice(1)}</Text>
+              <View style={[styles.radioOuter, { borderColor: selected ? palette.accent : palette.border }]}>
+                {selected && <View style={[styles.radioInner, { backgroundColor: palette.accent }]} />}
+              </View>
+            </Pressable>
+          );
+        })}
+        <Text style={[styles.supportingText, { color: palette.muted }]}>Choose the visual mode that feels most comfortable. The change applies immediately.</Text>
+        <Text style={[styles.sectionTitle, styles.configurationSectionTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>Onboarding</Text>
+        <Pressable
+          onPress={() => setShowOnboardingAfterSplash(!showOnboardingAfterSplash)}
+          accessibilityRole="switch"
+          accessibilityLabel="Show onboarding after splash"
+          accessibilityState={{ checked: showOnboardingAfterSplash }}
+          style={[styles.settingRow, { backgroundColor: palette.surface, borderColor: palette.border }]}
         >
-          <View style={[styles.switchThumb, { backgroundColor: palette.surface }]} />
-        </View>
-      </Pressable>
-      <Text style={[styles.supportingText, { color: palette.muted }]}>
-        When enabled, the three onboarding screens appear after the splash screen on every app launch.
-      </Text>
-    </ScrollView>
+          <Text style={[styles.settingText, { color: palette.text }]}>Show after splash</Text>
+          <View
+            style={[
+              styles.switchTrack,
+              {
+                backgroundColor: showOnboardingAfterSplash ? palette.accent : palette.border,
+                alignItems: showOnboardingAfterSplash ? 'flex-end' : 'flex-start',
+              },
+            ]}
+          >
+            <View style={[styles.switchThumb, { backgroundColor: palette.surface }]} />
+          </View>
+        </Pressable>
+        <Text style={[styles.supportingText, { color: palette.muted }]}>
+          When enabled, the three onboarding screens appear after the splash screen on every app launch.
+        </Text>
+      </ScrollView>
+    </View>
   );
 }
 
 function AboutPage({ palette, onBack }: { palette: MenuPalette; onBack: () => void }) {
+  const [titleFontsLoaded] = useFonts({ CormorantGaramond_500Medium });
   return (
-    <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
-      <PageHeader eyebrow="OUR STORY" title="About Hush" palette={palette} onBack={onBack} />
-      {ABOUT_SECTIONS.map((section, index) => (
-        <View key={section.title} style={[styles.copySection, index > 0 && { borderTopColor: palette.border, borderTopWidth: StyleSheet.hairlineWidth }]}>
-          <Text style={[styles.copyTitle, { color: palette.text }]}>{section.title}</Text>
-          <Text style={[styles.copyBody, { color: palette.muted }]}>{section.body}</Text>
-        </View>
-      ))}
-    </ScrollView>
+    <View style={{ flex: 1 }}>
+      <PageHeader eyebrow="OUR STORY" title="About Hush" palette={palette} />
+      <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
+        {ABOUT_SECTIONS.map((section, index) => (
+          <View key={section.title} style={[styles.copySection, index > 0 && { borderTopColor: palette.border, borderTopWidth: StyleSheet.hairlineWidth }]}>
+            <Text style={[styles.copyTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>{section.title}</Text>
+            <Text style={[styles.copyBody, { color: palette.muted }]}>{section.body}</Text>
+          </View>
+        ))}
+      </ScrollView>
+    </View>
   );
 }
 
 function TermsPage({ palette, onBack }: { palette: MenuPalette; onBack: () => void }) {
+  const [titleFontsLoaded] = useFonts({ CormorantGaramond_500Medium });
   return (
-    <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
-      <PageHeader eyebrow="LEGAL" title="Terms & Conditions" palette={palette} onBack={onBack} />
-      <Text style={[styles.updatedText, { color: palette.muted }]}>Last updated: January 9, 2026</Text>
-      <Text style={[styles.termsIntro, { color: palette.muted }]}>Please read these Terms and Conditions carefully before using Hush. By accessing or using the app, you agree to be bound by these Terms.</Text>
-      {TERMS_SECTIONS.map((section) => (
-        <View key={section.title} style={[styles.copySection, { borderTopColor: palette.border, borderTopWidth: StyleSheet.hairlineWidth }]}>
-          <Text style={[styles.copyTitle, { color: palette.text }]}>{section.title}</Text>
-          <Text style={[styles.copyBody, { color: palette.muted }]}>{section.body}</Text>
-          {section.bullets?.map((bullet) => (
-            <View key={bullet} style={styles.bulletRow}>
-              <Text style={[styles.bullet, { color: palette.accent }]}>•</Text>
-              <Text style={[styles.bulletText, { color: palette.muted }]}>{bullet}</Text>
-            </View>
-          ))}
-        </View>
-      ))}
-    </ScrollView>
+    <View style={{ flex: 1 }}>
+      <PageHeader eyebrow="LEGAL" title="Terms & Conditions" palette={palette} />
+      <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
+        <Text style={[styles.updatedText, { color: palette.muted }]}>Last updated: January 9, 2026</Text>
+        <Text style={[styles.termsIntro, { color: palette.muted }]}>Please read these Terms and Conditions carefully before using Hush. By accessing or using the app, you agree to be bound by these Terms.</Text>
+        {TERMS_SECTIONS.map((section) => (
+          <View key={section.title} style={[styles.copySection, { borderTopColor: palette.border, borderTopWidth: StyleSheet.hairlineWidth }]}>
+            <Text style={[styles.copyTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>{section.title}</Text>
+            <Text style={[styles.copyBody, { color: palette.muted }]}>{section.body}</Text>
+            {section.bullets?.map((bullet) => (
+              <View key={bullet} style={styles.bulletRow}>
+                <Text style={[styles.bullet, { color: palette.accent }]}>•</Text>
+                <Text style={[styles.bulletText, { color: palette.muted }]}>{bullet}</Text>
+              </View>
+            ))}
+          </View>
+        ))}
+      </ScrollView>
+    </View>
   );
 }
 
@@ -402,7 +427,7 @@ export function MenuSectionScreen({
   onSelectSection: (section: MenuSection) => void;
   onBack: () => void;
 }) {
-  if (section === null) return <MenuHome palette={palette} onSelect={onSelectSection} />;
+  if (section === null) return <MenuHome palette={palette} themeMode={themeMode} onSelect={onSelectSection} />;
   if (section === 'profile') return <ProfilePage palette={palette} onBack={onBack} />;
   if (section === 'dashboard') {
     return (
@@ -431,19 +456,20 @@ export function MenuSectionScreen({
 }
 
 const styles = StyleSheet.create({
-  eyebrow: { fontSize: 11, lineHeight: 17, fontWeight: '700', letterSpacing: 1.7 },
+  eyebrow: { fontSize: 11, fontWeight: '700', letterSpacing: 1.8, marginBottom: 8 },
   menuTile: {
     minHeight: 58, borderWidth: 1, borderRadius: 14, marginBottom: 9, paddingHorizontal: 17,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
   },
   menuTileLeft: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  menuIconBadge: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   menuLabel: { fontSize: 16, lineHeight: 22 },
   menuChevron: { fontSize: 27, lineHeight: 30, fontWeight: '300' },
-  pageContent: { paddingHorizontal: 20, paddingTop: 30, paddingBottom: 48 },
-  pageHeader: { marginBottom: 28 },
-  backRow: { marginBottom: 14 },
-  backText: { fontSize: 15, lineHeight: 20, fontWeight: '500' },
-  pageTitle: { marginTop: 7, fontSize: 38, lineHeight: 44, fontWeight: '500', letterSpacing: -1.2 },
+  pageContent: { paddingHorizontal: 20, paddingBottom: 48 },
+  pageHeader: { paddingHorizontal: 20, paddingTop: 30, marginBottom: 28 },
+  menuHeading: { paddingHorizontal: 20, paddingTop: 30, marginBottom: 28 },
+  menuListContent: { paddingHorizontal: 20, paddingBottom: 48 },
+  pageTitle: { fontSize: 42, fontWeight: '500', letterSpacing: -1.2 },
   identityBlock: { flexDirection: 'row', alignItems: 'center', marginBottom: 30 },
   avatar: { width: 72, height: 72, borderRadius: 36, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   avatarText: { fontSize: 30, lineHeight: 36, fontWeight: '500' },

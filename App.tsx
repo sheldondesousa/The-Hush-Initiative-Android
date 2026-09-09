@@ -1,4 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  CormorantGaramond_500Medium,
+  CormorantGaramond_600SemiBold,
+} from '@expo-google-fonts/cormorant-garamond';
+import { useFonts } from 'expo-font';
 import * as Haptics from 'expo-haptics';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
@@ -6,7 +11,6 @@ import {
   Animated,
   BackHandler,
   Easing,
-  FlatList,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -99,6 +103,17 @@ const SHOW_ONBOARDING_STORAGE_KEY = 'hush.show-onboarding-after-splash.v1';
 const SPLASH_DURATION_MS = 1200;
 const ENABLE_BOX_ORB_PROTOTYPE = false;
 const HEADER_HEIGHT = 70;
+const FOREST_SAGE = '#4A7C68';
+const TERRACOTTA = '#D97D46';
+const TITLE_FONT_FAMILY = 'CormorantGaramond_500Medium';
+const FEATURED_CARD_TITLE_FONT_FAMILY = 'CormorantGaramond_600SemiBold';
+const CARD_TITLE_FONT_FAMILY = 'CormorantGaramond_600SemiBold';
+
+function getGraphFill(palette: Palette): string {
+  if (palette === palettes.dark) return 'rgba(240,240,240,0.08)';
+  if (palette === palettes.minimal) return palette.tint;
+  return 'rgba(74,124,104,0.10)';
+}
 
 export default function App() {
   const [launchState, setLaunchState] = useState<'splash' | 'onboarding' | 'app'>('splash');
@@ -113,6 +128,10 @@ export default function App() {
   const [menuSection, setMenuSection] = useState<MenuSection | null>(null);
   const [showOnboardingAfterSplash, setShowOnboardingAfterSplash] = useState(true);
   const palette = palettes[themeMode];
+  const [titleFontsLoaded] = useFonts({
+    CormorantGaramond_500Medium,
+    CormorantGaramond_600SemiBold,
+  });
 
   useEffect(() => {
     let active = true;
@@ -223,6 +242,7 @@ export default function App() {
       <ExerciseInfoScreen
         detail={detail}
         palette={palette}
+        titleFontsLoaded={titleFontsLoaded}
         defaultPersonalization={detail.kind === 'exercise' ? exerciseDefaults[detail.item.id] : undefined}
         onDefaultChange={updateExerciseDefault}
         onBack={() => setDetail(null)}
@@ -238,7 +258,11 @@ export default function App() {
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: palette.bg }]} edges={['top', 'left', 'right']}>
       <StatusBar style={themeMode === 'dark' ? 'light' : 'dark'} />
-      <Header palette={palette} themeMode={themeMode} />
+      <Header
+        palette={palette}
+        themeMode={themeMode}
+        onBack={tab === 'menu' && menuSection !== null ? () => setMenuSection(null) : undefined}
+      />
 
       <View style={styles.content}>
         {tab === 'breathe' && (
@@ -248,6 +272,7 @@ export default function App() {
             palette={palette}
             accent="breath"
             onPress={(item) => setDetail({ kind: 'exercise', item })}
+            titleFontsLoaded={titleFontsLoaded}
           />
         )}
         {tab === 'meditate' && (
@@ -257,6 +282,7 @@ export default function App() {
             palette={palette}
             accent="meditation"
             onPress={(item) => setDetail({ kind: 'meditation', item })}
+            titleFontsLoaded={titleFontsLoaded}
           />
         )}
         {tab === 'recommend' && (
@@ -264,6 +290,7 @@ export default function App() {
             palette={palette}
             onExercise={(item) => setDetail({ kind: 'exercise', item })}
             onMeditation={(item) => setDetail({ kind: 'meditation', item })}
+            titleFontsLoaded={titleFontsLoaded}
           />
         )}
         {tab === 'menu' && (
@@ -294,22 +321,24 @@ export default function App() {
   );
 }
 
-function Header({ palette, themeMode }: { palette: Palette; themeMode: ThemeMode }) {
-  const insets = useSafeAreaInsets();
-  const isLight = palette === palettes.light;
-  const isDark = palette === palettes.dark;
-  const overlayColor = isLight ? 'rgba(74,55,35,0.15)' : isDark ? 'rgba(168,200,186,0.15)' : 'rgba(0,0,0,0.15)';
+function Header({
+  palette,
+  themeMode,
+  onBack,
+}: {
+  palette: Palette;
+  themeMode: ThemeMode;
+  onBack?: () => void;
+}) {
   return (
     <View style={[styles.header, { backgroundColor: palette.bg, borderBottomColor: palette.border }]}>
-      <View
-        pointerEvents="none"
-        style={[
-          styles.headerDarkenOverlay,
-          { top: -insets.top, height: insets.top + HEADER_HEIGHT, backgroundColor: overlayColor, zIndex: 0 },
-        ]}
-      />
-      <Text style={[styles.wordmark, { color: palette.text, zIndex: 1 }]}>
-        Hush<Text style={{ color: themeMode === 'dark' ? '#A8C8BA' : '#4A7C68' }}>.</Text>
+      {onBack && (
+        <Pressable onPress={onBack} hitSlop={12} style={{ zIndex: 1 }}>
+          <Text style={[styles.headerBack, { color: palette.text }]}>‹ Back</Text>
+        </Pressable>
+      )}
+      <Text style={[styles.wordmark, { color: palette.text }]}>
+        Hush<Text style={{ color: TERRACOTTA }}>.</Text>
       </Text>
     </View>
   );
@@ -321,38 +350,115 @@ function Library<T extends Exercise | Meditation>({
   palette,
   accent,
   onPress,
+  titleFontsLoaded,
 }: {
   title: string;
   items: T[];
   palette: Palette;
   accent: 'breath' | 'meditation';
   onPress: (item: T) => void;
+  titleFontsLoaded: boolean;
 }) {
+  const categories: { category: string; items: T[] }[] = [];
+  for (const item of items) {
+    const group = categories.find((entry) => entry.category === item.bestFor);
+    if (group) group.items.push(item);
+    else categories.push({ category: item.bestFor, items: [item] });
+  }
+
   return (
-    <FlatList
-      data={items}
-      keyExtractor={(item) => item.id}
-      contentContainerStyle={styles.listContent}
-      ListHeaderComponent={
-        <View style={styles.libraryHeading}>
-          <Text style={[styles.eyebrow, { color: accent === 'breath' ? palette.accent : palette.meditation }]}>
-            {accent === 'breath' ? 'CHOOSE YOUR PATH' : 'FIND YOUR CALM'}
-          </Text>
-          <Text style={[styles.title, styles.libraryTitle, { color: palette.text }]}>{title}</Text>
-        </View>
-      }
-      renderItem={({ item, index }) => (
-        <PracticeCard
-          item={item}
-          index={index}
-          palette={palette}
-          accent={accent}
-          onPress={() => onPress(item)}
-        />
+    <View style={{ flex: 1 }}>
+      <View style={styles.libraryHeading}>
+        <Text style={[styles.eyebrow, { color: accent === 'breath' ? palette.accent : palette.meditation }]}>
+          {accent === 'breath' ? 'CHOOSE YOUR PATH' : 'FIND YOUR CALM'}
+        </Text>
+        <Text style={[styles.title, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>{title}</Text>
+      </View>
+      <ScrollView contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
+        {accent === 'breath' && items.length > 0 && (
+          <FeaturedCard item={items[0] as unknown as Exercise} palette={palette} onPress={() => onPress(items[0])} titleFontsLoaded={titleFontsLoaded} />
+        )}
+        {categories.map((group, groupIndex) => (
+          <View key={group.category} style={groupIndex > 0 ? styles.categorySection : undefined}>
+            {groupIndex > 0 && <View style={[styles.categorySeparator, { backgroundColor: FOREST_SAGE, opacity: 0.5 }]} />}
+            {group.items.map((item, index) => (
+              <View key={item.id} style={styles.categoryCardSpacing}>
+                <PracticeCard
+                  item={item}
+                  index={index}
+                  palette={palette}
+                  accent={accent}
+                  onPress={() => onPress(item)}
+                  titleFontsLoaded={titleFontsLoaded}
+                  pictogramBackground={accent === 'breath' ? getGraphFill(palette) : undefined}
+                />
+              </View>
+            ))}
+          </View>
+        ))}
+      </ScrollView>
+    </View>
+  );
+}
+
+function FeaturedCard({
+  item,
+  palette,
+  onPress,
+  titleFontsLoaded,
+}: {
+  item: Exercise;
+  palette: Palette;
+  onPress: () => void;
+  titleFontsLoaded: boolean;
+}) {
+  const phases = exerciseDetails[item.id]?.phases;
+  const flow = phases ? buildFlowPaths(phases) : null;
+  const totalSeconds = phases?.reduce((sum, phase) => sum + phase.seconds, 0) ?? 0;
+  let elapsedSeconds = 0;
+  const phaseLabels = phases?.map((phase) => {
+    const midpoint = elapsedSeconds + phase.seconds / 2;
+    elapsedSeconds += phase.seconds;
+    return { key: `${phase.label}-${elapsedSeconds}`, seconds: phase.seconds, pct: (midpoint / totalSeconds) * 100 };
+  });
+  let boundarySeconds = 0;
+  const phaseBoundaries = phases?.slice(0, -1).map((phase) => {
+    boundarySeconds += phase.seconds;
+    return (boundarySeconds / totalSeconds) * 1000;
+  });
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`${item.name}, ${item.bestFor}, ${item.duration}, today's pick`}
+      style={({ pressed }) => [styles.featuredCard, { backgroundColor: palette.accent, opacity: pressed ? 0.85 : 1 }]}
+    >
+      {flow && (
+        <Svg pointerEvents="none" style={styles.featuredCardGraph} viewBox="0 0 1000 64" preserveAspectRatio="none">
+          <Path d={flow.fill} fill="#FFFFFF" opacity={0.1} />
+          {phaseBoundaries?.map((x) => (
+            <Line key={x} x1={x} y1={8} x2={x} y2={56} stroke="#FFFFFF" strokeWidth={1} opacity={0.4} />
+          ))}
+          <Path d={flow.stroke} fill="none" stroke="#FFFFFF" strokeWidth={3} opacity={0.75} />
+        </Svg>
       )}
-      ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-      showsVerticalScrollIndicator={false}
-    />
+      {flow && phaseLabels && (
+        <View pointerEvents="none" style={styles.featuredCardGraphLabels}>
+          {phaseLabels.map((label) => (
+            <Text key={label.key} style={[styles.featuredCardGraphLabel, { left: `${label.pct}%`, color: '#FFFFFF' }]}>
+              {label.seconds}s
+            </Text>
+          ))}
+        </View>
+      )}
+      <View style={styles.featuredCardBody}>
+        <Text style={[styles.featuredCardTitle, { color: palette.surface }, titleFontsLoaded && { fontFamily: FEATURED_CARD_TITLE_FONT_FAMILY }]}>{item.name}</Text>
+        <Text style={[styles.featuredCardMeta, { color: palette.tint }]}>{item.duration} · {item.bestFor}</Text>
+      </View>
+      <View style={[styles.featuredCardTryButton, { backgroundColor: palette.tint }]}>
+        <Text style={[styles.featuredCardTryLabel, { color: palette.accent }]}>Go</Text>
+      </View>
+    </Pressable>
   );
 }
 
@@ -364,6 +470,9 @@ function PracticeCard({
   onPress,
   confidence,
   recommendationNote,
+  showCategory = true,
+  titleFontsLoaded,
+  pictogramBackground,
 }: {
   item: Exercise | Meditation;
   index: number;
@@ -372,10 +481,12 @@ function PracticeCard({
   onPress: () => void;
   confidence?: number;
   recommendationNote?: string;
+  showCategory?: boolean;
+  titleFontsLoaded: boolean;
+  pictogramBackground?: string;
 }) {
   const color = accent === 'breath' ? palette.accent : palette.meditation;
   const tint = accent === 'breath' ? palette.tint : palette.meditationTint;
-  const description = exerciseDetails[item.id]?.summary ?? item.description;
   const recommendationContext = [
     confidence !== undefined ? `${confidence}% match` : null,
     recommendationNote,
@@ -394,7 +505,7 @@ function PracticeCard({
         <ExerciseCardVisual
           exerciseName={item.name}
           color={palette.text}
-          backgroundColor={tint}
+          backgroundColor={pictogramBackground ?? tint}
         />
       ) : (
         <View style={[styles.cardMark, { backgroundColor: tint }]}>
@@ -402,22 +513,20 @@ function PracticeCard({
         </View>
       )}
       <View style={styles.cardBody}>
-        <View style={styles.cardCategoryRow}>
-          <Text style={[styles.cardCategory, { color }]}>{item.bestFor.toUpperCase()}</Text>
-          {confidence !== undefined && (
-            <Text style={[styles.confidence, { color, backgroundColor: tint }]}>{confidence}% MATCH</Text>
-          )}
-        </View>
-        <Text style={[styles.cardTitle, { color: palette.text }]}>{item.name}</Text>
-        <Text style={[styles.cardDescription, { color: palette.muted }]} numberOfLines={3}>{description}</Text>
+        {(showCategory || confidence !== undefined) && (
+          <View style={styles.cardCategoryRow}>
+            {showCategory && <Text style={[styles.cardCategory, { color }]}>{item.bestFor.toUpperCase()}</Text>}
+            {confidence !== undefined && (
+              <Text style={[styles.confidence, { color, backgroundColor: tint }]}>{confidence}% MATCH</Text>
+            )}
+          </View>
+        )}
+        <Text style={[styles.cardTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: CARD_TITLE_FONT_FAMILY }]}>{item.name}</Text>
         {recommendationNote && (
           <Text style={[styles.recommendationNote, { color }]}>{recommendationNote}</Text>
         )}
-        <View style={styles.cardFooter}>
-          <Text style={[styles.meta, { color: palette.muted }]}>{item.duration}  ·  Effort {'●'.repeat(item.effort)}{'○'.repeat(3 - item.effort)}</Text>
-          <Text style={[styles.arrow, { color }]}>→</Text>
-        </View>
       </View>
+      <Text style={[styles.arrow, styles.cardArrow, { color }]}>→</Text>
     </Pressable>
   );
 }
@@ -440,6 +549,7 @@ function ExerciseInfoScreen({
   onDefaultChange,
   onBack,
   onBegin,
+  titleFontsLoaded,
 }: {
   detail: NonNullable<Detail>;
   palette: Palette;
@@ -447,6 +557,7 @@ function ExerciseInfoScreen({
   onDefaultChange: (exerciseId: string, value: ExercisePersonalization | null) => void;
   onBack: () => void;
   onBegin: (item: Exercise | Meditation) => void;
+  titleFontsLoaded: boolean;
 }) {
   const item = detail.item;
   const isExercise = detail.kind === 'exercise';
@@ -486,7 +597,7 @@ function ExerciseInfoScreen({
         <Pressable onPress={onBack} hitSlop={12}><Text style={[styles.back, { color: palette.text }]}>‹ Back</Text></Pressable>
         {isExercise ? (
           <Text accessibilityLabel="Hush" style={[styles.detailWordmark, { color: palette.text }]}>
-            Hush<Text style={{ color: palette === palettes.dark ? '#A8C8BA' : '#4A7C68' }}>.</Text>
+            Hush<Text style={{ color: TERRACOTTA }}>.</Text>
           </Text>
         ) : (
           <Text style={[styles.detailHeaderLabel, { color: palette.muted }]}>MEDITATION</Text>
@@ -507,7 +618,12 @@ function ExerciseInfoScreen({
       </View>
       <ScrollView contentContainerStyle={styles.detailContent}>
         <Text style={[styles.eyebrow, { color: accent }]}>{item.bestFor.toUpperCase()}</Text>
-        <Text style={[styles.detailTitle, { color: palette.text }]}>{item.name}</Text>
+        <View style={styles.detailTitleRow}>
+          {isExercise && (
+            <ExerciseCardVisual exerciseName={item.name} color={palette.text} backgroundColor={getGraphFill(palette)} size={64} />
+          )}
+          <Text style={[styles.detailTitle, styles.detailTitleText, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>{item.name}</Text>
+        </View>
         {!isExercise && (
           <Text style={[styles.detailMeta, { color: palette.muted }]}>{item.duration}  ·  Effort {item.effort} of 3</Text>
         )}
@@ -520,12 +636,12 @@ function ExerciseInfoScreen({
         {isExercise ? (
           exerciseConfig ? (
             <>
-              <ExerciseRhythm config={configuredExerciseConfig ?? exerciseConfig} palette={palette} />
-              <ExerciseGuide sections={exerciseConfig.guide} palette={palette} />
+              <ExerciseRhythm config={configuredExerciseConfig ?? exerciseConfig} palette={palette} titleFontsLoaded={titleFontsLoaded} />
+              <ExerciseGuide sections={exerciseConfig.guide} palette={palette} titleFontsLoaded={titleFontsLoaded} />
             </>
           ) : null
         ) : (
-          <InfoSection title="The practice" palette={palette}>
+          <InfoSection title="The practice" palette={palette} titleFontsLoaded={titleFontsLoaded}>
             {(item as Meditation).steps.map((step, index) => <InfoRow key={step} number={index + 1} text={step} palette={palette} />)}
           </InfoSection>
         )}
@@ -610,13 +726,13 @@ function buildFlowPaths(phases: DetailPhase[]) {
   return { stroke, fill: `${stroke} L1000,56 L0,56 Z`, total };
 }
 
-function ExerciseRhythm({ config, palette }: { config: ExerciseDetailConfig; palette: Palette }) {
+function ExerciseRhythm({ config, palette, titleFontsLoaded }: { config: ExerciseDetailConfig; palette: Palette; titleFontsLoaded: boolean }) {
   const [previewExpanded, setPreviewExpanded] = useState(false);
   const { width: screenWidth } = useWindowDimensions();
   const isDark = palette === palettes.dark;
   const isMinimal = palette === palettes.minimal;
   const graphStroke = isDark ? '#FFFFFF' : isMinimal ? palette.accent : '#4A7C68';
-  const graphFill = isDark ? 'rgba(240,240,240,0.08)' : isMinimal ? palette.tint : 'rgba(74,124,104,0.10)';
+  const graphFill = getGraphFill(palette);
   const guideLine = isDark ? 'rgba(240,240,240,0.40)' : isMinimal ? 'rgba(17,17,17,0.35)' : 'rgba(74,124,104,0.42)';
   const previewScale = Math.min(Math.max(screenWidth - 74, 1) / 360, 259 / 286);
   // SVG text renders optically smaller than native React Native Text at the
@@ -634,7 +750,12 @@ function ExerciseRhythm({ config, palette }: { config: ExerciseDetailConfig; pal
 
   return (
     <View style={styles.infoSection}>
-      <Text style={[styles.infoTitle, { color: palette.text }]}>Rhythm</Text>
+      <View style={styles.infoHeadingRow}>
+        <View style={[styles.infoHeadingBadge, { backgroundColor: getGraphFill(palette) }]}>
+          <PulseIcon color="#000000" size={18} />
+        </View>
+        <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 24, marginBottom: 0 }, titleFontsLoaded && { fontFamily: CARD_TITLE_FONT_FAMILY }]}>Rhythm</Text>
+      </View>
       <View
         style={[styles.rhythmCard, { borderColor: palette.border }]}
       >
@@ -871,11 +992,16 @@ function ExercisePreviewGraphic({
   );
 }
 
-function ExerciseGuide({ sections, palette }: { sections: ExerciseGuideSection[]; palette: Palette }) {
+function ExerciseGuide({ sections, palette, titleFontsLoaded }: { sections: ExerciseGuideSection[]; palette: Palette; titleFontsLoaded: boolean }) {
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   return (
     <View style={styles.infoSection}>
-      <Text style={[styles.infoTitle, { color: palette.text }]}>Guide</Text>
+      <View style={styles.infoHeadingRow}>
+        <View style={[styles.infoHeadingBadge, { backgroundColor: getGraphFill(palette) }]}>
+          <BookIcon color="#000000" size={18} />
+        </View>
+        <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 24, marginBottom: 0 }, titleFontsLoaded && { fontFamily: CARD_TITLE_FONT_FAMILY }]}>Guide</Text>
+      </View>
       <View style={[styles.guideBox, { borderColor: palette.border }]}>
         {sections.map((section, sectionIndex) => {
           const isOpen = Boolean(openSections[section.id]);
@@ -912,10 +1038,20 @@ function ExerciseGuide({ sections, palette }: { sections: ExerciseGuideSection[]
   );
 }
 
-function InfoSection({ title, palette, children }: { title: string; palette: Palette; children: React.ReactNode }) {
+function InfoSection({
+  title,
+  palette,
+  children,
+  titleFontsLoaded,
+}: {
+  title: string;
+  palette: Palette;
+  children: React.ReactNode;
+  titleFontsLoaded: boolean;
+}) {
   return (
     <View style={styles.infoSection}>
-      <Text style={[styles.infoTitle, { color: palette.text }]}>{title}</Text>
+      <Text style={[styles.infoTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>{title}</Text>
       <View style={[styles.infoBox, { backgroundColor: palette.surface, borderColor: palette.border }]}>{children}</View>
     </View>
   );
@@ -1347,10 +1483,12 @@ function RecommendScreen({
   palette,
   onExercise,
   onMeditation,
+  titleFontsLoaded,
 }: {
   palette: Palette;
   onExercise: (item: Exercise) => void;
   onMeditation: (item: Meditation) => void;
+  titleFontsLoaded: boolean;
 }) {
   const scrollRef = useRef<ScrollView>(null);
   // Guide Me only covers breathing for now — the meditate mode toggle was removed.
@@ -1392,12 +1530,15 @@ function RecommendScreen({
   }, [mode, selectedLevel, selectedSituation]);
 
   return (
-    <ScrollView ref={scrollRef} contentContainerStyle={styles.recommendContent} showsVerticalScrollIndicator={false}>
-      <Text style={[styles.eyebrow, { color: palette.accent }]}>FIND THE RIGHT TECHNIQUE</Text>
-      <Text style={[styles.title, { color: palette.text }]}>What do you need?</Text>
+    <View style={{ flex: 1 }}>
+      <View style={styles.recommendHeading}>
+        <Text style={[styles.eyebrow, { color: '#000000' }]}>FIND THE RIGHT TECHNIQUE</Text>
+        <Text style={[styles.title, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>App Suggestions</Text>
+      </View>
+      <ScrollView ref={scrollRef} contentContainerStyle={styles.recommendContent} showsVerticalScrollIndicator={false}>
       {!selectedSituation ? (
         <>
-          <Text style={[styles.question, { color: palette.text }]}>How are you feeling right now?</Text>
+          <Text style={[styles.question, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>How are you feeling right now?</Text>
           <View style={styles.chips}>
             <View style={styles.chipColumn}>
               {situations.map((item) => (
@@ -1421,7 +1562,7 @@ function RecommendScreen({
         </>
       ) : (
         <>
-          <Text style={[styles.question, { color: palette.text }]}>
+          <Text style={[styles.question, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>
             {mode === 'breathe' ? 'How strongly is it affecting you?' : 'How much time do you have?'}
           </Text>
           <View style={styles.recommenderCarousel}>
@@ -1460,7 +1601,7 @@ function RecommendScreen({
       )}
       {recommendation.length > 0 && (
         <View style={styles.results}>
-          <Text style={[styles.question, { color: palette.text }]}>Suggested exercises</Text>
+          <Text style={[styles.question, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>Suggested exercises</Text>
           {recommendation.map((result, index) => (
             <PracticeCard
               key={result.item.id}
@@ -1471,11 +1612,13 @@ function RecommendScreen({
               confidence={'confidence' in result ? result.confidence : undefined}
               recommendationNote={'recommendationNote' in result ? result.recommendationNote : undefined}
               onPress={() => mode === 'breathe' ? onExercise(result.item as Exercise) : onMeditation(result.item as Meditation)}
+              titleFontsLoaded={titleFontsLoaded}
             />
           ))}
         </View>
       )}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -1489,80 +1632,53 @@ function TabBar({
   palette: Palette;
 }) {
   const insets = useSafeAreaInsets();
-  const isLight = palette === palettes.light;
   const tabs: { id: Tab; label: string; icon: string }[] = [
     { id: 'breathe', label: 'Breathe', icon: '' },
     // Meditate is hidden from the nav bar for now.
     { id: 'recommend', label: 'Guide Me', icon: '' },
     { id: 'menu', label: 'Menu', icon: '' },
   ];
-  const activeTabColor: Record<Tab, string> = {
-    breathe: palette.accent,
-    meditate: palette.meditation,
-    recommend: palette.text,
-    menu: palette.text,
-  };
-  const activeTabTint: Record<Tab, string> = {
-    breathe: palette.tint,
-    meditate: palette.meditationTint,
-    recommend: palette.bg,
-    menu: palette.bg,
-  };
   const tabItems = tabs.map((item) => {
     const selected = tab === item.id;
-    const iconColor = selected ? activeTabColor[item.id] : palette.muted;
-    const iconBackground = selected ? activeTabTint[item.id] : undefined;
+    const iconColor = selected ? palette.text : palette.muted;
+    const iconSize = selected ? 24 : 20;
     const icon = item.id === 'breathe' ? (
-      <WindIcon color={iconColor} />
+      <WindIcon color={iconColor} size={iconSize} />
     ) : item.id === 'meditate' ? (
-      <FocusIcon color={iconColor} />
+      <FocusIcon color={iconColor} size={iconSize} />
     ) : item.id === 'recommend' ? (
-      <SmartAssistIcon color={iconColor} />
+      <SmartAssistIcon color={iconColor} size={iconSize} />
     ) : item.id === 'menu' ? (
-      <MenuIcon color={iconColor} />
+      <MenuIcon color={iconColor} size={iconSize} />
     ) : (
       <Text style={[styles.tabIcon, { color: iconColor }]}>{item.icon}</Text>
     );
     return (
       <Pressable key={item.id} onPress={() => onTabPress(item.id)} style={styles.tab} accessibilityRole="tab" accessibilityState={{ selected }}>
-        <View
-          style={{
-            ...styles.tabIconBadge,
-            backgroundColor: iconBackground ?? 'transparent',
-          }}
-        >
-          {icon}
-        </View>
-        <Text style={[styles.tabLabel, { color: selected ? palette.text : palette.muted, fontWeight: selected ? '700' : '400' }]}>{item.label}</Text>
+        {icon}
+        <Text style={[styles.tabLabel, { color: iconColor, fontWeight: selected ? '700' : '400', fontSize: selected ? 13 : 12 }]}>{item.label}</Text>
       </Pressable>
     );
   });
 
-  if (isLight) {
-    return (
-      <View style={[styles.tabBarFloatingWrapper, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-        <View style={styles.tabBarFloatingCard}>
-          <View style={styles.tabItems} accessibilityRole="tablist">
-            {tabItems}
-          </View>
-        </View>
-      </View>
-    );
-  }
-
   return (
-    <View style={[styles.tabBar, { backgroundColor: palette.surface, borderTopColor: palette.border }]}>
+    <View style={{ backgroundColor: palette.surface }}>
       <View style={styles.tabItems} accessibilityRole="tablist">
-        {tabItems}
+        {tabItems.map((item, index) => (
+          <React.Fragment key={tabs[index].id}>
+            {index > 0 && <View style={[styles.tabDivider, { backgroundColor: palette.border }]} />}
+            {item}
+          </React.Fragment>
+        ))}
       </View>
       <View style={{ height: insets.bottom }} />
     </View>
   );
 }
 
-function WindIcon({ color }: { color: string }) {
+function WindIcon({ color, size = 20 }: { color: string; size?: number }) {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" accessible={false}>
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" accessible={false}>
       <Path d="M12.8 19.6A2 2 0 1 0 14 16H2" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
       <Path d="M17.5 8.6A2 2 0 1 1 19 12H2" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
       <Path d="M9.8 4.4A2 2 0 1 1 11 8H2" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
@@ -1570,9 +1686,9 @@ function WindIcon({ color }: { color: string }) {
   );
 }
 
-function FocusIcon({ color }: { color: string }) {
+function FocusIcon({ color, size = 20 }: { color: string; size?: number }) {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" accessible={false}>
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" accessible={false}>
       <Circle cx={12} cy={12} r={3} stroke={color} strokeWidth={1.8} />
       <Path d="M3 7V5a2 2 0 0 1 2-2h2" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
       <Path d="M17 3h2a2 2 0 0 1 2 2v2" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
@@ -1582,9 +1698,9 @@ function FocusIcon({ color }: { color: string }) {
   );
 }
 
-function MenuIcon({ color }: { color: string }) {
+function MenuIcon({ color, size = 20 }: { color: string; size?: number }) {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" accessible={false}>
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" accessible={false}>
       <Line x1={4} y1={6} x2={20} y2={6} stroke={color} strokeWidth={1.8} strokeLinecap="round" />
       <Line x1={4} y1={12} x2={20} y2={12} stroke={color} strokeWidth={1.8} strokeLinecap="round" />
       <Line x1={4} y1={18} x2={20} y2={18} stroke={color} strokeWidth={1.8} strokeLinecap="round" />
@@ -1592,11 +1708,46 @@ function MenuIcon({ color }: { color: string }) {
   );
 }
 
-function SmartAssistIcon({ color }: { color: string }) {
+function SmartAssistIcon({ color, size = 20 }: { color: string; size?: number }) {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" accessible={false}>
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" accessible={false}>
       <Path d="m4 20 10.5-10.5 2 2L6 22H4v-2Z" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
       <Path d="M17 2v4M15 4h4M20 8v3M18.5 9.5h3M10 3v2M9 4h2" stroke={color} strokeWidth={1.8} strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+function PulseIcon({ color, size = 22 }: { color: string; size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" accessible={false}>
+      <Path
+        d="M2 12h4l2.5-7 4 14 2.5-7H22"
+        stroke={color}
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+function BookIcon({ color, size = 22 }: { color: string; size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" accessible={false}>
+      <Path
+        d="M4 5.5C4 4.67 4.67 4 5.5 4H12v16H5.5A1.5 1.5 0 0 1 4 18.5v-13Z"
+        stroke={color}
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M20 5.5c0-.83-.67-1.5-1.5-1.5H12v16h6.5a1.5 1.5 0 0 0 1.5-1.5v-13Z"
+        stroke={color}
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </Svg>
   );
 }
@@ -1628,37 +1779,49 @@ const styles = StyleSheet.create({
   content: { flex: 1 },
   header: {
     height: HEADER_HEIGHT, paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center',
-    justifyContent: 'flex-end', borderBottomWidth: StyleSheet.hairlineWidth,
+    justifyContent: 'flex-start', borderBottomWidth: StyleSheet.hairlineWidth,
     position: 'relative',
   },
-  headerDarkenOverlay: { position: 'absolute', left: 0, right: 0 },
   wordmark: {
     position: 'absolute',
     left: 0,
-    right: 0,
-    textAlign: 'center',
+    right: 20,
+    textAlign: 'right',
     fontSize: 28,
     fontWeight: '500',
     letterSpacing: -0.56,
   },
-  listContent: { paddingHorizontal: 18, paddingBottom: 36 },
-  libraryHeading: { paddingTop: 30, paddingBottom: 24 },
+  headerBack: { fontSize: 15, fontWeight: '500' },
+  listContent: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 36 },
+  libraryHeading: { paddingHorizontal: 20, paddingTop: 30 },
   eyebrow: { fontSize: 11, fontWeight: '700', letterSpacing: 1.8, marginBottom: 8 },
-  title: { fontSize: 38, fontWeight: '500', letterSpacing: -1.2 },
-  libraryTitle: { fontSize: 36 },
-  card: { minHeight: 196, borderWidth: 1, borderRadius: 18, padding: 16, flexDirection: 'row', gap: 14 },
+  title: { fontSize: 42, fontWeight: '500', letterSpacing: -1.2 },
+  categorySection: { marginTop: 2 },
+  categorySeparator: { height: 1, marginBottom: 14 },
+  categoryCardSpacing: { marginBottom: 12 },
+  featuredCard: {
+    marginBottom: 24, minHeight: 192, borderRadius: 22, padding: 22, overflow: 'hidden',
+    flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between',
+  },
+  featuredCardGraph: { position: 'absolute', left: 24, right: 24, bottom: 48, height: 48, zIndex: 0 },
+  featuredCardGraphLabels: { position: 'absolute', left: 24, right: 24, bottom: 30, height: 14, zIndex: 0 },
+  featuredCardGraphLabel: { position: 'absolute', width: 28, marginLeft: -14, textAlign: 'center', fontSize: 10, fontWeight: '600', opacity: 0.8 },
+  featuredCardBody: { flex: 1, paddingRight: 12, alignSelf: 'flex-start', zIndex: 1 },
+  featuredCardTitle: { fontSize: 32, fontWeight: '600', letterSpacing: -0.6 },
+  featuredCardMeta: { marginTop: 8, fontSize: 14 },
+  featuredCardTryButton: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', alignSelf: 'flex-start', zIndex: 1 },
+  featuredCardTryLabel: { fontSize: 14, fontWeight: '700' },
+  card: { borderWidth: 1, borderRadius: 18, padding: 16, flexDirection: 'row', alignItems: 'flex-start', gap: 14 },
   cardMark: { width: 54, height: 54, borderRadius: 27, alignItems: 'center', justifyContent: 'center' },
   cardMarkText: { fontSize: 13, fontWeight: '700', letterSpacing: 1 },
-  cardBody: { flex: 1 },
+  cardBody: { flex: 1, paddingRight: 28 },
   cardCategoryRow: { minHeight: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 6 },
-  cardCategory: { flex: 1, fontSize: 10, fontWeight: '700', letterSpacing: 1 },
+  cardCategory: { flex: 1, fontSize: 12, fontWeight: '600', letterSpacing: 1.2 },
   confidence: { overflow: 'hidden', borderRadius: 10, paddingVertical: 3, paddingHorizontal: 7, fontSize: 9, fontWeight: '700', letterSpacing: 0.5 },
-  cardTitle: { fontSize: 22, fontWeight: '600', lineHeight: 27 },
-  cardDescription: { fontSize: 14, lineHeight: 21, marginTop: 8 },
+  cardTitle: { fontSize: 28, fontWeight: '600', lineHeight: 34 },
   recommendationNote: { fontSize: 12, lineHeight: 17, fontWeight: '500', marginTop: 8 },
-  cardFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 16 },
-  meta: { fontSize: 11 },
   arrow: { fontSize: 20 },
+  cardArrow: { position: 'absolute', right: 16, bottom: 16 },
   detailHeader: {
     height: 58, paddingHorizontal: 18, flexDirection: 'row', alignItems: 'center',
     justifyContent: 'space-between', borderBottomWidth: StyleSheet.hairlineWidth,
@@ -1668,7 +1831,9 @@ const styles = StyleSheet.create({
   detailWordmark: { fontSize: 28, fontWeight: '500', letterSpacing: -0.56 },
   detailPersonalizeButton: { width: 52, height: 44, alignItems: 'flex-end', justifyContent: 'center' },
   detailContent: { padding: 22, paddingBottom: 130 },
-  detailTitle: { fontSize: 40, lineHeight: 46, fontWeight: '600', letterSpacing: -1.2 },
+  detailTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
+  detailTitle: { fontSize: 42, lineHeight: 48, fontWeight: '600', letterSpacing: -1.2 },
+  detailTitleText: { flex: 1 },
   detailMeta: { marginTop: 12, fontSize: 13 },
   detailDescription: { marginTop: 28, fontSize: 18, lineHeight: 29 },
   summarySection: { marginTop: 28 },
@@ -1677,6 +1842,8 @@ const styles = StyleSheet.create({
   summaryToggleText: { fontSize: 13 },
   infoSection: { marginTop: 34 },
   infoTitle: { fontSize: 20, fontWeight: '600', marginBottom: 12 },
+  infoHeadingRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
+  infoHeadingBadge: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   infoBox: { borderWidth: 1, borderRadius: 16, overflow: 'hidden' },
   infoRow: { minHeight: 60, padding: 14, flexDirection: 'row', borderBottomWidth: StyleSheet.hairlineWidth, gap: 14 },
   infoNumber: { width: 24, fontSize: 11, letterSpacing: 1 },
@@ -1850,32 +2017,22 @@ const styles = StyleSheet.create({
   meditationHalo: { width: 140, height: 140, borderRadius: 70, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   meditationGlyph: { fontSize: 48 },
   meditationPrompt: { textAlign: 'center', fontSize: 27, lineHeight: 38, fontWeight: '500', marginTop: 38 },
-  recommendContent: { padding: 20, paddingBottom: 42 },
+  recommendHeading: { paddingHorizontal: 20, paddingTop: 30 },
+  recommendContent: { paddingHorizontal: 20, paddingBottom: 42 },
   question: { fontSize: 20, fontWeight: '600', marginTop: 30, marginBottom: 14 },
   recommenderCarousel: { flexDirection: 'row', alignItems: 'center' },
   recommenderChevron: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  recommenderCarouselPills: { flex: 1, alignItems: 'center' },
+  recommenderCarouselPills: { flex: 1, alignItems: 'stretch' },
   recommenderChevronSpacer: { width: 44 },
-  chips: { alignItems: 'center' },
+  chips: { alignItems: 'stretch' },
   chipColumn: { alignItems: 'stretch', gap: 10 },
-  chip: { borderWidth: 1, borderRadius: 22, paddingVertical: 12, paddingHorizontal: 16 },
+  chip: { minHeight: 58, borderWidth: 1, borderRadius: 14, paddingHorizontal: 17, justifyContent: 'center' },
   chipLabel: { textAlign: 'center', fontSize: 15, fontWeight: '600' },
   chipDescription: { textAlign: 'center', fontSize: 12, marginTop: 3 },
   results: { gap: 12 },
-  tabBarFloatingWrapper: { paddingHorizontal: 16, paddingTop: 8 },
-  tabBarFloatingCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 28,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 6,
-  },
-  tabBar: { borderTopWidth: StyleSheet.hairlineWidth },
-  tabItems: { height: 70, flexDirection: 'row', paddingVertical: 4 },
+  tabItems: { height: 58, paddingTop: 8, flexDirection: 'row', justifyContent: 'space-around' },
   tab: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 2 },
-  tabIconBadge: { width: 36, height: 36, borderRadius: 12, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
+  tabDivider: { width: 1, marginVertical: 10 },
   tabIcon: { fontSize: 20 },
   tabLabel: { fontSize: 12 },
 });
