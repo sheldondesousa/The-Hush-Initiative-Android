@@ -343,33 +343,35 @@ function Library<T extends Exercise | Meditation>({
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
+    <View style={{ flex: 1 }}>
       <View style={styles.libraryHeading}>
         <Text style={[styles.eyebrow, { color: accent === 'breath' ? palette.accent : palette.meditation }]}>
           {accent === 'breath' ? 'CHOOSE YOUR PATH' : 'FIND YOUR CALM'}
         </Text>
         <Text style={[styles.title, styles.libraryTitle, { color: palette.text }]}>{title}</Text>
+      </View>
+      <ScrollView contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
         {accent === 'breath' && items.length > 0 && (
           <FeaturedCard item={items[0] as unknown as Exercise} palette={palette} onPress={() => onPress(items[0])} />
         )}
-      </View>
-      {categories.map((group, groupIndex) => (
-        <View key={group.category} style={groupIndex > 0 ? styles.categorySection : undefined}>
-          {groupIndex > 0 && <View style={[styles.categorySeparator, { backgroundColor: FOREST_SAGE, opacity: 0.5 }]} />}
-          {group.items.map((item, index) => (
-            <View key={item.id} style={styles.categoryCardSpacing}>
-              <PracticeCard
-                item={item}
-                index={index}
-                palette={palette}
-                accent={accent}
-                onPress={() => onPress(item)}
-              />
-            </View>
-          ))}
-        </View>
-      ))}
-    </ScrollView>
+        {categories.map((group, groupIndex) => (
+          <View key={group.category} style={groupIndex > 0 ? styles.categorySection : undefined}>
+            {groupIndex > 0 && <View style={[styles.categorySeparator, { backgroundColor: FOREST_SAGE, opacity: 0.5 }]} />}
+            {group.items.map((item, index) => (
+              <View key={item.id} style={styles.categoryCardSpacing}>
+                <PracticeCard
+                  item={item}
+                  index={index}
+                  palette={palette}
+                  accent={accent}
+                  onPress={() => onPress(item)}
+                />
+              </View>
+            ))}
+          </View>
+        ))}
+      </ScrollView>
+    </View>
   );
 }
 
@@ -1470,9 +1472,12 @@ function RecommendScreen({
   }, [mode, selectedLevel, selectedSituation]);
 
   return (
-    <ScrollView ref={scrollRef} contentContainerStyle={styles.recommendContent} showsVerticalScrollIndicator={false}>
-      <Text style={[styles.eyebrow, { color: '#000000' }]}>FIND THE RIGHT TECHNIQUE</Text>
-      <Text style={[styles.title, { color: palette.text }]}>App Suggestions</Text>
+    <View style={{ flex: 1 }}>
+      <View style={styles.recommendHeading}>
+        <Text style={[styles.eyebrow, { color: '#000000' }]}>FIND THE RIGHT TECHNIQUE</Text>
+        <Text style={[styles.title, { color: palette.text }]}>App Suggestions</Text>
+      </View>
+      <ScrollView ref={scrollRef} contentContainerStyle={styles.recommendContent} showsVerticalScrollIndicator={false}>
       {!selectedSituation ? (
         <>
           <Text style={[styles.question, { color: palette.text }]}>How are you feeling right now?</Text>
@@ -1553,7 +1558,8 @@ function RecommendScreen({
           ))}
         </View>
       )}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -1692,8 +1698,8 @@ const styles = StyleSheet.create({
     letterSpacing: -0.56,
   },
   headerBack: { fontSize: 15, fontWeight: '500' },
-  listContent: { paddingHorizontal: 20, paddingBottom: 36 },
-  libraryHeading: { paddingTop: 30, paddingBottom: 24 },
+  listContent: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 36 },
+  libraryHeading: { paddingHorizontal: 20, paddingTop: 30 },
   eyebrow: { fontSize: 11, fontWeight: '700', letterSpacing: 1.8, marginBottom: 8 },
   title: { fontSize: 38, fontWeight: '500', letterSpacing: -1.2 },
   libraryTitle: { fontSize: 36 },
@@ -1701,7 +1707,7 @@ const styles = StyleSheet.create({
   categorySeparator: { height: 1, marginBottom: 14 },
   categoryCardSpacing: { marginBottom: 12 },
   featuredCard: {
-    marginTop: 22, minHeight: 192, borderRadius: 22, padding: 22, overflow: 'hidden',
+    marginBottom: 24, minHeight: 192, borderRadius: 22, padding: 22, overflow: 'hidden',
     flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between',
   },
   featuredCardGraph: { position: 'absolute', left: 24, right: 24, bottom: 40, height: 66, zIndex: 0 },
@@ -1915,7 +1921,8 @@ const styles = StyleSheet.create({
   meditationHalo: { width: 140, height: 140, borderRadius: 70, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   meditationGlyph: { fontSize: 48 },
   meditationPrompt: { textAlign: 'center', fontSize: 27, lineHeight: 38, fontWeight: '500', marginTop: 38 },
-  recommendContent: { paddingHorizontal: 20, paddingTop: 30, paddingBottom: 42 },
+  recommendHeading: { paddingHorizontal: 20, paddingTop: 30 },
+  recommendContent: { paddingHorizontal: 20, paddingBottom: 42 },
   question: { fontSize: 20, fontWeight: '600', marginTop: 30, marginBottom: 14 },
   recommenderCarousel: { flexDirection: 'row', alignItems: 'center' },
   recommenderChevron: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
