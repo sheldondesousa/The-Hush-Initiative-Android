@@ -1454,10 +1454,11 @@ function RecommendScreen({
   return (
     <ScrollView ref={scrollRef} contentContainerStyle={styles.recommendContent} showsVerticalScrollIndicator={false}>
       <Text style={[styles.eyebrow, { color: palette.accent }]}>FIND THE RIGHT TECHNIQUE</Text>
-      <Text style={[styles.title, { color: palette.text }]}>What do you need?</Text>
+      <Text style={[styles.title, { color: palette.text }]}>
+        {!selectedSituation ? 'How are you feeling right now?' : mode === 'breathe' ? 'How strongly is it affecting you?' : 'How much time do you have?'}
+      </Text>
       {!selectedSituation ? (
         <>
-          <Text style={[styles.question, { color: palette.text }]}>How are you feeling right now?</Text>
           <View style={styles.chips}>
             <View style={styles.chipColumn}>
               {situations.map((item) => (
@@ -1481,9 +1482,6 @@ function RecommendScreen({
         </>
       ) : (
         <>
-          <Text style={[styles.question, { color: palette.text }]}>
-            {mode === 'breathe' ? 'How strongly is it affecting you?' : 'How much time do you have?'}
-          </Text>
           <View style={styles.recommenderCarousel}>
             <Pressable
               accessibilityRole="button"
