@@ -388,7 +388,7 @@ function FeaturedCard({
       style={({ pressed }) => [styles.featuredCard, { backgroundColor: palette.accent, opacity: pressed ? 0.85 : 1 }]}
     >
       {flow && (
-        <Svg style={styles.featuredCardGraph} viewBox="0 0 1000 64" preserveAspectRatio="none">
+        <Svg pointerEvents="none" style={styles.featuredCardGraph} viewBox="0 0 1000 64" preserveAspectRatio="none">
           <Path d={flow.fill} fill={palette.tint} opacity={0.12} />
           <Path d={flow.stroke} fill="none" stroke={palette.tint} strokeWidth={3} opacity={0.3} />
         </Svg>
@@ -1702,11 +1702,11 @@ const styles = StyleSheet.create({
     marginTop: 22, minHeight: 192, borderRadius: 22, padding: 22, overflow: 'hidden',
     flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between',
   },
-  featuredCardGraph: { position: 'absolute', left: 0, right: -40, bottom: 0, height: 90 },
-  featuredCardBody: { flex: 1, paddingRight: 12 },
+  featuredCardGraph: { position: 'absolute', left: 0, right: -40, bottom: 0, height: 90, zIndex: 0 },
+  featuredCardBody: { flex: 1, paddingRight: 12, zIndex: 1 },
   featuredCardTitle: { marginTop: 6, fontSize: 26, fontWeight: '700', letterSpacing: -0.6 },
   featuredCardMeta: { marginTop: 8, fontSize: 14 },
-  featuredCardArrowGlyph: { fontSize: 24, fontWeight: '600' },
+  featuredCardArrowGlyph: { fontSize: 24, fontWeight: '600', zIndex: 1 },
   card: { borderWidth: 1, borderRadius: 18, padding: 16, flexDirection: 'row', alignItems: 'flex-start', gap: 14 },
   cardMark: { width: 54, height: 54, borderRadius: 27, alignItems: 'center', justifyContent: 'center' },
   cardMarkText: { fontSize: 13, fontWeight: '700', letterSpacing: 1 },
