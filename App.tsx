@@ -408,7 +408,7 @@ function FeaturedCard({
         <Text style={[styles.featuredCardMeta, { color: palette.tint }]}>{item.duration} · {item.bestFor}</Text>
       </View>
       <View style={[styles.featuredCardTryButton, { backgroundColor: palette.tint }]}>
-        <Text style={[styles.featuredCardTryLabel, { color: palette.accent }]}>Try</Text>
+        <Text style={[styles.featuredCardTryLabel, { color: palette.accent }]}>Go</Text>
       </View>
     </Pressable>
   );
