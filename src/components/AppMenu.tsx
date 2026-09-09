@@ -446,7 +446,7 @@ export function MenuSectionScreen({
 }
 
 const styles = StyleSheet.create({
-  eyebrow: { fontSize: 11, lineHeight: 17, fontWeight: '700', letterSpacing: 1.7 },
+  eyebrow: { fontSize: 11, fontWeight: '700', letterSpacing: 1.8, marginBottom: 8 },
   menuTile: {
     minHeight: 58, borderWidth: 1, borderRadius: 14, marginBottom: 9, paddingHorizontal: 17,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
   pageHeader: { marginBottom: 28 },
   backRow: { marginBottom: 14 },
   backText: { fontSize: 15, lineHeight: 20, fontWeight: '500' },
-  pageTitle: { marginTop: 7, fontSize: 38, lineHeight: 44, fontWeight: '500', letterSpacing: -1.2 },
+  pageTitle: { fontSize: 38, fontWeight: '500', letterSpacing: -1.2 },
   identityBlock: { flexDirection: 'row', alignItems: 'center', marginBottom: 30 },
   avatar: { width: 72, height: 72, borderRadius: 36, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   avatarText: { fontSize: 30, lineHeight: 36, fontWeight: '500' },
