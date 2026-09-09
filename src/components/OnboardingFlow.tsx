@@ -373,7 +373,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     letterSpacing: -1.1,
   },
-  splashWordmarkDot: { color: colors.accent },
+  splashWordmarkDot: { color: '#D97D46' },
   safe: { flex: 1, backgroundColor: colors.background },
   illustrationPanel: {
     height: '60%',
