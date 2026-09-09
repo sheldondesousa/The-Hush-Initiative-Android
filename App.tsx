@@ -1744,7 +1744,7 @@ const styles = StyleSheet.create({
   confidence: { overflow: 'hidden', borderRadius: 10, paddingVertical: 3, paddingHorizontal: 7, fontSize: 9, fontWeight: '700', letterSpacing: 0.5 },
   cardTitle: { fontSize: 22, fontWeight: '600', lineHeight: 27 },
   recommendationNote: { fontSize: 12, lineHeight: 17, fontWeight: '500', marginTop: 8 },
-  cardFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 16 },
+  cardFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 },
   meta: { fontSize: 11 },
   arrow: { fontSize: 20 },
   detailHeader: {
