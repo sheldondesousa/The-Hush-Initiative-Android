@@ -1549,7 +1549,6 @@ function TabBar({
   palette: Palette;
 }) {
   const insets = useSafeAreaInsets();
-  const isLight = palette === palettes.light;
   const tabs: { id: Tab; label: string; icon: string }[] = [
     { id: 'breathe', label: 'Breathe', icon: '' },
     // Meditate is hidden from the nav bar for now.
@@ -1598,20 +1597,8 @@ function TabBar({
     );
   });
 
-  if (isLight) {
-    return (
-      <View style={[styles.tabBarFloatingWrapper, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-        <View style={styles.tabBarFloatingCard}>
-          <View style={styles.tabItems} accessibilityRole="tablist">
-            {tabItems}
-          </View>
-        </View>
-      </View>
-    );
-  }
-
   return (
-    <View style={[styles.tabBar, { backgroundColor: palette.surface, borderTopColor: palette.border }]}>
+    <View style={{ backgroundColor: palette.surface }}>
       <View style={styles.tabItems} accessibilityRole="tablist">
         {tabItems}
       </View>
@@ -1935,18 +1922,7 @@ const styles = StyleSheet.create({
   chipLabel: { textAlign: 'center', fontSize: 15, fontWeight: '600' },
   chipDescription: { textAlign: 'center', fontSize: 12, marginTop: 3 },
   results: { gap: 12 },
-  tabBarFloatingWrapper: { paddingHorizontal: 16, paddingTop: 8 },
-  tabBarFloatingCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 6,
-  },
-  tabBar: { borderTopWidth: StyleSheet.hairlineWidth },
-  tabItems: { height: 70, flexDirection: 'row', paddingVertical: 4 },
+  tabItems: { height: 58, flexDirection: 'row', justifyContent: 'space-around' },
   tab: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 2 },
   tabIconBadge: { width: 36, height: 36, borderRadius: 12, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
   tabIcon: { fontSize: 20 },
