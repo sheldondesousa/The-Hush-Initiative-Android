@@ -1584,16 +1584,15 @@ function TabBar({
       <Text style={[styles.tabIcon, { color: iconColor }]}>{item.icon}</Text>
     );
     return (
-      <Pressable key={item.id} onPress={() => onTabPress(item.id)} style={styles.tab} accessibilityRole="tab" accessibilityState={{ selected }}>
-        <View
-          style={{
-            ...styles.tabIconBadge,
-            backgroundColor: iconBackground ?? 'transparent',
-          }}
-        >
-          {icon}
-        </View>
-        <Text style={[styles.tabLabel, { color: selected ? palette.text : palette.muted, fontWeight: selected ? '700' : '400' }]}>{item.label}</Text>
+      <Pressable
+        key={item.id}
+        onPress={() => onTabPress(item.id)}
+        style={[styles.tab, { backgroundColor: iconBackground ?? 'transparent' }]}
+        accessibilityRole="tab"
+        accessibilityState={{ selected }}
+      >
+        {icon}
+        <Text style={[styles.tabLabel, { color: selected ? iconColor : palette.muted, fontWeight: selected ? '700' : '400' }]}>{item.label}</Text>
       </Pressable>
     );
   });
@@ -1601,7 +1600,12 @@ function TabBar({
   return (
     <View style={{ backgroundColor: palette.surface }}>
       <View style={styles.tabItems} accessibilityRole="tablist">
-        {tabItems}
+        {tabItems.map((item, index) => (
+          <React.Fragment key={tabs[index].id}>
+            {index > 0 && <View style={[styles.tabDivider, { backgroundColor: palette.border }]} />}
+            {item}
+          </React.Fragment>
+        ))}
       </View>
       <View style={{ height: insets.bottom }} />
     </View>
@@ -1924,8 +1928,8 @@ const styles = StyleSheet.create({
   chipDescription: { textAlign: 'center', fontSize: 12, marginTop: 3 },
   results: { gap: 12 },
   tabItems: { height: 58, paddingTop: 8, flexDirection: 'row', justifyContent: 'space-around' },
-  tab: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 2 },
-  tabIconBadge: { width: 36, height: 36, borderRadius: 12, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
+  tab: { flex: 1, marginHorizontal: 6, borderRadius: 14, alignItems: 'center', justifyContent: 'center', gap: 2 },
+  tabDivider: { width: 1, marginVertical: 10 },
   tabIcon: { fontSize: 20 },
   tabLabel: { fontSize: 12 },
 });
