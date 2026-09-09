@@ -1922,7 +1922,7 @@ const styles = StyleSheet.create({
   chipLabel: { textAlign: 'center', fontSize: 15, fontWeight: '600' },
   chipDescription: { textAlign: 'center', fontSize: 12, marginTop: 3 },
   results: { gap: 12 },
-  tabItems: { height: 58, paddingTop: 4, flexDirection: 'row', justifyContent: 'space-around' },
+  tabItems: { height: 58, paddingTop: 8, flexDirection: 'row', justifyContent: 'space-around' },
   tab: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 2 },
   tabIconBadge: { width: 36, height: 36, borderRadius: 12, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
   tabIcon: { fontSize: 20 },
