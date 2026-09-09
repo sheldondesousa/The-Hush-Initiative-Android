@@ -157,7 +157,16 @@ const TERMS_SECTIONS: Array<{ title: string; body: string; bullets?: string[] }>
   },
 ];
 
-export function MenuHome({ palette, onSelect }: { palette: MenuPalette; onSelect: (section: MenuSection) => void }) {
+export function MenuHome({
+  palette,
+  themeMode,
+  onSelect,
+}: {
+  palette: MenuPalette;
+  themeMode: MenuThemeMode;
+  onSelect: (section: MenuSection) => void;
+}) {
+  const badgeColor = themeMode === 'minimal' ? '#000000' : TERRACOTTA;
   return (
     <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
       <View style={styles.pageHeader}>
@@ -174,7 +183,7 @@ export function MenuHome({ palette, onSelect }: { palette: MenuPalette; onSelect
             style={[styles.menuTile, { backgroundColor: palette.surface, borderColor: palette.border }]}
           >
             <View style={styles.menuTileLeft}>
-              <View style={[styles.menuIconBadge, { backgroundColor: TERRACOTTA }]}>
+              <View style={[styles.menuIconBadge, { backgroundColor: badgeColor }]}>
                 <Icon color="#FFFFFF" />
               </View>
               <Text style={[styles.menuLabel, { color: palette.text }]}>{item.label}</Text>
@@ -406,7 +415,7 @@ export function MenuSectionScreen({
   onSelectSection: (section: MenuSection) => void;
   onBack: () => void;
 }) {
-  if (section === null) return <MenuHome palette={palette} onSelect={onSelectSection} />;
+  if (section === null) return <MenuHome palette={palette} themeMode={themeMode} onSelect={onSelectSection} />;
   if (section === 'profile') return <ProfilePage palette={palette} onBack={onBack} />;
   if (section === 'dashboard') {
     return (
