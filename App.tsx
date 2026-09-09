@@ -239,7 +239,11 @@ export default function App() {
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: palette.bg }]} edges={['top', 'left', 'right']}>
       <StatusBar style={themeMode === 'dark' ? 'light' : 'dark'} />
-      <Header palette={palette} themeMode={themeMode} />
+      <Header
+        palette={palette}
+        themeMode={themeMode}
+        onBack={tab === 'menu' && menuSection !== null ? () => setMenuSection(null) : undefined}
+      />
 
       <View style={styles.content}>
         {tab === 'breathe' && (
@@ -295,9 +299,22 @@ export default function App() {
   );
 }
 
-function Header({ palette, themeMode }: { palette: Palette; themeMode: ThemeMode }) {
+function Header({
+  palette,
+  themeMode,
+  onBack,
+}: {
+  palette: Palette;
+  themeMode: ThemeMode;
+  onBack?: () => void;
+}) {
   return (
     <View style={[styles.header, { backgroundColor: palette.bg, borderBottomColor: palette.border }]}>
+      {onBack && (
+        <Pressable onPress={onBack} hitSlop={12} style={{ zIndex: 1 }}>
+          <Text style={[styles.headerBack, { color: palette.text }]}>‹ Menu</Text>
+        </Pressable>
+      )}
       <Text style={[styles.wordmark, { color: palette.text }]}>
         Hush<Text style={{ color: TERRACOTTA }}>.</Text>
       </Text>
@@ -1662,18 +1679,19 @@ const styles = StyleSheet.create({
   content: { flex: 1 },
   header: {
     height: HEADER_HEIGHT, paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center',
-    justifyContent: 'flex-end', borderBottomWidth: StyleSheet.hairlineWidth,
+    justifyContent: 'flex-start', borderBottomWidth: StyleSheet.hairlineWidth,
     position: 'relative',
   },
   wordmark: {
     position: 'absolute',
-    left: 20,
-    right: 0,
-    textAlign: 'left',
+    left: 0,
+    right: 20,
+    textAlign: 'right',
     fontSize: 28,
     fontWeight: '500',
     letterSpacing: -0.56,
   },
+  headerBack: { fontSize: 15, fontWeight: '500' },
   listContent: { paddingHorizontal: 20, paddingBottom: 36 },
   libraryHeading: { paddingTop: 30, paddingBottom: 24 },
   eyebrow: { fontSize: 11, fontWeight: '700', letterSpacing: 1.8, marginBottom: 8 },

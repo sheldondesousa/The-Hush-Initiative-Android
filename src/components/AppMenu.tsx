@@ -201,24 +201,13 @@ function PageHeader({
   eyebrow,
   title,
   palette,
-  onBack,
 }: {
   eyebrow: string;
   title: string;
   palette: MenuPalette;
-  onBack: () => void;
 }) {
   return (
     <View style={styles.pageHeader}>
-      <Pressable
-        onPress={onBack}
-        hitSlop={12}
-        accessibilityRole="button"
-        accessibilityLabel="Back to menu"
-        style={styles.backRow}
-      >
-        <Text style={[styles.backText, { color: palette.text }]}>‹ Menu</Text>
-      </Pressable>
       <Text style={[styles.eyebrow, { color: palette.accent }]}>{eyebrow}</Text>
       <Text style={[styles.pageTitle, { color: palette.text }]}>{title}</Text>
     </View>
@@ -237,7 +226,7 @@ function InfoRow({ label, value, palette, last = false }: { label: string; value
 function ProfilePage({ palette, onBack }: { palette: MenuPalette; onBack: () => void }) {
   return (
     <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
-      <PageHeader eyebrow="YOUR SPACE" title="Profile" palette={palette} onBack={onBack} />
+      <PageHeader eyebrow="YOUR SPACE" title="Profile" palette={palette} />
       <View style={styles.identityBlock}>
         <View style={[styles.avatar, { backgroundColor: palette.tint, borderColor: palette.border }]}>
           <Text style={[styles.avatarText, { color: palette.accent }]}>H</Text>
@@ -272,7 +261,7 @@ function DashboardPage({
 }) {
   return (
     <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
-      <PageHeader eyebrow="YOUR PRACTICE" title="Dashboard" palette={palette} onBack={onBack} />
+      <PageHeader eyebrow="YOUR PRACTICE" title="Dashboard" palette={palette} />
       <Text style={[styles.dashboardLead, { color: palette.text }]}>Take a deep breath and relax.</Text>
       <View style={styles.metrics}>
         <View style={[styles.metric, { backgroundColor: palette.surface, borderColor: palette.border }]}>
@@ -309,7 +298,7 @@ function ConfigurationPage({
 }) {
   return (
     <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
-      <PageHeader eyebrow="PREFERENCES" title="Configuration" palette={palette} onBack={onBack} />
+      <PageHeader eyebrow="PREFERENCES" title="Configuration" palette={palette} />
       <Text style={[styles.sectionTitle, { color: palette.text }]}>Appearance</Text>
       {(['light', 'dark', 'minimal'] as MenuThemeMode[]).map((mode) => {
         const selected = themeMode === mode;
@@ -360,7 +349,7 @@ function ConfigurationPage({
 function AboutPage({ palette, onBack }: { palette: MenuPalette; onBack: () => void }) {
   return (
     <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
-      <PageHeader eyebrow="OUR STORY" title="About Hush" palette={palette} onBack={onBack} />
+      <PageHeader eyebrow="OUR STORY" title="About Hush" palette={palette} />
       {ABOUT_SECTIONS.map((section, index) => (
         <View key={section.title} style={[styles.copySection, index > 0 && { borderTopColor: palette.border, borderTopWidth: StyleSheet.hairlineWidth }]}>
           <Text style={[styles.copyTitle, { color: palette.text }]}>{section.title}</Text>
@@ -374,7 +363,7 @@ function AboutPage({ palette, onBack }: { palette: MenuPalette; onBack: () => vo
 function TermsPage({ palette, onBack }: { palette: MenuPalette; onBack: () => void }) {
   return (
     <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
-      <PageHeader eyebrow="LEGAL" title="Terms & Conditions" palette={palette} onBack={onBack} />
+      <PageHeader eyebrow="LEGAL" title="Terms & Conditions" palette={palette} />
       <Text style={[styles.updatedText, { color: palette.muted }]}>Last updated: January 9, 2026</Text>
       <Text style={[styles.termsIntro, { color: palette.muted }]}>Please read these Terms and Conditions carefully before using Hush. By accessing or using the app, you agree to be bound by these Terms.</Text>
       {TERMS_SECTIONS.map((section) => (
@@ -456,8 +445,6 @@ const styles = StyleSheet.create({
   menuChevron: { fontSize: 27, lineHeight: 30, fontWeight: '300' },
   pageContent: { paddingHorizontal: 20, paddingTop: 30, paddingBottom: 48 },
   pageHeader: { marginBottom: 28 },
-  backRow: { marginBottom: 14 },
-  backText: { fontSize: 15, lineHeight: 20, fontWeight: '500' },
   pageTitle: { fontSize: 38, fontWeight: '500', letterSpacing: -1.2 },
   identityBlock: { flexDirection: 'row', alignItems: 'center', marginBottom: 30 },
   avatar: { width: 72, height: 72, borderRadius: 36, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
