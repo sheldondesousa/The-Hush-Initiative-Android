@@ -1551,6 +1551,7 @@ function TabBar({
 }) {
   const insets = useSafeAreaInsets();
   const isMinimal = palette === palettes.minimal;
+  const isDark = palette === palettes.dark;
   const tabs: { id: Tab; label: string; icon: string }[] = [
     { id: 'breathe', label: 'Breathe', icon: '' },
     // Meditate is hidden from the nav bar for now.
@@ -1559,10 +1560,14 @@ function TabBar({
   ];
   const activeTabColor: Record<Tab, string> = isMinimal
     ? { breathe: '#FFFFFF', meditate: '#FFFFFF', recommend: '#FFFFFF', menu: '#FFFFFF' }
-    : { breathe: palette.accent, meditate: palette.meditation, recommend: '#FFFFFF', menu: '#FFFFFF' };
+    : isDark
+      ? { breathe: palette.bg, meditate: palette.bg, recommend: palette.bg, menu: palette.bg }
+      : { breathe: palette.accent, meditate: palette.meditation, recommend: '#FFFFFF', menu: '#FFFFFF' };
   const activeTabBackground: Record<Tab, string> = isMinimal
     ? { breathe: '#000000', meditate: '#000000', recommend: '#000000', menu: '#000000' }
-    : { breathe: palette.tint, meditate: palette.meditationTint, recommend: TERRACOTTA, menu: TERRACOTTA };
+    : isDark
+      ? { breathe: palette.accent, meditate: palette.accent, recommend: palette.accent, menu: palette.accent }
+      : { breathe: palette.tint, meditate: palette.meditationTint, recommend: TERRACOTTA, menu: TERRACOTTA };
   const tabItems = tabs.map((item) => {
     const selected = tab === item.id;
     const iconColor = selected ? activeTabColor[item.id] : palette.muted;
