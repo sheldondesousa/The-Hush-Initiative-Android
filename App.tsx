@@ -1,4 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CormorantGaramond_500Medium } from '@expo-google-fonts/cormorant-garamond';
+import { useFonts } from 'expo-font';
 import * as Haptics from 'expo-haptics';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
@@ -100,6 +102,7 @@ const ENABLE_BOX_ORB_PROTOTYPE = false;
 const HEADER_HEIGHT = 70;
 const FOREST_SAGE = '#4A7C68';
 const TERRACOTTA = '#D97D46';
+const TITLE_FONT_FAMILY = 'CormorantGaramond_500Medium';
 
 export default function App() {
   const [launchState, setLaunchState] = useState<'splash' | 'onboarding' | 'app'>('splash');
@@ -114,6 +117,7 @@ export default function App() {
   const [menuSection, setMenuSection] = useState<MenuSection | null>(null);
   const [showOnboardingAfterSplash, setShowOnboardingAfterSplash] = useState(true);
   const palette = palettes[themeMode];
+  const [titleFontsLoaded] = useFonts({ CormorantGaramond_500Medium });
 
   useEffect(() => {
     let active = true;
@@ -224,6 +228,7 @@ export default function App() {
       <ExerciseInfoScreen
         detail={detail}
         palette={palette}
+        titleFontsLoaded={titleFontsLoaded}
         defaultPersonalization={detail.kind === 'exercise' ? exerciseDefaults[detail.item.id] : undefined}
         onDefaultChange={updateExerciseDefault}
         onBack={() => setDetail(null)}
@@ -253,6 +258,7 @@ export default function App() {
             palette={palette}
             accent="breath"
             onPress={(item) => setDetail({ kind: 'exercise', item })}
+            titleFontsLoaded={titleFontsLoaded}
           />
         )}
         {tab === 'meditate' && (
@@ -262,6 +268,7 @@ export default function App() {
             palette={palette}
             accent="meditation"
             onPress={(item) => setDetail({ kind: 'meditation', item })}
+            titleFontsLoaded={titleFontsLoaded}
           />
         )}
         {tab === 'recommend' && (
@@ -269,6 +276,7 @@ export default function App() {
             palette={palette}
             onExercise={(item) => setDetail({ kind: 'exercise', item })}
             onMeditation={(item) => setDetail({ kind: 'meditation', item })}
+            titleFontsLoaded={titleFontsLoaded}
           />
         )}
         {tab === 'menu' && (
@@ -328,12 +336,14 @@ function Library<T extends Exercise | Meditation>({
   palette,
   accent,
   onPress,
+  titleFontsLoaded,
 }: {
   title: string;
   items: T[];
   palette: Palette;
   accent: 'breath' | 'meditation';
   onPress: (item: T) => void;
+  titleFontsLoaded: boolean;
 }) {
   const categories: { category: string; items: T[] }[] = [];
   for (const item of items) {
@@ -348,11 +358,11 @@ function Library<T extends Exercise | Meditation>({
         <Text style={[styles.eyebrow, { color: accent === 'breath' ? palette.accent : palette.meditation }]}>
           {accent === 'breath' ? 'CHOOSE YOUR PATH' : 'FIND YOUR CALM'}
         </Text>
-        <Text style={[styles.title, styles.libraryTitle, { color: palette.text }]}>{title}</Text>
+        <Text style={[styles.title, styles.libraryTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>{title}</Text>
       </View>
       <ScrollView contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
         {accent === 'breath' && items.length > 0 && (
-          <FeaturedCard item={items[0] as unknown as Exercise} palette={palette} onPress={() => onPress(items[0])} />
+          <FeaturedCard item={items[0] as unknown as Exercise} palette={palette} onPress={() => onPress(items[0])} titleFontsLoaded={titleFontsLoaded} />
         )}
         {categories.map((group, groupIndex) => (
           <View key={group.category} style={groupIndex > 0 ? styles.categorySection : undefined}>
@@ -365,6 +375,7 @@ function Library<T extends Exercise | Meditation>({
                   palette={palette}
                   accent={accent}
                   onPress={() => onPress(item)}
+                  titleFontsLoaded={titleFontsLoaded}
                 />
               </View>
             ))}
@@ -379,10 +390,12 @@ function FeaturedCard({
   item,
   palette,
   onPress,
+  titleFontsLoaded,
 }: {
   item: Exercise;
   palette: Palette;
   onPress: () => void;
+  titleFontsLoaded: boolean;
 }) {
   const phases = exerciseDetails[item.id]?.phases;
   const flow = phases ? buildFlowPaths(phases) : null;
@@ -424,7 +437,7 @@ function FeaturedCard({
         </View>
       )}
       <View style={styles.featuredCardBody}>
-        <Text style={[styles.featuredCardTitle, { color: palette.surface }]}>{item.name}</Text>
+        <Text style={[styles.featuredCardTitle, { color: palette.surface }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>{item.name}</Text>
         <Text style={[styles.featuredCardMeta, { color: palette.tint }]}>{item.duration} · {item.bestFor}</Text>
       </View>
       <View style={[styles.featuredCardTryButton, { backgroundColor: palette.tint }]}>
@@ -443,6 +456,7 @@ function PracticeCard({
   confidence,
   recommendationNote,
   showCategory = true,
+  titleFontsLoaded,
 }: {
   item: Exercise | Meditation;
   index: number;
@@ -452,6 +466,7 @@ function PracticeCard({
   confidence?: number;
   recommendationNote?: string;
   showCategory?: boolean;
+  titleFontsLoaded: boolean;
 }) {
   const color = accent === 'breath' ? palette.accent : palette.meditation;
   const tint = accent === 'breath' ? palette.tint : palette.meditationTint;
@@ -489,7 +504,7 @@ function PracticeCard({
             )}
           </View>
         )}
-        <Text style={[styles.cardTitle, { color: palette.text }]}>{item.name}</Text>
+        <Text style={[styles.cardTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>{item.name}</Text>
         {recommendationNote && (
           <Text style={[styles.recommendationNote, { color }]}>{recommendationNote}</Text>
         )}
@@ -517,6 +532,7 @@ function ExerciseInfoScreen({
   onDefaultChange,
   onBack,
   onBegin,
+  titleFontsLoaded,
 }: {
   detail: NonNullable<Detail>;
   palette: Palette;
@@ -524,6 +540,7 @@ function ExerciseInfoScreen({
   onDefaultChange: (exerciseId: string, value: ExercisePersonalization | null) => void;
   onBack: () => void;
   onBegin: (item: Exercise | Meditation) => void;
+  titleFontsLoaded: boolean;
 }) {
   const item = detail.item;
   const isExercise = detail.kind === 'exercise';
@@ -584,7 +601,7 @@ function ExerciseInfoScreen({
       </View>
       <ScrollView contentContainerStyle={styles.detailContent}>
         <Text style={[styles.eyebrow, { color: accent }]}>{item.bestFor.toUpperCase()}</Text>
-        <Text style={[styles.detailTitle, { color: palette.text }]}>{item.name}</Text>
+        <Text style={[styles.detailTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>{item.name}</Text>
         {!isExercise && (
           <Text style={[styles.detailMeta, { color: palette.muted }]}>{item.duration}  ·  Effort {item.effort} of 3</Text>
         )}
@@ -1424,10 +1441,12 @@ function RecommendScreen({
   palette,
   onExercise,
   onMeditation,
+  titleFontsLoaded,
 }: {
   palette: Palette;
   onExercise: (item: Exercise) => void;
   onMeditation: (item: Meditation) => void;
+  titleFontsLoaded: boolean;
 }) {
   const scrollRef = useRef<ScrollView>(null);
   // Guide Me only covers breathing for now — the meditate mode toggle was removed.
@@ -1472,7 +1491,7 @@ function RecommendScreen({
     <View style={{ flex: 1 }}>
       <View style={styles.recommendHeading}>
         <Text style={[styles.eyebrow, { color: '#000000' }]}>FIND THE RIGHT TECHNIQUE</Text>
-        <Text style={[styles.title, { color: palette.text }]}>App Suggestions</Text>
+        <Text style={[styles.title, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>App Suggestions</Text>
       </View>
       <ScrollView ref={scrollRef} contentContainerStyle={styles.recommendContent} showsVerticalScrollIndicator={false}>
       {!selectedSituation ? (
@@ -1551,6 +1570,7 @@ function RecommendScreen({
               confidence={'confidence' in result ? result.confidence : undefined}
               recommendationNote={'recommendationNote' in result ? result.recommendationNote : undefined}
               onPress={() => mode === 'breathe' ? onExercise(result.item as Exercise) : onMeditation(result.item as Meditation)}
+              titleFontsLoaded={titleFontsLoaded}
             />
           ))}
         </View>

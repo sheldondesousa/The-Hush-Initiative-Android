@@ -1,8 +1,11 @@
+import { CormorantGaramond_500Medium } from '@expo-google-fonts/cormorant-garamond';
+import { useFonts } from 'expo-font';
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
 
 const TERRACOTTA = '#D97D46';
+const TITLE_FONT_FAMILY = 'CormorantGaramond_500Medium';
 
 export type MenuSection = 'profile' | 'dashboard' | 'configuration' | 'about' | 'terms';
 export type MenuThemeMode = 'light' | 'dark' | 'minimal';
@@ -168,11 +171,12 @@ export function MenuHome({
 }) {
   const badgeColor = themeMode === 'minimal' ? '#000000' : themeMode === 'dark' ? palette.accent : '#FFFFFF';
   const badgeIconColor = themeMode === 'dark' ? palette.bg : themeMode === 'minimal' ? '#FFFFFF' : TERRACOTTA;
+  const [titleFontsLoaded] = useFonts({ CormorantGaramond_500Medium });
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.menuHeading}>
         <Text style={[styles.eyebrow, { color: '#000000' }]}>NAVIGATE</Text>
-        <Text style={[styles.pageTitle, { color: palette.text }]}>Menu</Text>
+        <Text style={[styles.pageTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>Menu</Text>
       </View>
       <ScrollView contentContainerStyle={styles.menuListContent} showsVerticalScrollIndicator={false}>
         {MENU_ITEMS.map((item) => {
@@ -208,10 +212,11 @@ function PageHeader({
   title: string;
   palette: MenuPalette;
 }) {
+  const [titleFontsLoaded] = useFonts({ CormorantGaramond_500Medium });
   return (
     <View style={styles.pageHeader}>
       <Text style={[styles.eyebrow, { color: palette.accent }]}>{eyebrow}</Text>
-      <Text style={[styles.pageTitle, { color: palette.text }]}>{title}</Text>
+      <Text style={[styles.pageTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>{title}</Text>
     </View>
   );
 }
