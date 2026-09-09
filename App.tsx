@@ -1705,7 +1705,7 @@ const styles = StyleSheet.create({
   eyebrow: { fontSize: 11, fontWeight: '700', letterSpacing: 1.8, marginBottom: 8 },
   title: { fontSize: 38, fontWeight: '500', letterSpacing: -1.2 },
   libraryTitle: { fontSize: 36 },
-  categorySection: { marginTop: 14 },
+  categorySection: { marginTop: 2 },
   categorySeparator: { height: 1, marginBottom: 14 },
   categoryCardSpacing: { marginBottom: 12 },
   featuredCard: {
