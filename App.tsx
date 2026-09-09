@@ -109,6 +109,12 @@ const TITLE_FONT_FAMILY = 'CormorantGaramond_500Medium';
 const FEATURED_CARD_TITLE_FONT_FAMILY = 'CormorantGaramond_600SemiBold';
 const CARD_TITLE_FONT_FAMILY = 'CormorantGaramond_600SemiBold';
 
+function getGraphFill(palette: Palette): string {
+  if (palette === palettes.dark) return 'rgba(240,240,240,0.08)';
+  if (palette === palettes.minimal) return palette.tint;
+  return 'rgba(74,124,104,0.10)';
+}
+
 export default function App() {
   const [launchState, setLaunchState] = useState<'splash' | 'onboarding' | 'app'>('splash');
   const [tab, setTab] = useState<Tab>('breathe');
@@ -384,6 +390,7 @@ function Library<T extends Exercise | Meditation>({
                   accent={accent}
                   onPress={() => onPress(item)}
                   titleFontsLoaded={titleFontsLoaded}
+                  pictogramBackground={accent === 'breath' ? getGraphFill(palette) : undefined}
                 />
               </View>
             ))}
@@ -465,6 +472,7 @@ function PracticeCard({
   recommendationNote,
   showCategory = true,
   titleFontsLoaded,
+  pictogramBackground,
 }: {
   item: Exercise | Meditation;
   index: number;
@@ -475,6 +483,7 @@ function PracticeCard({
   recommendationNote?: string;
   showCategory?: boolean;
   titleFontsLoaded: boolean;
+  pictogramBackground?: string;
 }) {
   const color = accent === 'breath' ? palette.accent : palette.meditation;
   const tint = accent === 'breath' ? palette.tint : palette.meditationTint;
@@ -496,7 +505,7 @@ function PracticeCard({
         <ExerciseCardVisual
           exerciseName={item.name}
           color={palette.text}
-          backgroundColor={tint}
+          backgroundColor={pictogramBackground ?? tint}
         />
       ) : (
         <View style={[styles.cardMark, { backgroundColor: tint }]}>
@@ -611,7 +620,7 @@ function ExerciseInfoScreen({
         <Text style={[styles.eyebrow, { color: accent }]}>{item.bestFor.toUpperCase()}</Text>
         <View style={styles.detailTitleRow}>
           {isExercise && (
-            <ExerciseCardVisual exerciseName={item.name} color={palette.text} backgroundColor={palette.tint} size={64} />
+            <ExerciseCardVisual exerciseName={item.name} color={palette.text} backgroundColor={getGraphFill(palette)} size={64} />
           )}
           <Text style={[styles.detailTitle, styles.detailTitleText, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>{item.name}</Text>
         </View>
@@ -723,7 +732,7 @@ function ExerciseRhythm({ config, palette, titleFontsLoaded }: { config: Exercis
   const isDark = palette === palettes.dark;
   const isMinimal = palette === palettes.minimal;
   const graphStroke = isDark ? '#FFFFFF' : isMinimal ? palette.accent : '#4A7C68';
-  const graphFill = isDark ? 'rgba(240,240,240,0.08)' : isMinimal ? palette.tint : 'rgba(74,124,104,0.10)';
+  const graphFill = getGraphFill(palette);
   const guideLine = isDark ? 'rgba(240,240,240,0.40)' : isMinimal ? 'rgba(17,17,17,0.35)' : 'rgba(74,124,104,0.42)';
   const previewScale = Math.min(Math.max(screenWidth - 74, 1) / 360, 259 / 286);
   // SVG text renders optically smaller than native React Native Text at the
@@ -742,7 +751,7 @@ function ExerciseRhythm({ config, palette, titleFontsLoaded }: { config: Exercis
   return (
     <View style={styles.infoSection}>
       <View style={styles.infoHeadingRow}>
-        <View style={[styles.infoHeadingBadge, { backgroundColor: palette.tint }]}>
+        <View style={[styles.infoHeadingBadge, { backgroundColor: getGraphFill(palette) }]}>
           <PulseIcon color="#000000" size={18} />
         </View>
         <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 24, marginBottom: 0 }, titleFontsLoaded && { fontFamily: CARD_TITLE_FONT_FAMILY }]}>Rhythm</Text>
@@ -988,7 +997,7 @@ function ExerciseGuide({ sections, palette, titleFontsLoaded }: { sections: Exer
   return (
     <View style={styles.infoSection}>
       <View style={styles.infoHeadingRow}>
-        <View style={[styles.infoHeadingBadge, { backgroundColor: palette.tint }]}>
+        <View style={[styles.infoHeadingBadge, { backgroundColor: getGraphFill(palette) }]}>
           <BookIcon color="#000000" size={18} />
         </View>
         <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 24, marginBottom: 0 }, titleFontsLoaded && { fontFamily: CARD_TITLE_FONT_FAMILY }]}>Guide</Text>
