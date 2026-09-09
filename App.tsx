@@ -736,7 +736,7 @@ function ExerciseRhythm({ config, palette, titleFontsLoaded }: { config: Exercis
 
   return (
     <View style={styles.infoSection}>
-      <Text style={[styles.infoTitle, styles.cardTitle, { color: FOREST_SAGE }, titleFontsLoaded && { fontFamily: CARD_TITLE_FONT_FAMILY }]}>Rhythm</Text>
+      <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 24 }, titleFontsLoaded && { fontFamily: CARD_TITLE_FONT_FAMILY }]}>Rhythm</Text>
       <View
         style={[styles.rhythmCard, { borderColor: palette.border }]}
       >
@@ -977,7 +977,7 @@ function ExerciseGuide({ sections, palette, titleFontsLoaded }: { sections: Exer
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   return (
     <View style={styles.infoSection}>
-      <Text style={[styles.infoTitle, styles.cardTitle, { color: FOREST_SAGE }, titleFontsLoaded && { fontFamily: CARD_TITLE_FONT_FAMILY }]}>Guide</Text>
+      <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 24 }, titleFontsLoaded && { fontFamily: CARD_TITLE_FONT_FAMILY }]}>Guide</Text>
       <View style={[styles.guideBox, { borderColor: palette.border }]}>
         {sections.map((section, sectionIndex) => {
           const isOpen = Boolean(openSections[section.id]);
