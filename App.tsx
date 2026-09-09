@@ -305,20 +305,9 @@ function Header({
   themeMode: ThemeMode;
   backgroundColor?: string;
 }) {
-  const insets = useSafeAreaInsets();
-  const isLight = palette === palettes.light;
-  const isDark = palette === palettes.dark;
-  const overlayColor = isLight ? 'rgba(74,55,35,0.15)' : isDark ? 'rgba(168,200,186,0.15)' : 'rgba(0,0,0,0.15)';
   return (
     <View style={[styles.header, { backgroundColor: backgroundColor ?? palette.bg, borderBottomColor: palette.border }]}>
-      <View
-        pointerEvents="none"
-        style={[
-          styles.headerDarkenOverlay,
-          { top: -insets.top, height: insets.top + HEADER_HEIGHT, backgroundColor: overlayColor, zIndex: 0 },
-        ]}
-      />
-      <Text style={[styles.wordmark, { color: palette.text, zIndex: 1 }]}>
+      <Text style={[styles.wordmark, { color: palette.text }]}>
         Hush<Text style={{ color: themeMode === 'dark' ? '#A8C8BA' : '#4A7C68' }}>.</Text>
       </Text>
     </View>
@@ -1670,7 +1659,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end', borderBottomWidth: StyleSheet.hairlineWidth,
     position: 'relative',
   },
-  headerDarkenOverlay: { position: 'absolute', left: 0, right: 0 },
   wordmark: {
     position: 'absolute',
     left: 0,
@@ -1694,7 +1682,7 @@ const styles = StyleSheet.create({
   featuredCardMeta: { marginTop: 8, fontSize: 14 },
   featuredCardArrow: { width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center' },
   featuredCardArrowGlyph: { fontSize: 22, fontWeight: '600' },
-  card: { minHeight: 196, borderWidth: 1, borderRadius: 18, padding: 16, flexDirection: 'row', gap: 14 },
+  card: { borderWidth: 1, borderRadius: 18, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 14 },
   cardMark: { width: 54, height: 54, borderRadius: 27, alignItems: 'center', justifyContent: 'center' },
   cardMarkText: { fontSize: 13, fontWeight: '700', letterSpacing: 1 },
   cardBody: { flex: 1 },
