@@ -493,10 +493,7 @@ function PracticeCard({
         {recommendationNote && (
           <Text style={[styles.recommendationNote, { color }]}>{recommendationNote}</Text>
         )}
-        <View style={styles.cardFooter}>
-          <Text style={[styles.meta, { color: palette.muted }]}>{item.duration}  ·  Effort {'●'.repeat(item.effort)}{'○'.repeat(3 - item.effort)}</Text>
-          <Text style={[styles.arrow, { color }]}>→</Text>
-        </View>
+        <Text style={[styles.arrow, styles.cardArrow, { color }]}>→</Text>
       </View>
     </Pressable>
   );
@@ -1727,9 +1724,8 @@ const styles = StyleSheet.create({
   confidence: { overflow: 'hidden', borderRadius: 10, paddingVertical: 3, paddingHorizontal: 7, fontSize: 9, fontWeight: '700', letterSpacing: 0.5 },
   cardTitle: { fontSize: 22, fontWeight: '600', lineHeight: 27 },
   recommendationNote: { fontSize: 12, lineHeight: 17, fontWeight: '500', marginTop: 8 },
-  cardFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 },
-  meta: { fontSize: 11 },
   arrow: { fontSize: 20 },
+  cardArrow: { alignSelf: 'flex-end', marginTop: 8 },
   detailHeader: {
     height: 58, paddingHorizontal: 18, flexDirection: 'row', alignItems: 'center',
     justifyContent: 'space-between', borderBottomWidth: StyleSheet.hairlineWidth,
