@@ -378,6 +378,8 @@ function FeaturedCard({
   palette: Palette;
   onPress: () => void;
 }) {
+  const phases = exerciseDetails[item.id]?.phases;
+  const flow = phases ? buildFlowPaths(phases) : null;
   return (
     <Pressable
       onPress={onPress}
@@ -385,14 +387,18 @@ function FeaturedCard({
       accessibilityLabel={`${item.name}, ${item.bestFor}, ${item.duration}, today's pick`}
       style={({ pressed }) => [styles.featuredCard, { backgroundColor: palette.accent, opacity: pressed ? 0.85 : 1 }]}
     >
+      {flow && (
+        <Svg style={styles.featuredCardGraph} viewBox="0 0 1000 64" preserveAspectRatio="none">
+          <Path d={flow.fill} fill={palette.tint} opacity={0.12} />
+          <Path d={flow.stroke} fill="none" stroke={palette.tint} strokeWidth={3} opacity={0.3} />
+        </Svg>
+      )}
       <View style={styles.featuredCardBody}>
         <Text style={[styles.eyebrow, { color: palette.tint }]}>FOR THIS MORNING</Text>
         <Text style={[styles.featuredCardTitle, { color: palette.surface }]}>{item.name}</Text>
         <Text style={[styles.featuredCardMeta, { color: palette.tint }]}>{item.duration} · {item.bestFor}</Text>
       </View>
-      <View style={[styles.featuredCardArrow, { backgroundColor: palette.tint }]}>
-        <Text style={[styles.featuredCardArrowGlyph, { color: palette.accent }]}>→</Text>
-      </View>
+      <Text style={[styles.featuredCardArrowGlyph, { color: palette.tint }]}>→</Text>
     </Pressable>
   );
 }
@@ -1693,14 +1699,14 @@ const styles = StyleSheet.create({
   categoryHeading: { fontSize: 13, fontWeight: '700', letterSpacing: 1.2, marginBottom: 12 },
   categoryCardSpacing: { marginBottom: 12 },
   featuredCard: {
-    marginTop: 22, minHeight: 192, borderRadius: 22, padding: 22,
+    marginTop: 22, minHeight: 192, borderRadius: 22, padding: 22, overflow: 'hidden',
     flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between',
   },
+  featuredCardGraph: { position: 'absolute', left: 0, right: -40, bottom: 0, height: 90 },
   featuredCardBody: { flex: 1, paddingRight: 12 },
   featuredCardTitle: { marginTop: 6, fontSize: 26, fontWeight: '700', letterSpacing: -0.6 },
   featuredCardMeta: { marginTop: 8, fontSize: 14 },
-  featuredCardArrow: { width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center' },
-  featuredCardArrowGlyph: { fontSize: 22, lineHeight: 24, fontWeight: '600', textAlign: 'center' },
+  featuredCardArrowGlyph: { fontSize: 24, fontWeight: '600' },
   card: { borderWidth: 1, borderRadius: 18, padding: 16, flexDirection: 'row', alignItems: 'flex-start', gap: 14 },
   cardMark: { width: 54, height: 54, borderRadius: 27, alignItems: 'center', justifyContent: 'center' },
   cardMarkText: { fontSize: 13, fontWeight: '700', letterSpacing: 1 },
