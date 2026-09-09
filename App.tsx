@@ -312,7 +312,7 @@ function Header({
     <View style={[styles.header, { backgroundColor: palette.bg, borderBottomColor: palette.border }]}>
       {onBack && (
         <Pressable onPress={onBack} hitSlop={12} style={{ zIndex: 1 }}>
-          <Text style={[styles.headerBack, { color: palette.text }]}>‹ Menu</Text>
+          <Text style={[styles.headerBack, { color: palette.text }]}>‹ Back</Text>
         </Pressable>
       )}
       <Text style={[styles.wordmark, { color: palette.text }]}>
