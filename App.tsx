@@ -347,7 +347,7 @@ function Library<T extends Exercise | Meditation>({
       </View>
       {categories.map((group, groupIndex) => (
         <View key={group.category} style={groupIndex > 0 ? styles.categorySection : undefined}>
-          {groupIndex > 0 && <View style={[styles.categorySeparator, { backgroundColor: FOREST_SAGE }]} />}
+          {groupIndex > 0 && <View style={[styles.categorySeparator, { backgroundColor: FOREST_SAGE, opacity: 0.5 }]} />}
           <Text style={[styles.categoryHeading, { color: accent === 'breath' ? palette.accent : palette.meditation }]}>
             {group.category.toUpperCase()}
           </Text>
