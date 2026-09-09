@@ -387,6 +387,11 @@ function FeaturedCard({
     elapsedSeconds += phase.seconds;
     return { key: `${phase.label}-${elapsedSeconds}`, seconds: phase.seconds, pct: (midpoint / totalSeconds) * 100 };
   });
+  let boundarySeconds = 0;
+  const phaseBoundaries = phases?.slice(0, -1).map((phase) => {
+    boundarySeconds += phase.seconds;
+    return (boundarySeconds / totalSeconds) * 1000;
+  });
   return (
     <Pressable
       onPress={onPress}
@@ -396,8 +401,11 @@ function FeaturedCard({
     >
       {flow && (
         <Svg pointerEvents="none" style={styles.featuredCardGraph} viewBox="0 0 1000 64" preserveAspectRatio="none">
-          <Path d={flow.fill} fill="#FFFFFF" opacity={0.12} />
-          <Path d={flow.stroke} fill="none" stroke="#FFFFFF" strokeWidth={3} opacity={0.4} />
+          <Path d={flow.fill} fill="#FFFFFF" opacity={0.1} />
+          {phaseBoundaries?.map((x) => (
+            <Line key={x} x1={x} y1={8} x2={x} y2={56} stroke="#FFFFFF" strokeWidth={1} opacity={0.4} />
+          ))}
+          <Path d={flow.stroke} fill="none" stroke="#FFFFFF" strokeWidth={3} opacity={0.75} />
         </Svg>
       )}
       {flow && phaseLabels && (
