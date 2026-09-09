@@ -1661,9 +1661,9 @@ const styles = StyleSheet.create({
   },
   wordmark: {
     position: 'absolute',
-    left: 0,
+    left: 20,
     right: 0,
-    textAlign: 'center',
+    textAlign: 'left',
     fontSize: 28,
     fontWeight: '500',
     letterSpacing: -0.56,
