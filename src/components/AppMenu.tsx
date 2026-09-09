@@ -172,7 +172,7 @@ export function MenuHome({ palette, onSelect }: { palette: MenuPalette; onSelect
             style={[styles.menuTile, { backgroundColor: palette.surface, borderColor: palette.border }]}
           >
             <View style={styles.menuTileLeft}>
-              <View style={[styles.menuIconBadge, { backgroundColor: palette.tint }]}>
+              <View style={[styles.menuIconBadge, { backgroundColor: palette.bg }]}>
                 <Icon color={palette.accent} />
               </View>
               <Text style={[styles.menuLabel, { color: palette.text }]}>{item.label}</Text>
