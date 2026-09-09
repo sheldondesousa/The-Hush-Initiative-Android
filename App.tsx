@@ -1454,7 +1454,7 @@ function RecommendScreen({
   return (
     <ScrollView ref={scrollRef} contentContainerStyle={styles.recommendContent} showsVerticalScrollIndicator={false}>
       <Text style={[styles.eyebrow, { color: palette.accent }]}>FIND THE RIGHT TECHNIQUE</Text>
-      <Text style={[styles.title, { color: palette.text }]}>What do you need?</Text>
+      <Text style={[styles.title, { color: palette.text }]}>We can help</Text>
       {!selectedSituation ? (
         <>
           <Text style={[styles.question, { color: palette.text }]}>How are you feeling right now?</Text>
@@ -1918,7 +1918,7 @@ const styles = StyleSheet.create({
   recommenderChevronSpacer: { width: 44 },
   chips: { alignItems: 'center' },
   chipColumn: { alignItems: 'stretch', gap: 10 },
-  chip: { borderWidth: 1, borderRadius: 22, paddingVertical: 12, paddingHorizontal: 16 },
+  chip: { minHeight: 58, borderWidth: 1, borderRadius: 14, paddingHorizontal: 17, justifyContent: 'center' },
   chipLabel: { textAlign: 'center', fontSize: 15, fontWeight: '600' },
   chipDescription: { textAlign: 'center', fontSize: 12, marginTop: 3 },
   results: { gap: 12 },
