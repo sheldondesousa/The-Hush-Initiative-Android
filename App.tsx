@@ -1550,49 +1550,31 @@ function TabBar({
   palette: Palette;
 }) {
   const insets = useSafeAreaInsets();
-  const isMinimal = palette === palettes.minimal;
-  const isDark = palette === palettes.dark;
   const tabs: { id: Tab; label: string; icon: string }[] = [
     { id: 'breathe', label: 'Breathe', icon: '' },
     // Meditate is hidden from the nav bar for now.
     { id: 'recommend', label: 'Guide Me', icon: '' },
     { id: 'menu', label: 'Menu', icon: '' },
   ];
-  const activeTabColor: Record<Tab, string> = isMinimal
-    ? { breathe: '#FFFFFF', meditate: '#FFFFFF', recommend: '#FFFFFF', menu: '#FFFFFF' }
-    : isDark
-      ? { breathe: palette.bg, meditate: palette.bg, recommend: palette.bg, menu: palette.bg }
-      : { breathe: '#FFFFFF', meditate: '#FFFFFF', recommend: '#FFFFFF', menu: '#FFFFFF' };
-  const activeTabBackground: Record<Tab, string> = isMinimal
-    ? { breathe: '#000000', meditate: '#000000', recommend: '#000000', menu: '#000000' }
-    : isDark
-      ? { breathe: palette.accent, meditate: palette.accent, recommend: palette.accent, menu: palette.accent }
-      : { breathe: TERRACOTTA, meditate: TERRACOTTA, recommend: TERRACOTTA, menu: TERRACOTTA };
   const tabItems = tabs.map((item) => {
     const selected = tab === item.id;
-    const iconColor = selected ? activeTabColor[item.id] : palette.muted;
-    const iconBackground = selected ? activeTabBackground[item.id] : undefined;
+    const iconColor = selected ? palette.text : palette.muted;
+    const iconSize = selected ? 24 : 20;
     const icon = item.id === 'breathe' ? (
-      <WindIcon color={iconColor} />
+      <WindIcon color={iconColor} size={iconSize} />
     ) : item.id === 'meditate' ? (
-      <FocusIcon color={iconColor} />
+      <FocusIcon color={iconColor} size={iconSize} />
     ) : item.id === 'recommend' ? (
-      <SmartAssistIcon color={iconColor} />
+      <SmartAssistIcon color={iconColor} size={iconSize} />
     ) : item.id === 'menu' ? (
-      <MenuIcon color={iconColor} />
+      <MenuIcon color={iconColor} size={iconSize} />
     ) : (
       <Text style={[styles.tabIcon, { color: iconColor }]}>{item.icon}</Text>
     );
     return (
-      <Pressable
-        key={item.id}
-        onPress={() => onTabPress(item.id)}
-        style={[styles.tab, { backgroundColor: iconBackground ?? 'transparent' }]}
-        accessibilityRole="tab"
-        accessibilityState={{ selected }}
-      >
+      <Pressable key={item.id} onPress={() => onTabPress(item.id)} style={styles.tab} accessibilityRole="tab" accessibilityState={{ selected }}>
         {icon}
-        <Text style={[styles.tabLabel, { color: selected ? iconColor : palette.muted, fontWeight: selected ? '700' : '400' }]}>{item.label}</Text>
+        <Text style={[styles.tabLabel, { color: iconColor, fontWeight: selected ? '700' : '400', fontSize: selected ? 13 : 12 }]}>{item.label}</Text>
       </Pressable>
     );
   });
@@ -1612,9 +1594,9 @@ function TabBar({
   );
 }
 
-function WindIcon({ color }: { color: string }) {
+function WindIcon({ color, size = 20 }: { color: string; size?: number }) {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" accessible={false}>
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" accessible={false}>
       <Path d="M12.8 19.6A2 2 0 1 0 14 16H2" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
       <Path d="M17.5 8.6A2 2 0 1 1 19 12H2" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
       <Path d="M9.8 4.4A2 2 0 1 1 11 8H2" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
@@ -1622,9 +1604,9 @@ function WindIcon({ color }: { color: string }) {
   );
 }
 
-function FocusIcon({ color }: { color: string }) {
+function FocusIcon({ color, size = 20 }: { color: string; size?: number }) {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" accessible={false}>
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" accessible={false}>
       <Circle cx={12} cy={12} r={3} stroke={color} strokeWidth={1.8} />
       <Path d="M3 7V5a2 2 0 0 1 2-2h2" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
       <Path d="M17 3h2a2 2 0 0 1 2 2v2" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
@@ -1634,9 +1616,9 @@ function FocusIcon({ color }: { color: string }) {
   );
 }
 
-function MenuIcon({ color }: { color: string }) {
+function MenuIcon({ color, size = 20 }: { color: string; size?: number }) {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" accessible={false}>
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" accessible={false}>
       <Line x1={4} y1={6} x2={20} y2={6} stroke={color} strokeWidth={1.8} strokeLinecap="round" />
       <Line x1={4} y1={12} x2={20} y2={12} stroke={color} strokeWidth={1.8} strokeLinecap="round" />
       <Line x1={4} y1={18} x2={20} y2={18} stroke={color} strokeWidth={1.8} strokeLinecap="round" />
@@ -1644,9 +1626,9 @@ function MenuIcon({ color }: { color: string }) {
   );
 }
 
-function SmartAssistIcon({ color }: { color: string }) {
+function SmartAssistIcon({ color, size = 20 }: { color: string; size?: number }) {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" accessible={false}>
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" accessible={false}>
       <Path d="m4 20 10.5-10.5 2 2L6 22H4v-2Z" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
       <Path d="M17 2v4M15 4h4M20 8v3M18.5 9.5h3M10 3v2M9 4h2" stroke={color} strokeWidth={1.8} strokeLinecap="round" />
     </Svg>
@@ -1928,7 +1910,7 @@ const styles = StyleSheet.create({
   chipDescription: { textAlign: 'center', fontSize: 12, marginTop: 3 },
   results: { gap: 12 },
   tabItems: { height: 58, paddingTop: 8, flexDirection: 'row', justifyContent: 'space-around' },
-  tab: { flex: 1, marginHorizontal: 6, borderRadius: 14, alignItems: 'center', justifyContent: 'center', gap: 2 },
+  tab: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 2 },
   tabDivider: { width: 1, marginVertical: 10 },
   tabIcon: { fontSize: 20 },
   tabLabel: { fontSize: 12 },
