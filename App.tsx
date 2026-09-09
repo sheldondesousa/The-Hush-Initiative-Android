@@ -1559,13 +1559,19 @@ function TabBar({
   const activeTabColor: Record<Tab, string> = {
     breathe: palette.accent,
     meditate: palette.meditation,
-    recommend: palette.text,
-    menu: palette.text,
+    recommend: '#FFFFFF',
+    menu: '#FFFFFF',
+  };
+  const activeTabBackground: Record<Tab, string> = {
+    breathe: palette.tint,
+    meditate: palette.meditationTint,
+    recommend: TERRACOTTA,
+    menu: TERRACOTTA,
   };
   const tabItems = tabs.map((item) => {
     const selected = tab === item.id;
     const iconColor = selected ? activeTabColor[item.id] : palette.muted;
-    const iconBackground = selected ? TERRACOTTA : undefined;
+    const iconBackground = selected ? activeTabBackground[item.id] : undefined;
     const icon = item.id === 'breathe' ? (
       <WindIcon color={iconColor} />
     ) : item.id === 'meditate' ? (
