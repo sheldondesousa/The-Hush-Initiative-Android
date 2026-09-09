@@ -1,5 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { CormorantGaramond_500Medium } from '@expo-google-fonts/cormorant-garamond';
+import {
+  CormorantGaramond_500Medium,
+  CormorantGaramond_600SemiBold,
+  CormorantGaramond_700Bold,
+} from '@expo-google-fonts/cormorant-garamond';
 import { useFonts } from 'expo-font';
 import * as Haptics from 'expo-haptics';
 import { StatusBar } from 'expo-status-bar';
@@ -103,6 +107,8 @@ const HEADER_HEIGHT = 70;
 const FOREST_SAGE = '#4A7C68';
 const TERRACOTTA = '#D97D46';
 const TITLE_FONT_FAMILY = 'CormorantGaramond_500Medium';
+const FEATURED_CARD_TITLE_FONT_FAMILY = 'CormorantGaramond_600SemiBold';
+const CARD_TITLE_FONT_FAMILY = 'CormorantGaramond_700Bold';
 
 export default function App() {
   const [launchState, setLaunchState] = useState<'splash' | 'onboarding' | 'app'>('splash');
@@ -117,7 +123,11 @@ export default function App() {
   const [menuSection, setMenuSection] = useState<MenuSection | null>(null);
   const [showOnboardingAfterSplash, setShowOnboardingAfterSplash] = useState(true);
   const palette = palettes[themeMode];
-  const [titleFontsLoaded] = useFonts({ CormorantGaramond_500Medium });
+  const [titleFontsLoaded] = useFonts({
+    CormorantGaramond_500Medium,
+    CormorantGaramond_600SemiBold,
+    CormorantGaramond_700Bold,
+  });
 
   useEffect(() => {
     let active = true;
@@ -437,7 +447,7 @@ function FeaturedCard({
         </View>
       )}
       <View style={styles.featuredCardBody}>
-        <Text style={[styles.featuredCardTitle, { color: palette.surface }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>{item.name}</Text>
+        <Text style={[styles.featuredCardTitle, { color: palette.surface }, titleFontsLoaded && { fontFamily: FEATURED_CARD_TITLE_FONT_FAMILY }]}>{item.name}</Text>
         <Text style={[styles.featuredCardMeta, { color: palette.tint }]}>{item.duration} · {item.bestFor}</Text>
       </View>
       <View style={[styles.featuredCardTryButton, { backgroundColor: palette.tint }]}>
@@ -504,7 +514,7 @@ function PracticeCard({
             )}
           </View>
         )}
-        <Text style={[styles.cardTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>{item.name}</Text>
+        <Text style={[styles.cardTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: CARD_TITLE_FONT_FAMILY }]}>{item.name}</Text>
         {recommendationNote && (
           <Text style={[styles.recommendationNote, { color }]}>{recommendationNote}</Text>
         )}
@@ -1740,7 +1750,7 @@ const styles = StyleSheet.create({
   featuredCardGraphLabels: { position: 'absolute', left: 24, right: 24, bottom: 30, height: 14, zIndex: 0 },
   featuredCardGraphLabel: { position: 'absolute', width: 28, marginLeft: -14, textAlign: 'center', fontSize: 10, fontWeight: '600', opacity: 0.8 },
   featuredCardBody: { flex: 1, paddingRight: 12, alignSelf: 'flex-start', zIndex: 1 },
-  featuredCardTitle: { fontSize: 32, fontWeight: '700', letterSpacing: -0.6 },
+  featuredCardTitle: { fontSize: 32, fontWeight: '600', letterSpacing: -0.6 },
   featuredCardMeta: { marginTop: 8, fontSize: 14 },
   featuredCardTryButton: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', alignSelf: 'flex-start', zIndex: 1 },
   featuredCardTryLabel: { fontSize: 14, fontWeight: '700' },
@@ -1751,7 +1761,7 @@ const styles = StyleSheet.create({
   cardCategoryRow: { minHeight: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 6 },
   cardCategory: { flex: 1, fontSize: 13, fontWeight: '700', letterSpacing: 1.2 },
   confidence: { overflow: 'hidden', borderRadius: 10, paddingVertical: 3, paddingHorizontal: 7, fontSize: 9, fontWeight: '700', letterSpacing: 0.5 },
-  cardTitle: { fontSize: 28, fontWeight: '600', lineHeight: 34 },
+  cardTitle: { fontSize: 28, fontWeight: '700', lineHeight: 34 },
   recommendationNote: { fontSize: 12, lineHeight: 17, fontWeight: '500', marginTop: 8 },
   arrow: { fontSize: 20 },
   cardArrow: { position: 'absolute', right: 16, bottom: 16 },
