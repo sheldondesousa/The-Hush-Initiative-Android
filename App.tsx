@@ -99,6 +99,7 @@ const SPLASH_DURATION_MS = 1200;
 const ENABLE_BOX_ORB_PROTOTYPE = false;
 const HEADER_HEIGHT = 70;
 const FOREST_SAGE = '#4A7C68';
+const TERRACOTTA = '#C17957';
 
 export default function App() {
   const [launchState, setLaunchState] = useState<'splash' | 'onboarding' | 'app'>('splash');
@@ -298,7 +299,7 @@ function Header({ palette, themeMode }: { palette: Palette; themeMode: ThemeMode
   return (
     <View style={[styles.header, { backgroundColor: palette.bg, borderBottomColor: palette.border }]}>
       <Text style={[styles.wordmark, { color: palette.text }]}>
-        Hush<Text style={{ color: themeMode === 'dark' ? '#A8C8BA' : '#4A7C68' }}>.</Text>
+        Hush<Text style={{ color: TERRACOTTA }}>.</Text>
       </Text>
     </View>
   );
@@ -546,7 +547,7 @@ function ExerciseInfoScreen({
         <Pressable onPress={onBack} hitSlop={12}><Text style={[styles.back, { color: palette.text }]}>‹ Back</Text></Pressable>
         {isExercise ? (
           <Text accessibilityLabel="Hush" style={[styles.detailWordmark, { color: palette.text }]}>
-            Hush<Text style={{ color: palette === palettes.dark ? '#A8C8BA' : '#4A7C68' }}>.</Text>
+            Hush<Text style={{ color: TERRACOTTA }}>.</Text>
           </Text>
         ) : (
           <Text style={[styles.detailHeaderLabel, { color: palette.muted }]}>MEDITATION</Text>
@@ -1561,16 +1562,10 @@ function TabBar({
     recommend: palette.text,
     menu: palette.text,
   };
-  const activeTabTint: Record<Tab, string> = {
-    breathe: palette.tint,
-    meditate: palette.meditationTint,
-    recommend: palette.bg,
-    menu: palette.bg,
-  };
   const tabItems = tabs.map((item) => {
     const selected = tab === item.id;
     const iconColor = selected ? activeTabColor[item.id] : palette.muted;
-    const iconBackground = selected ? activeTabTint[item.id] : undefined;
+    const iconBackground = selected ? TERRACOTTA : undefined;
     const icon = item.id === 'breathe' ? (
       <WindIcon color={iconColor} />
     ) : item.id === 'meditate' ? (

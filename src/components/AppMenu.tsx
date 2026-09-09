@@ -2,6 +2,8 @@ import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
 
+const TERRACOTTA = '#C17957';
+
 export type MenuSection = 'profile' | 'dashboard' | 'configuration' | 'about' | 'terms';
 export type MenuThemeMode = 'light' | 'dark' | 'minimal';
 
@@ -172,7 +174,7 @@ export function MenuHome({ palette, onSelect }: { palette: MenuPalette; onSelect
             style={[styles.menuTile, { backgroundColor: palette.surface, borderColor: palette.border }]}
           >
             <View style={styles.menuTileLeft}>
-              <View style={[styles.menuIconBadge, { backgroundColor: palette.bg }]}>
+              <View style={[styles.menuIconBadge, { backgroundColor: TERRACOTTA }]}>
                 <Icon color={palette.accent} />
               </View>
               <Text style={[styles.menuLabel, { color: palette.text }]}>{item.label}</Text>
