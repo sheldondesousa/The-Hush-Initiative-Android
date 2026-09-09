@@ -99,7 +99,7 @@ const SPLASH_DURATION_MS = 1200;
 const ENABLE_BOX_ORB_PROTOTYPE = false;
 const HEADER_HEIGHT = 70;
 const FOREST_SAGE = '#4A7C68';
-const TERRACOTTA = '#C17957';
+const TERRACOTTA = '#D97D46';
 
 export default function App() {
   const [launchState, setLaunchState] = useState<'splash' | 'onboarding' | 'app'>('splash');
