@@ -614,12 +614,12 @@ function ExerciseInfoScreen({
         {isExercise ? (
           exerciseConfig ? (
             <>
-              <ExerciseRhythm config={configuredExerciseConfig ?? exerciseConfig} palette={palette} />
-              <ExerciseGuide sections={exerciseConfig.guide} palette={palette} />
+              <ExerciseRhythm config={configuredExerciseConfig ?? exerciseConfig} palette={palette} titleFontsLoaded={titleFontsLoaded} />
+              <ExerciseGuide sections={exerciseConfig.guide} palette={palette} titleFontsLoaded={titleFontsLoaded} />
             </>
           ) : null
         ) : (
-          <InfoSection title="The practice" palette={palette}>
+          <InfoSection title="The practice" palette={palette} titleFontsLoaded={titleFontsLoaded}>
             {(item as Meditation).steps.map((step, index) => <InfoRow key={step} number={index + 1} text={step} palette={palette} />)}
           </InfoSection>
         )}
@@ -704,7 +704,7 @@ function buildFlowPaths(phases: DetailPhase[]) {
   return { stroke, fill: `${stroke} L1000,56 L0,56 Z`, total };
 }
 
-function ExerciseRhythm({ config, palette }: { config: ExerciseDetailConfig; palette: Palette }) {
+function ExerciseRhythm({ config, palette, titleFontsLoaded }: { config: ExerciseDetailConfig; palette: Palette; titleFontsLoaded: boolean }) {
   const [previewExpanded, setPreviewExpanded] = useState(false);
   const { width: screenWidth } = useWindowDimensions();
   const isDark = palette === palettes.dark;
@@ -728,7 +728,7 @@ function ExerciseRhythm({ config, palette }: { config: ExerciseDetailConfig; pal
 
   return (
     <View style={styles.infoSection}>
-      <Text style={[styles.infoTitle, { color: palette.text }]}>Rhythm</Text>
+      <Text style={[styles.infoTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>Rhythm</Text>
       <View
         style={[styles.rhythmCard, { borderColor: palette.border }]}
       >
@@ -965,11 +965,11 @@ function ExercisePreviewGraphic({
   );
 }
 
-function ExerciseGuide({ sections, palette }: { sections: ExerciseGuideSection[]; palette: Palette }) {
+function ExerciseGuide({ sections, palette, titleFontsLoaded }: { sections: ExerciseGuideSection[]; palette: Palette; titleFontsLoaded: boolean }) {
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   return (
     <View style={styles.infoSection}>
-      <Text style={[styles.infoTitle, { color: palette.text }]}>Guide</Text>
+      <Text style={[styles.infoTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>Guide</Text>
       <View style={[styles.guideBox, { borderColor: palette.border }]}>
         {sections.map((section, sectionIndex) => {
           const isOpen = Boolean(openSections[section.id]);
@@ -1006,10 +1006,20 @@ function ExerciseGuide({ sections, palette }: { sections: ExerciseGuideSection[]
   );
 }
 
-function InfoSection({ title, palette, children }: { title: string; palette: Palette; children: React.ReactNode }) {
+function InfoSection({
+  title,
+  palette,
+  children,
+  titleFontsLoaded,
+}: {
+  title: string;
+  palette: Palette;
+  children: React.ReactNode;
+  titleFontsLoaded: boolean;
+}) {
   return (
     <View style={styles.infoSection}>
-      <Text style={[styles.infoTitle, { color: palette.text }]}>{title}</Text>
+      <Text style={[styles.infoTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>{title}</Text>
       <View style={[styles.infoBox, { backgroundColor: palette.surface, borderColor: palette.border }]}>{children}</View>
     </View>
   );
