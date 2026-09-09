@@ -145,7 +145,7 @@ export default function ExerciseCardVisual({
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     >
-      <Svg width={64} height={64} viewBox="0 0 80 80">
+      <Svg width={80} height={80} viewBox="0 0 80 80">
         <Illustration color={color} />
       </Svg>
     </View>
@@ -154,9 +154,9 @@ export default function ExerciseCardVisual({
 
 const styles = StyleSheet.create({
   container: {
-    width: 64,
-    height: 64,
-    borderRadius: 16,
+    width: 80,
+    height: 80,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
