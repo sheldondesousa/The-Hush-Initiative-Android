@@ -1681,7 +1681,7 @@ const styles = StyleSheet.create({
   featuredCardTitle: { marginTop: 6, fontSize: 26, fontWeight: '700', letterSpacing: -0.6 },
   featuredCardMeta: { marginTop: 8, fontSize: 14 },
   featuredCardArrow: { width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center' },
-  featuredCardArrowGlyph: { fontSize: 22, fontWeight: '600' },
+  featuredCardArrowGlyph: { fontSize: 22, lineHeight: 24, fontWeight: '600', textAlign: 'center' },
   card: { borderWidth: 1, borderRadius: 18, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 14 },
   cardMark: { width: 54, height: 54, borderRadius: 27, alignItems: 'center', justifyContent: 'center' },
   cardMarkText: { fontSize: 13, fontWeight: '700', letterSpacing: 1 },
