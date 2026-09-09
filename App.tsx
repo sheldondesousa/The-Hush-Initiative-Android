@@ -1865,7 +1865,7 @@ const styles = StyleSheet.create({
   tabBarFloatingWrapper: { paddingHorizontal: 16, paddingTop: 8 },
   tabBarFloatingCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 28,
+    borderRadius: 18,
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
