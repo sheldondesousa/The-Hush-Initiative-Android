@@ -736,7 +736,7 @@ function ExerciseRhythm({ config, palette, titleFontsLoaded }: { config: Exercis
 
   return (
     <View style={styles.infoSection}>
-      <Text style={[styles.infoTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>Rhythm</Text>
+      <Text style={[styles.infoTitle, styles.cardTitle, { color: FOREST_SAGE }, titleFontsLoaded && { fontFamily: CARD_TITLE_FONT_FAMILY }]}>Rhythm</Text>
       <View
         style={[styles.rhythmCard, { borderColor: palette.border }]}
       >
@@ -977,7 +977,7 @@ function ExerciseGuide({ sections, palette, titleFontsLoaded }: { sections: Exer
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   return (
     <View style={styles.infoSection}>
-      <Text style={[styles.infoTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>Guide</Text>
+      <Text style={[styles.infoTitle, styles.cardTitle, { color: FOREST_SAGE }, titleFontsLoaded && { fontFamily: CARD_TITLE_FONT_FAMILY }]}>Guide</Text>
       <View style={[styles.guideBox, { borderColor: palette.border }]}>
         {sections.map((section, sectionIndex) => {
           const isOpen = Boolean(openSections[section.id]);
@@ -1772,7 +1772,7 @@ const styles = StyleSheet.create({
   detailWordmark: { fontSize: 28, fontWeight: '500', letterSpacing: -0.56 },
   detailPersonalizeButton: { width: 52, height: 44, alignItems: 'flex-end', justifyContent: 'center' },
   detailContent: { padding: 22, paddingBottom: 130 },
-  detailTitle: { fontSize: 40, lineHeight: 46, fontWeight: '600', letterSpacing: -1.2 },
+  detailTitle: { fontSize: 42, lineHeight: 48, fontWeight: '600', letterSpacing: -1.2 },
   detailMeta: { marginTop: 12, fontSize: 13 },
   detailDescription: { marginTop: 28, fontSize: 18, lineHeight: 29 },
   summarySection: { marginTop: 28 },
