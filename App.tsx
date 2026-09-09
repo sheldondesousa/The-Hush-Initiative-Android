@@ -109,13 +109,10 @@ const TITLE_FONT_FAMILY = 'CormorantGaramond_500Medium';
 const FEATURED_CARD_TITLE_FONT_FAMILY = 'CormorantGaramond_600SemiBold';
 const CARD_TITLE_FONT_FAMILY = 'CormorantGaramond_600SemiBold';
 
-// Solid colors pre-blended from the graph's translucent fill (see ExerciseRhythm)
-// against each theme's page background, so the fill looks identical whether it's
-// painted over the transparent rhythm card or used as an opaque icon background.
 function getGraphFill(palette: Palette): string {
-  if (palette === palettes.dark) return '#232323';
+  if (palette === palettes.dark) return 'rgba(240,240,240,0.08)';
   if (palette === palettes.minimal) return palette.tint;
-  return '#DDDED7';
+  return 'rgba(74,124,104,0.10)';
 }
 
 export default function App() {
