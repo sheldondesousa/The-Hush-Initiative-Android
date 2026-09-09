@@ -175,7 +175,7 @@ export function MenuHome({ palette, onSelect }: { palette: MenuPalette; onSelect
           >
             <View style={styles.menuTileLeft}>
               <View style={[styles.menuIconBadge, { backgroundColor: TERRACOTTA }]}>
-                <Icon color={palette.accent} />
+                <Icon color="#FFFFFF" />
               </View>
               <Text style={[styles.menuLabel, { color: palette.text }]}>{item.label}</Text>
             </View>
