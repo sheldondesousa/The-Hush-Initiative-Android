@@ -338,9 +338,6 @@ function Library<T extends Exercise | Meditation>({
       {categories.map((group, groupIndex) => (
         <View key={group.category} style={groupIndex > 0 ? styles.categorySection : undefined}>
           {groupIndex > 0 && <View style={[styles.categorySeparator, { backgroundColor: FOREST_SAGE, opacity: 0.5 }]} />}
-          <Text style={[styles.categoryHeading, { color: accent === 'breath' ? palette.accent : palette.meditation }]}>
-            {group.category.toUpperCase()}
-          </Text>
           {group.items.map((item, index) => (
             <View key={item.id} style={styles.categoryCardSpacing}>
               <PracticeCard
@@ -349,7 +346,6 @@ function Library<T extends Exercise | Meditation>({
                 palette={palette}
                 accent={accent}
                 onPress={() => onPress(item)}
-                showCategory={false}
               />
             </View>
           ))}
@@ -1711,7 +1707,6 @@ const styles = StyleSheet.create({
   libraryTitle: { fontSize: 36 },
   categorySection: { marginTop: 14 },
   categorySeparator: { height: 1, marginBottom: 14 },
-  categoryHeading: { fontSize: 13, fontWeight: '700', letterSpacing: 1.2, marginBottom: 12 },
   categoryCardSpacing: { marginBottom: 12 },
   featuredCard: {
     marginTop: 22, minHeight: 192, borderRadius: 22, padding: 22, overflow: 'hidden',
