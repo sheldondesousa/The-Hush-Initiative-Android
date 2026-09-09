@@ -172,7 +172,9 @@ export function MenuHome({ palette, onSelect }: { palette: MenuPalette; onSelect
             style={[styles.menuTile, { backgroundColor: palette.surface, borderColor: palette.border }]}
           >
             <View style={styles.menuTileLeft}>
-              <Icon color={palette.text} />
+              <View style={[styles.menuIconBadge, { backgroundColor: palette.tint }]}>
+                <Icon color={palette.accent} />
+              </View>
               <Text style={[styles.menuLabel, { color: palette.text }]}>{item.label}</Text>
             </View>
             <Text style={[styles.menuChevron, { color: palette.muted }]}>›</Text>
@@ -437,6 +439,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
   },
   menuTileLeft: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  menuIconBadge: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   menuLabel: { fontSize: 16, lineHeight: 22 },
   menuChevron: { fontSize: 27, lineHeight: 30, fontWeight: '300' },
   pageContent: { paddingHorizontal: 20, paddingTop: 30, paddingBottom: 48 },
