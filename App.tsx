@@ -358,7 +358,7 @@ function Library<T extends Exercise | Meditation>({
         <Text style={[styles.eyebrow, { color: accent === 'breath' ? palette.accent : palette.meditation }]}>
           {accent === 'breath' ? 'CHOOSE YOUR PATH' : 'FIND YOUR CALM'}
         </Text>
-        <Text style={[styles.title, styles.libraryTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>{title}</Text>
+        <Text style={[styles.title, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>{title}</Text>
       </View>
       <ScrollView contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
         {accent === 'breath' && items.length > 0 && (
@@ -1729,7 +1729,6 @@ const styles = StyleSheet.create({
   libraryHeading: { paddingHorizontal: 20, paddingTop: 30 },
   eyebrow: { fontSize: 11, fontWeight: '700', letterSpacing: 1.8, marginBottom: 8 },
   title: { fontSize: 42, fontWeight: '500', letterSpacing: -1.2 },
-  libraryTitle: { fontSize: 36 },
   categorySection: { marginTop: 2 },
   categorySeparator: { height: 1, marginBottom: 14 },
   categoryCardSpacing: { marginBottom: 12 },
