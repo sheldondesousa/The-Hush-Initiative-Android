@@ -1454,7 +1454,7 @@ function RecommendScreen({
 
   return (
     <ScrollView ref={scrollRef} contentContainerStyle={styles.recommendContent} showsVerticalScrollIndicator={false}>
-      <Text style={[styles.eyebrow, { color: palette.accent }]}>FIND THE RIGHT TECHNIQUE</Text>
+      <Text style={[styles.eyebrow, { color: TERRACOTTA }]}>FIND THE RIGHT TECHNIQUE</Text>
       <Text style={[styles.title, { color: palette.text }]}>We can help</Text>
       {!selectedSituation ? (
         <>

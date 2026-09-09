@@ -172,7 +172,7 @@ export function MenuHome({
   return (
     <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
       <View style={styles.pageHeader}>
-        <Text style={[styles.eyebrow, { color: palette.accent }]}>NAVIGATE</Text>
+        <Text style={[styles.eyebrow, { color: TERRACOTTA }]}>NAVIGATE</Text>
         <Text style={[styles.pageTitle, { color: palette.text }]}>Menu</Text>
       </View>
       {MENU_ITEMS.map((item) => {
