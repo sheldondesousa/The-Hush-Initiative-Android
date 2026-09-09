@@ -493,8 +493,8 @@ function PracticeCard({
         {recommendationNote && (
           <Text style={[styles.recommendationNote, { color }]}>{recommendationNote}</Text>
         )}
-        <Text style={[styles.arrow, styles.cardArrow, { color }]}>→</Text>
       </View>
+      <Text style={[styles.arrow, styles.cardArrow, { color }]}>→</Text>
     </Pressable>
   );
 }
@@ -1718,14 +1718,14 @@ const styles = StyleSheet.create({
   card: { borderWidth: 1, borderRadius: 18, padding: 16, flexDirection: 'row', alignItems: 'flex-start', gap: 14 },
   cardMark: { width: 54, height: 54, borderRadius: 27, alignItems: 'center', justifyContent: 'center' },
   cardMarkText: { fontSize: 13, fontWeight: '700', letterSpacing: 1 },
-  cardBody: { flex: 1 },
+  cardBody: { flex: 1, paddingRight: 28 },
   cardCategoryRow: { minHeight: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 6 },
   cardCategory: { flex: 1, fontSize: 13, fontWeight: '700', letterSpacing: 1.2 },
   confidence: { overflow: 'hidden', borderRadius: 10, paddingVertical: 3, paddingHorizontal: 7, fontSize: 9, fontWeight: '700', letterSpacing: 0.5 },
   cardTitle: { fontSize: 22, fontWeight: '600', lineHeight: 27 },
   recommendationNote: { fontSize: 12, lineHeight: 17, fontWeight: '500', marginTop: 8 },
   arrow: { fontSize: 20 },
-  cardArrow: { alignSelf: 'flex-end', marginTop: 8 },
+  cardArrow: { position: 'absolute', right: 16, bottom: 16 },
   detailHeader: {
     height: 58, paddingHorizontal: 18, flexDirection: 'row', alignItems: 'center',
     justifyContent: 'space-between', borderBottomWidth: StyleSheet.hairlineWidth,
