@@ -235,10 +235,12 @@ export default function App() {
     );
   }
 
+  const screenBackground = tab === 'breathe' ? palette.tint : palette.bg;
+
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: palette.bg }]} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={[styles.safe, { backgroundColor: screenBackground }]} edges={['top', 'left', 'right']}>
       <StatusBar style={themeMode === 'dark' ? 'light' : 'dark'} />
-      <Header palette={palette} themeMode={themeMode} />
+      <Header palette={palette} themeMode={themeMode} backgroundColor={screenBackground} />
 
       <View style={styles.content}>
         {tab === 'breathe' && (
@@ -294,13 +296,21 @@ export default function App() {
   );
 }
 
-function Header({ palette, themeMode }: { palette: Palette; themeMode: ThemeMode }) {
+function Header({
+  palette,
+  themeMode,
+  backgroundColor,
+}: {
+  palette: Palette;
+  themeMode: ThemeMode;
+  backgroundColor?: string;
+}) {
   const insets = useSafeAreaInsets();
   const isLight = palette === palettes.light;
   const isDark = palette === palettes.dark;
   const overlayColor = isLight ? 'rgba(74,55,35,0.15)' : isDark ? 'rgba(168,200,186,0.15)' : 'rgba(0,0,0,0.15)';
   return (
-    <View style={[styles.header, { backgroundColor: palette.bg, borderBottomColor: palette.border }]}>
+    <View style={[styles.header, { backgroundColor: backgroundColor ?? palette.bg, borderBottomColor: palette.border }]}>
       <View
         pointerEvents="none"
         style={[
@@ -339,6 +349,9 @@ function Library<T extends Exercise | Meditation>({
             {accent === 'breath' ? 'CHOOSE YOUR PATH' : 'FIND YOUR CALM'}
           </Text>
           <Text style={[styles.title, styles.libraryTitle, { color: palette.text }]}>{title}</Text>
+          {accent === 'breath' && items.length > 0 && (
+            <FeaturedCard item={items[0] as unknown as Exercise} palette={palette} onPress={() => onPress(items[0])} />
+          )}
         </View>
       }
       renderItem={({ item, index }) => (
@@ -353,6 +366,34 @@ function Library<T extends Exercise | Meditation>({
       ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
       showsVerticalScrollIndicator={false}
     />
+  );
+}
+
+function FeaturedCard({
+  item,
+  palette,
+  onPress,
+}: {
+  item: Exercise;
+  palette: Palette;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`${item.name}, ${item.bestFor}, ${item.duration}, today's pick`}
+      style={({ pressed }) => [styles.featuredCard, { backgroundColor: palette.accent, opacity: pressed ? 0.85 : 1 }]}
+    >
+      <View style={styles.featuredCardBody}>
+        <Text style={[styles.eyebrow, { color: palette.tint }]}>FOR THIS MORNING</Text>
+        <Text style={[styles.featuredCardTitle, { color: palette.surface }]}>{item.name}</Text>
+        <Text style={[styles.featuredCardMeta, { color: palette.tint }]}>{item.duration} · {item.bestFor}</Text>
+      </View>
+      <View style={[styles.featuredCardArrow, { backgroundColor: palette.tint }]}>
+        <Text style={[styles.featuredCardArrowGlyph, { color: palette.accent }]}>→</Text>
+      </View>
+    </Pressable>
   );
 }
 
@@ -375,7 +416,6 @@ function PracticeCard({
 }) {
   const color = accent === 'breath' ? palette.accent : palette.meditation;
   const tint = accent === 'breath' ? palette.tint : palette.meditationTint;
-  const description = exerciseDetails[item.id]?.summary ?? item.description;
   const recommendationContext = [
     confidence !== undefined ? `${confidence}% match` : null,
     recommendationNote,
@@ -409,7 +449,6 @@ function PracticeCard({
           )}
         </View>
         <Text style={[styles.cardTitle, { color: palette.text }]}>{item.name}</Text>
-        <Text style={[styles.cardDescription, { color: palette.muted }]} numberOfLines={3}>{description}</Text>
         {recommendationNote && (
           <Text style={[styles.recommendationNote, { color }]}>{recommendationNote}</Text>
         )}
@@ -1646,6 +1685,15 @@ const styles = StyleSheet.create({
   eyebrow: { fontSize: 11, fontWeight: '700', letterSpacing: 1.8, marginBottom: 8 },
   title: { fontSize: 38, fontWeight: '500', letterSpacing: -1.2 },
   libraryTitle: { fontSize: 36 },
+  featuredCard: {
+    marginTop: 22, minHeight: 168, borderRadius: 22, padding: 22,
+    flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between',
+  },
+  featuredCardBody: { flex: 1, paddingRight: 12 },
+  featuredCardTitle: { marginTop: 6, fontSize: 26, fontWeight: '700', letterSpacing: -0.6 },
+  featuredCardMeta: { marginTop: 8, fontSize: 14 },
+  featuredCardArrow: { width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center' },
+  featuredCardArrowGlyph: { fontSize: 22, fontWeight: '600' },
   card: { minHeight: 196, borderWidth: 1, borderRadius: 18, padding: 16, flexDirection: 'row', gap: 14 },
   cardMark: { width: 54, height: 54, borderRadius: 27, alignItems: 'center', justifyContent: 'center' },
   cardMarkText: { fontSize: 13, fontWeight: '700', letterSpacing: 1 },
@@ -1654,7 +1702,6 @@ const styles = StyleSheet.create({
   cardCategory: { flex: 1, fontSize: 10, fontWeight: '700', letterSpacing: 1 },
   confidence: { overflow: 'hidden', borderRadius: 10, paddingVertical: 3, paddingHorizontal: 7, fontSize: 9, fontWeight: '700', letterSpacing: 0.5 },
   cardTitle: { fontSize: 22, fontWeight: '600', lineHeight: 27 },
-  cardDescription: { fontSize: 14, lineHeight: 21, marginTop: 8 },
   recommendationNote: { fontSize: 12, lineHeight: 17, fontWeight: '500', marginTop: 8 },
   cardFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 16 },
   meta: { fontSize: 11 },
