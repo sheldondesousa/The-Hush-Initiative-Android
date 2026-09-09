@@ -1542,11 +1542,8 @@ function TabBar({
     return (
       <View style={[styles.tabBarFloatingWrapper, { paddingBottom: Math.max(insets.bottom, 16) }]}>
         <View style={styles.tabBarFloatingCard}>
-          <View style={[styles.tabBarFloatingCardInner, { backgroundColor: palette.bg }]}>
-            <View pointerEvents="none" style={[styles.tabBarFloatingOverlay, { backgroundColor: 'rgba(74,55,35,0.15)' }]} />
-            <View style={styles.tabItems} accessibilityRole="tablist">
-              {tabItems}
-            </View>
+          <View style={styles.tabItems} accessibilityRole="tablist">
+            {tabItems}
           </View>
         </View>
       </View>
@@ -1867,6 +1864,7 @@ const styles = StyleSheet.create({
   results: { gap: 12 },
   tabBarFloatingWrapper: { paddingHorizontal: 16, paddingTop: 8 },
   tabBarFloatingCard: {
+    backgroundColor: '#FFFFFF',
     borderRadius: 18,
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 4 },
@@ -1874,8 +1872,6 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
     elevation: 6,
   },
-  tabBarFloatingCardInner: { borderRadius: 18, overflow: 'hidden' },
-  tabBarFloatingOverlay: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
   tabBar: { borderTopWidth: StyleSheet.hairlineWidth },
   tabItems: { height: 70, flexDirection: 'row', paddingVertical: 4 },
   tab: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 2 },
