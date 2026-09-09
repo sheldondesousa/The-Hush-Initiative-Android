@@ -3,7 +3,6 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
 
 const TERRACOTTA = '#D97D46';
-const TERRACOTTA_TINT = '#EBCBBC';
 
 export type MenuSection = 'profile' | 'dashboard' | 'configuration' | 'about' | 'terms';
 export type MenuThemeMode = 'light' | 'dark' | 'minimal';
@@ -167,7 +166,7 @@ export function MenuHome({
   themeMode: MenuThemeMode;
   onSelect: (section: MenuSection) => void;
 }) {
-  const badgeColor = themeMode === 'minimal' ? '#000000' : themeMode === 'dark' ? palette.accent : TERRACOTTA_TINT;
+  const badgeColor = themeMode === 'minimal' ? '#000000' : themeMode === 'dark' ? palette.accent : '#FFFFFF';
   const badgeIconColor = themeMode === 'dark' ? palette.bg : themeMode === 'minimal' ? '#FFFFFF' : TERRACOTTA;
   return (
     <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
