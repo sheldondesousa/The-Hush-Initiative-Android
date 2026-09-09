@@ -396,25 +396,26 @@ function FeaturedCard({
     >
       {flow && (
         <Svg pointerEvents="none" style={styles.featuredCardGraph} viewBox="0 0 1000 64" preserveAspectRatio="none">
-          <Path d={flow.fill} fill={palette.tint} opacity={0.12} />
-          <Path d={flow.stroke} fill="none" stroke={palette.tint} strokeWidth={3} opacity={0.3} />
+          <Path d={flow.fill} fill="#FFFFFF" opacity={0.12} />
+          <Path d={flow.stroke} fill="none" stroke="#FFFFFF" strokeWidth={3} opacity={0.4} />
         </Svg>
       )}
       {flow && phaseLabels && (
         <View pointerEvents="none" style={styles.featuredCardGraphLabels}>
           {phaseLabels.map((label) => (
-            <Text key={label.key} style={[styles.featuredCardGraphLabel, { left: `${label.pct}%`, color: palette.tint }]}>
+            <Text key={label.key} style={[styles.featuredCardGraphLabel, { left: `${label.pct}%`, color: '#FFFFFF' }]}>
               {label.seconds}s
             </Text>
           ))}
         </View>
       )}
       <View style={styles.featuredCardBody}>
-        <Text style={[styles.eyebrow, { color: palette.tint }]}>FOR THIS MORNING</Text>
         <Text style={[styles.featuredCardTitle, { color: palette.surface }]}>{item.name}</Text>
         <Text style={[styles.featuredCardMeta, { color: palette.tint }]}>{item.duration} · {item.bestFor}</Text>
       </View>
-      <Text style={[styles.featuredCardArrowGlyph, { color: palette.tint }]}>→</Text>
+      <View style={[styles.featuredCardTryButton, { backgroundColor: palette.tint }]}>
+        <Text style={[styles.featuredCardTryLabel, { color: palette.accent }]}>Try</Text>
+      </View>
     </Pressable>
   );
 }
@@ -1718,13 +1719,14 @@ const styles = StyleSheet.create({
     marginTop: 22, minHeight: 192, borderRadius: 22, padding: 22, overflow: 'hidden',
     flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between',
   },
-  featuredCardGraph: { position: 'absolute', left: 0, right: -40, bottom: 0, height: 90, zIndex: 0 },
-  featuredCardGraphLabels: { position: 'absolute', left: 0, right: -40, bottom: 6, height: 14, zIndex: 0 },
+  featuredCardGraph: { position: 'absolute', left: 24, right: 24, bottom: 0, height: 90, zIndex: 0 },
+  featuredCardGraphLabels: { position: 'absolute', left: 24, right: 24, bottom: 6, height: 14, zIndex: 0 },
   featuredCardGraphLabel: { position: 'absolute', width: 28, marginLeft: -14, textAlign: 'center', fontSize: 10, fontWeight: '600', opacity: 0.8 },
   featuredCardBody: { flex: 1, paddingRight: 12, alignSelf: 'flex-start', zIndex: 1 },
-  featuredCardTitle: { marginTop: 6, fontSize: 26, fontWeight: '700', letterSpacing: -0.6 },
+  featuredCardTitle: { fontSize: 26, fontWeight: '700', letterSpacing: -0.6 },
   featuredCardMeta: { marginTop: 8, fontSize: 14 },
-  featuredCardArrowGlyph: { fontSize: 24, fontWeight: '600', zIndex: 1 },
+  featuredCardTryButton: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', zIndex: 1 },
+  featuredCardTryLabel: { fontSize: 14, fontWeight: '700' },
   card: { borderWidth: 1, borderRadius: 18, padding: 16, flexDirection: 'row', alignItems: 'flex-start', gap: 14 },
   cardMark: { width: 54, height: 54, borderRadius: 27, alignItems: 'center', justifyContent: 'center' },
   cardMarkText: { fontSize: 13, fontWeight: '700', letterSpacing: 1 },
