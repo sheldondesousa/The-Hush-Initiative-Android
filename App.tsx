@@ -609,7 +609,12 @@ function ExerciseInfoScreen({
       </View>
       <ScrollView contentContainerStyle={styles.detailContent}>
         <Text style={[styles.eyebrow, { color: accent }]}>{item.bestFor.toUpperCase()}</Text>
-        <Text style={[styles.detailTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>{item.name}</Text>
+        <View style={styles.detailTitleRow}>
+          {isExercise && (
+            <ExerciseCardVisual exerciseName={item.name} color={palette.text} backgroundColor={palette.tint} />
+          )}
+          <Text style={[styles.detailTitle, styles.detailTitleText, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>{item.name}</Text>
+        </View>
         {!isExercise && (
           <Text style={[styles.detailMeta, { color: palette.muted }]}>{item.duration}  ·  Effort {item.effort} of 3</Text>
         )}
@@ -736,7 +741,10 @@ function ExerciseRhythm({ config, palette, titleFontsLoaded }: { config: Exercis
 
   return (
     <View style={styles.infoSection}>
-      <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 24 }, titleFontsLoaded && { fontFamily: CARD_TITLE_FONT_FAMILY }]}>Rhythm</Text>
+      <View style={styles.infoHeadingRow}>
+        <PulseIcon color="#000000" />
+        <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 24, marginBottom: 0 }, titleFontsLoaded && { fontFamily: CARD_TITLE_FONT_FAMILY }]}>Rhythm</Text>
+      </View>
       <View
         style={[styles.rhythmCard, { borderColor: palette.border }]}
       >
@@ -977,7 +985,10 @@ function ExerciseGuide({ sections, palette, titleFontsLoaded }: { sections: Exer
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   return (
     <View style={styles.infoSection}>
-      <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 24 }, titleFontsLoaded && { fontFamily: CARD_TITLE_FONT_FAMILY }]}>Guide</Text>
+      <View style={styles.infoHeadingRow}>
+        <BookIcon color="#000000" />
+        <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 24, marginBottom: 0 }, titleFontsLoaded && { fontFamily: CARD_TITLE_FONT_FAMILY }]}>Guide</Text>
+      </View>
       <View style={[styles.guideBox, { borderColor: palette.border }]}>
         {sections.map((section, sectionIndex) => {
           const isOpen = Boolean(openSections[section.id]);
@@ -1693,6 +1704,41 @@ function SmartAssistIcon({ color, size = 20 }: { color: string; size?: number })
   );
 }
 
+function PulseIcon({ color, size = 22 }: { color: string; size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" accessible={false}>
+      <Path
+        d="M2 12h4l2.5-7 4 14 2.5-7H22"
+        stroke={color}
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+function BookIcon({ color, size = 22 }: { color: string; size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" accessible={false}>
+      <Path
+        d="M4 5.5C4 4.67 4.67 4 5.5 4H12v16H5.5A1.5 1.5 0 0 1 4 18.5v-13Z"
+        stroke={color}
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M20 5.5c0-.83-.67-1.5-1.5-1.5H12v16h6.5a1.5 1.5 0 0 0 1.5-1.5v-13Z"
+        stroke={color}
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
 function ChevronLeftIcon({ color }: { color: string }) {
   return (
     <Svg width={22} height={22} viewBox="0 0 24 24" fill="none" accessible={false}>
@@ -1772,7 +1818,9 @@ const styles = StyleSheet.create({
   detailWordmark: { fontSize: 28, fontWeight: '500', letterSpacing: -0.56 },
   detailPersonalizeButton: { width: 52, height: 44, alignItems: 'flex-end', justifyContent: 'center' },
   detailContent: { padding: 22, paddingBottom: 130 },
+  detailTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
   detailTitle: { fontSize: 42, lineHeight: 48, fontWeight: '600', letterSpacing: -1.2 },
+  detailTitleText: { flex: 1 },
   detailMeta: { marginTop: 12, fontSize: 13 },
   detailDescription: { marginTop: 28, fontSize: 18, lineHeight: 29 },
   summarySection: { marginTop: 28 },
@@ -1781,6 +1829,7 @@ const styles = StyleSheet.create({
   summaryToggleText: { fontSize: 13 },
   infoSection: { marginTop: 34 },
   infoTitle: { fontSize: 20, fontWeight: '600', marginBottom: 12 },
+  infoHeadingRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
   infoBox: { borderWidth: 1, borderRadius: 16, overflow: 'hidden' },
   infoRow: { minHeight: 60, padding: 14, flexDirection: 'row', borderBottomWidth: StyleSheet.hairlineWidth, gap: 14 },
   infoNumber: { width: 24, fontSize: 11, letterSpacing: 1 },
