@@ -231,6 +231,7 @@ function InfoRow({ label, value, palette, last = false }: { label: string; value
 }
 
 function ProfilePage({ palette, onBack }: { palette: MenuPalette; onBack: () => void }) {
+  const [titleFontsLoaded] = useFonts({ CormorantGaramond_500Medium });
   return (
     <View style={{ flex: 1 }}>
       <PageHeader eyebrow="YOUR SPACE" title="Profile" palette={palette} />
@@ -244,7 +245,7 @@ function ProfilePage({ palette, onBack }: { palette: MenuPalette; onBack: () => 
             <Text style={[styles.identityMeta, { color: palette.muted }]}>Local profile</Text>
           </View>
         </View>
-        <Text style={[styles.sectionTitle, { color: palette.text }]}>Profile details</Text>
+        <Text style={[styles.sectionTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>Profile details</Text>
         <View style={[styles.infoCard, { backgroundColor: palette.surface, borderColor: palette.border }]}>
           <InfoRow label="Account" value="On this device" palette={palette} />
           <InfoRow label="Practice data" value="Private" palette={palette} last />
@@ -268,6 +269,7 @@ function DashboardPage({
   mindfulMinutes: number;
   onBack: () => void;
 }) {
+  const [titleFontsLoaded] = useFonts({ CormorantGaramond_500Medium });
   return (
     <View style={{ flex: 1 }}>
       <PageHeader eyebrow="YOUR PRACTICE" title="Dashboard" palette={palette} />
@@ -284,7 +286,7 @@ function DashboardPage({
           </View>
         </View>
         <View style={[styles.callout, { backgroundColor: palette.tint }]}>
-          <Text style={[styles.calloutTitle, { color: palette.text }]}>Your practice overview</Text>
+          <Text style={[styles.calloutTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>Your practice overview</Text>
           <Text style={[styles.calloutBody, { color: palette.muted }]}>Activity updates whenever you complete a breathing or meditation session.</Text>
         </View>
       </ScrollView>
@@ -307,11 +309,12 @@ function ConfigurationPage({
   setShowOnboardingAfterSplash: (enabled: boolean) => void;
   onBack: () => void;
 }) {
+  const [titleFontsLoaded] = useFonts({ CormorantGaramond_500Medium });
   return (
     <View style={{ flex: 1 }}>
       <PageHeader eyebrow="PREFERENCES" title="Configuration" palette={palette} />
       <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
-        <Text style={[styles.sectionTitle, { color: palette.text }]}>Appearance</Text>
+        <Text style={[styles.sectionTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>Appearance</Text>
         {(['light', 'dark', 'minimal'] as MenuThemeMode[]).map((mode) => {
           const selected = themeMode === mode;
           return (
@@ -330,7 +333,7 @@ function ConfigurationPage({
           );
         })}
         <Text style={[styles.supportingText, { color: palette.muted }]}>Choose the visual mode that feels most comfortable. The change applies immediately.</Text>
-        <Text style={[styles.sectionTitle, styles.configurationSectionTitle, { color: palette.text }]}>Onboarding</Text>
+        <Text style={[styles.sectionTitle, styles.configurationSectionTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>Onboarding</Text>
         <Pressable
           onPress={() => setShowOnboardingAfterSplash(!showOnboardingAfterSplash)}
           accessibilityRole="switch"
@@ -360,13 +363,14 @@ function ConfigurationPage({
 }
 
 function AboutPage({ palette, onBack }: { palette: MenuPalette; onBack: () => void }) {
+  const [titleFontsLoaded] = useFonts({ CormorantGaramond_500Medium });
   return (
     <View style={{ flex: 1 }}>
       <PageHeader eyebrow="OUR STORY" title="About Hush" palette={palette} />
       <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
         {ABOUT_SECTIONS.map((section, index) => (
           <View key={section.title} style={[styles.copySection, index > 0 && { borderTopColor: palette.border, borderTopWidth: StyleSheet.hairlineWidth }]}>
-            <Text style={[styles.copyTitle, { color: palette.text }]}>{section.title}</Text>
+            <Text style={[styles.copyTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>{section.title}</Text>
             <Text style={[styles.copyBody, { color: palette.muted }]}>{section.body}</Text>
           </View>
         ))}
@@ -376,6 +380,7 @@ function AboutPage({ palette, onBack }: { palette: MenuPalette; onBack: () => vo
 }
 
 function TermsPage({ palette, onBack }: { palette: MenuPalette; onBack: () => void }) {
+  const [titleFontsLoaded] = useFonts({ CormorantGaramond_500Medium });
   return (
     <View style={{ flex: 1 }}>
       <PageHeader eyebrow="LEGAL" title="Terms & Conditions" palette={palette} />
@@ -384,7 +389,7 @@ function TermsPage({ palette, onBack }: { palette: MenuPalette; onBack: () => vo
         <Text style={[styles.termsIntro, { color: palette.muted }]}>Please read these Terms and Conditions carefully before using Hush. By accessing or using the app, you agree to be bound by these Terms.</Text>
         {TERMS_SECTIONS.map((section) => (
           <View key={section.title} style={[styles.copySection, { borderTopColor: palette.border, borderTopWidth: StyleSheet.hairlineWidth }]}>
-            <Text style={[styles.copyTitle, { color: palette.text }]}>{section.title}</Text>
+            <Text style={[styles.copyTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>{section.title}</Text>
             <Text style={[styles.copyBody, { color: palette.muted }]}>{section.body}</Text>
             {section.bullets?.map((bullet) => (
               <View key={bullet} style={styles.bulletRow}>

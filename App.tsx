@@ -1516,7 +1516,7 @@ function RecommendScreen({
       <ScrollView ref={scrollRef} contentContainerStyle={styles.recommendContent} showsVerticalScrollIndicator={false}>
       {!selectedSituation ? (
         <>
-          <Text style={[styles.question, { color: palette.text }]}>How are you feeling right now?</Text>
+          <Text style={[styles.question, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>How are you feeling right now?</Text>
           <View style={styles.chips}>
             <View style={styles.chipColumn}>
               {situations.map((item) => (
@@ -1540,7 +1540,7 @@ function RecommendScreen({
         </>
       ) : (
         <>
-          <Text style={[styles.question, { color: palette.text }]}>
+          <Text style={[styles.question, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>
             {mode === 'breathe' ? 'How strongly is it affecting you?' : 'How much time do you have?'}
           </Text>
           <View style={styles.recommenderCarousel}>
@@ -1579,7 +1579,7 @@ function RecommendScreen({
       )}
       {recommendation.length > 0 && (
         <View style={styles.results}>
-          <Text style={[styles.question, { color: palette.text }]}>Suggested exercises</Text>
+          <Text style={[styles.question, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>Suggested exercises</Text>
           {recommendation.map((result, index) => (
             <PracticeCard
               key={result.item.id}
