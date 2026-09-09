@@ -235,12 +235,10 @@ export default function App() {
     );
   }
 
-  const screenBackground = tab === 'breathe' ? palette.tint : palette.bg;
-
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: screenBackground }]} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={[styles.safe, { backgroundColor: palette.bg }]} edges={['top', 'left', 'right']}>
       <StatusBar style={themeMode === 'dark' ? 'light' : 'dark'} />
-      <Header palette={palette} themeMode={themeMode} backgroundColor={screenBackground} />
+      <Header palette={palette} themeMode={themeMode} />
 
       <View style={styles.content}>
         {tab === 'breathe' && (
@@ -296,17 +294,9 @@ export default function App() {
   );
 }
 
-function Header({
-  palette,
-  themeMode,
-  backgroundColor,
-}: {
-  palette: Palette;
-  themeMode: ThemeMode;
-  backgroundColor?: string;
-}) {
+function Header({ palette, themeMode }: { palette: Palette; themeMode: ThemeMode }) {
   return (
-    <View style={[styles.header, { backgroundColor: backgroundColor ?? palette.bg, borderBottomColor: palette.border }]}>
+    <View style={[styles.header, { backgroundColor: palette.bg, borderBottomColor: palette.border }]}>
       <Text style={[styles.wordmark, { color: palette.text }]}>
         Hush<Text style={{ color: themeMode === 'dark' ? '#A8C8BA' : '#4A7C68' }}>.</Text>
       </Text>
