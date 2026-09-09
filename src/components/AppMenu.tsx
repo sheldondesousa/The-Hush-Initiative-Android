@@ -166,8 +166,8 @@ export function MenuHome({
   themeMode: MenuThemeMode;
   onSelect: (section: MenuSection) => void;
 }) {
-  const badgeColor = themeMode === 'minimal' ? '#000000' : themeMode === 'dark' ? palette.accent : TERRACOTTA;
-  const badgeIconColor = themeMode === 'dark' ? palette.bg : '#FFFFFF';
+  const badgeColor = themeMode === 'minimal' ? '#000000' : themeMode === 'dark' ? palette.accent : '#FFFFFF';
+  const badgeIconColor = themeMode === 'dark' ? palette.bg : themeMode === 'minimal' ? '#FFFFFF' : TERRACOTTA;
   return (
     <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
       <View style={styles.pageHeader}>
