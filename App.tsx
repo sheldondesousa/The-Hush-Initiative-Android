@@ -380,6 +380,13 @@ function FeaturedCard({
 }) {
   const phases = exerciseDetails[item.id]?.phases;
   const flow = phases ? buildFlowPaths(phases) : null;
+  const totalSeconds = phases?.reduce((sum, phase) => sum + phase.seconds, 0) ?? 0;
+  let elapsedSeconds = 0;
+  const phaseLabels = phases?.map((phase) => {
+    const midpoint = elapsedSeconds + phase.seconds / 2;
+    elapsedSeconds += phase.seconds;
+    return { key: `${phase.label}-${elapsedSeconds}`, seconds: phase.seconds, pct: (midpoint / totalSeconds) * 100 };
+  });
   return (
     <Pressable
       onPress={onPress}
@@ -392,6 +399,15 @@ function FeaturedCard({
           <Path d={flow.fill} fill={palette.tint} opacity={0.12} />
           <Path d={flow.stroke} fill="none" stroke={palette.tint} strokeWidth={3} opacity={0.3} />
         </Svg>
+      )}
+      {flow && phaseLabels && (
+        <View pointerEvents="none" style={styles.featuredCardGraphLabels}>
+          {phaseLabels.map((label) => (
+            <Text key={label.key} style={[styles.featuredCardGraphLabel, { left: `${label.pct}%`, color: palette.tint }]}>
+              {label.seconds}s
+            </Text>
+          ))}
+        </View>
       )}
       <View style={styles.featuredCardBody}>
         <Text style={[styles.eyebrow, { color: palette.tint }]}>FOR THIS MORNING</Text>
@@ -1703,7 +1719,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between',
   },
   featuredCardGraph: { position: 'absolute', left: 0, right: -40, bottom: 0, height: 90, zIndex: 0 },
-  featuredCardBody: { flex: 1, paddingRight: 12, zIndex: 1 },
+  featuredCardGraphLabels: { position: 'absolute', left: 0, right: -40, bottom: 6, height: 14, zIndex: 0 },
+  featuredCardGraphLabel: { position: 'absolute', width: 28, marginLeft: -14, textAlign: 'center', fontSize: 10, fontWeight: '600', opacity: 0.8 },
+  featuredCardBody: { flex: 1, paddingRight: 12, alignSelf: 'flex-start', zIndex: 1 },
   featuredCardTitle: { marginTop: 6, fontSize: 26, fontWeight: '700', letterSpacing: -0.6 },
   featuredCardMeta: { marginTop: 8, fontSize: 14 },
   featuredCardArrowGlyph: { fontSize: 24, fontWeight: '600', zIndex: 1 },
