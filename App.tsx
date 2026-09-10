@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
-  Lora_500Medium,
+  Lora_400Regular,
   Lora_600SemiBold,
 } from '@expo-google-fonts/lora';
 import { useFonts } from 'expo-font';
@@ -105,7 +105,7 @@ const ENABLE_BOX_ORB_PROTOTYPE = false;
 const HEADER_HEIGHT = 70;
 const FOREST_SAGE = '#4A7C68';
 const TERRACOTTA = '#D97D46';
-const TITLE_FONT_FAMILY = 'Lora_500Medium';
+const TITLE_FONT_FAMILY = 'Lora_400Regular';
 const FEATURED_CARD_TITLE_FONT_FAMILY = 'Lora_600SemiBold';
 const CARD_TITLE_FONT_FAMILY = 'Lora_600SemiBold';
 
@@ -129,7 +129,7 @@ export default function App() {
   const [showOnboardingAfterSplash, setShowOnboardingAfterSplash] = useState(true);
   const palette = palettes[themeMode];
   const [titleFontsLoaded] = useFonts({
-    Lora_500Medium,
+    Lora_400Regular,
     Lora_600SemiBold,
   });
 
@@ -1795,7 +1795,7 @@ const styles = StyleSheet.create({
   listContent: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 36 },
   libraryHeading: { paddingHorizontal: 20, paddingTop: 30 },
   eyebrow: { fontSize: 11, fontWeight: '700', letterSpacing: 1.8, marginBottom: 8 },
-  title: { fontSize: 42, fontWeight: '500', letterSpacing: -1.2 },
+  title: { fontSize: 42, fontWeight: '400', letterSpacing: -1.2 },
   categorySection: { marginTop: 2 },
   categorySeparator: { height: 1, marginBottom: 14 },
   categoryCardSpacing: { marginBottom: 12 },
