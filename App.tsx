@@ -937,7 +937,7 @@ function ExercisePreviewGraphic({
         {metric('diaphragm-inhale', 50, 242.5, 'end', config.phases[0])}
         <Circle cx={262.5} cy={67.5} r={2.5} fill={palette.text} />
         <Line x1={262.5} y1={67.5} x2={295} y2={67.5} stroke={leader} />
-        {metric('diaphragm-exhale', 300, 67.5, 'start', config.phases[2])}
+        {metric('diaphragm-exhale', 300, 67.5, 'start', config.phases[1])}
       </Svg>
     );
   }
