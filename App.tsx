@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
-  CormorantGaramond_500Medium,
-  CormorantGaramond_600SemiBold,
-} from '@expo-google-fonts/cormorant-garamond';
+  Lora_500Medium,
+  Lora_600SemiBold,
+} from '@expo-google-fonts/lora';
 import { useFonts } from 'expo-font';
 import * as Haptics from 'expo-haptics';
 import { StatusBar } from 'expo-status-bar';
@@ -105,9 +105,9 @@ const ENABLE_BOX_ORB_PROTOTYPE = false;
 const HEADER_HEIGHT = 70;
 const FOREST_SAGE = '#4A7C68';
 const TERRACOTTA = '#D97D46';
-const TITLE_FONT_FAMILY = 'CormorantGaramond_500Medium';
-const FEATURED_CARD_TITLE_FONT_FAMILY = 'CormorantGaramond_600SemiBold';
-const CARD_TITLE_FONT_FAMILY = 'CormorantGaramond_600SemiBold';
+const TITLE_FONT_FAMILY = 'Lora_500Medium';
+const FEATURED_CARD_TITLE_FONT_FAMILY = 'Lora_600SemiBold';
+const CARD_TITLE_FONT_FAMILY = 'Lora_600SemiBold';
 
 function getGraphFill(palette: Palette): string {
   if (palette === palettes.dark) return 'rgba(240,240,240,0.08)';
@@ -129,8 +129,8 @@ export default function App() {
   const [showOnboardingAfterSplash, setShowOnboardingAfterSplash] = useState(true);
   const palette = palettes[themeMode];
   const [titleFontsLoaded] = useFonts({
-    CormorantGaramond_500Medium,
-    CormorantGaramond_600SemiBold,
+    Lora_500Medium,
+    Lora_600SemiBold,
   });
 
   useEffect(() => {

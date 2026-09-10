@@ -1,4 +1,4 @@
-import { CormorantGaramond_500Medium } from '@expo-google-fonts/cormorant-garamond';
+import { Lora_500Medium } from '@expo-google-fonts/lora';
 import { DMSans_700Bold } from '@expo-google-fonts/dm-sans';
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
@@ -40,7 +40,7 @@ export function SplashScreen() {
 }
 
 export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
-  const [fontsLoaded] = useFonts({ DMSans_700Bold, CormorantGaramond_500Medium });
+  const [fontsLoaded] = useFonts({ DMSans_700Bold, Lora_500Medium });
   const [page, setPage] = useState(0);
   const opacity = useRef(new Animated.Value(1)).current;
   const translateX = useRef(new Animated.Value(0)).current;
@@ -116,7 +116,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
           <Text style={[styles.eyebrow, fontsLoaded && { fontFamily: 'DMSans_700Bold' }]}>
             {page === 0 ? 'FIND YOUR PRACTICE' : page === 1 ? 'MAKE IT YOURS' : 'BREATHE WITH THE GUIDE'}
           </Text>
-          <Text accessibilityRole="header" style={[styles.title, fontsLoaded && { fontFamily: 'CormorantGaramond_500Medium' }]}>
+          <Text accessibilityRole="header" style={[styles.title, fontsLoaded && { fontFamily: 'Lora_500Medium' }]}>
             {page === 0
               ? 'Choose from 8 guided breathing exercises.'
               : page === 1
