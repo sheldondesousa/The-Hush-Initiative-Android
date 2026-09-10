@@ -104,7 +104,6 @@ const SHOW_ONBOARDING_STORAGE_KEY = 'hush.show-onboarding-after-splash.v1';
 const SPLASH_DURATION_MS = 1200;
 const ENABLE_BOX_ORB_PROTOTYPE = false;
 const HEADER_HEIGHT = 70;
-const FOREST_SAGE = '#4A7C68';
 const TERRACOTTA = '#D97D46';
 const PICTOGRAM_BACKGROUND = '#D0E4DE';
 const VISIBLE_BORDER = '#868686';
@@ -640,6 +639,7 @@ function ExerciseInfoScreen({
             <>
               <ExerciseRhythm config={configuredExerciseConfig ?? exerciseConfig} palette={palette} titleFontsLoaded={titleFontsLoaded} />
               <ExerciseGuide sections={exerciseConfig.guide} palette={palette} titleFontsLoaded={titleFontsLoaded} />
+              <ExercisePreview config={configuredExerciseConfig ?? exerciseConfig} palette={palette} titleFontsLoaded={titleFontsLoaded} />
             </>
           ) : null
         ) : (
@@ -729,19 +729,11 @@ function buildFlowPaths(phases: DetailPhase[]) {
 }
 
 function ExerciseRhythm({ config, palette, titleFontsLoaded }: { config: ExerciseDetailConfig; palette: Palette; titleFontsLoaded: boolean }) {
-  const [previewExpanded, setPreviewExpanded] = useState(false);
-  const { width: screenWidth } = useWindowDimensions();
   const isDark = palette === palettes.dark;
   const isMinimal = palette === palettes.minimal;
   const graphStroke = isDark ? '#FFFFFF' : isMinimal ? palette.accent : '#4A7C68';
   const graphFill = getGraphFill(palette);
   const guideLine = isDark ? 'rgba(240,240,240,0.40)' : isMinimal ? 'rgba(17,17,17,0.35)' : 'rgba(74,124,104,0.42)';
-  const previewScale = Math.min(Math.max(screenWidth - 74, 1) / 360, 259 / 286);
-  // SVG text renders optically smaller than native React Native Text at the
-  // same nominal size, so use a 13px SVG target to match the 12px phase labels.
-  const previewPhaseFontSize = 13 / previewScale;
-  const previewDurationFontSize = 16 / previewScale;
-  const previewUnitFontSize = 13 / previewScale;
   const phases = config.phases;
   const flowPaths = buildFlowPaths(phases);
   let boundary = 0;
@@ -786,33 +778,42 @@ function ExerciseRhythm({ config, palette, titleFontsLoaded }: { config: Exercis
           ))}
         </View>
       </View>
-      <Pressable
-        onPress={() => setPreviewExpanded((value) => !value)}
-        accessibilityRole="button"
-        accessibilityState={{ expanded: previewExpanded }}
-        style={({ pressed }) => [styles.previewToggle, { opacity: pressed ? 0.6 : 1 }]}
-      >
-        <Text style={[styles.previewToggleText, { color: FOREST_SAGE }]}>
-          {previewExpanded ? 'Hide preview' : 'Preview'}
-        </Text>
-        <ChevronDisclosureIcon color={FOREST_SAGE} expanded={previewExpanded} size={13} />
-      </Pressable>
-      {previewExpanded && (
-        <View
-          style={[styles.boxPreviewCard, { borderColor: VISIBLE_BORDER }]}
-          accessible
-          accessibilityLabel={`${config.flow} breathing preview: ${phases.map((phase) => `${phase.label.toLowerCase()} ${phase.seconds} seconds`).join(', ')}.`}
-        >
-          <Text style={[styles.previewFlowLabel, { color: palette.muted }]}>Flow: {config.flow}</Text>
-          <ExercisePreviewGraphic
-            config={config}
-            palette={palette}
-            phaseFontSize={previewPhaseFontSize}
-            durationFontSize={previewDurationFontSize}
-            unitFontSize={previewUnitFontSize}
-          />
+    </View>
+  );
+}
+
+function ExercisePreview({ config, palette, titleFontsLoaded }: { config: ExerciseDetailConfig; palette: Palette; titleFontsLoaded: boolean }) {
+  const { width: screenWidth } = useWindowDimensions();
+  const previewScale = Math.min(Math.max(screenWidth - 74, 1) / 360, 259 / 286);
+  // SVG text renders optically smaller than native React Native Text at the
+  // same nominal size, so use a 13px SVG target to match the 12px phase labels.
+  const previewPhaseFontSize = 13 / previewScale;
+  const previewDurationFontSize = 16 / previewScale;
+  const previewUnitFontSize = 13 / previewScale;
+  const phases = config.phases;
+
+  return (
+    <View style={styles.infoSection}>
+      <View style={styles.infoHeadingRow}>
+        <View style={[styles.infoHeadingBadge, { backgroundColor: getGraphFill(palette) }]}>
+          <PlayIcon color="#000000" size={18} />
         </View>
-      )}
+        <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 24, marginBottom: 0 }, titleFontsLoaded && { fontFamily: INFO_HEADING_FONT_FAMILY }]}>Preview</Text>
+      </View>
+      <View
+        style={[styles.boxPreviewCard, { borderColor: VISIBLE_BORDER }]}
+        accessible
+        accessibilityLabel={`${config.flow} breathing preview: ${phases.map((phase) => `${phase.label.toLowerCase()} ${phase.seconds} seconds`).join(', ')}.`}
+      >
+        <Text style={[styles.previewFlowLabel, { color: palette.muted }]}>Flow: {config.flow}</Text>
+        <ExercisePreviewGraphic
+          config={config}
+          palette={palette}
+          phaseFontSize={previewPhaseFontSize}
+          durationFontSize={previewDurationFontSize}
+          unitFontSize={previewUnitFontSize}
+        />
+      </View>
     </View>
   );
 }
@@ -1719,6 +1720,20 @@ function SmartAssistIcon({ color, size = 20 }: { color: string; size?: number })
   );
 }
 
+function PlayIcon({ color, size = 22 }: { color: string; size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" accessible={false}>
+      <Path
+        d="M6 4.5v15l14-7.5-14-7.5Z"
+        stroke={color}
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
 function PulseIcon({ color, size = 22 }: { color: string; size?: number }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" accessible={false}>
@@ -1853,8 +1868,6 @@ const styles = StyleSheet.create({
   phaseDuration: { fontSize: 16, fontWeight: '500' },
   phaseUnit: { fontSize: 13, fontWeight: '400' },
   phaseLabel: { marginTop: 4, fontSize: 12, letterSpacing: 0.65 },
-  previewToggle: { minHeight: 38, alignSelf: 'center', flexDirection: 'row', alignItems: 'center', gap: 4 },
-  previewToggleText: { fontSize: 13 },
   boxPreviewCard: { borderWidth: 1, borderRadius: 16, paddingHorizontal: 14, paddingVertical: 8, overflow: 'hidden' },
   previewFlowLabel: { fontSize: 14, lineHeight: 20, marginBottom: 12 },
   guideBox: { borderWidth: 1, borderRadius: 16, overflow: 'hidden' },
