@@ -762,7 +762,7 @@ function ExerciseRhythm({ config, palette, titleFontsLoaded }: { config: Exercis
         <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 24, marginBottom: 0 }, titleFontsLoaded && { fontFamily: INFO_HEADING_FONT_FAMILY }]}>Rhythm</Text>
       </View>
       <View
-        style={[styles.rhythmCard, { borderColor: palette.border }]}
+        style={[styles.rhythmCard, { borderColor: VISIBLE_BORDER }]}
       >
         <View
           style={styles.flowGraph}
