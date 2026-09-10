@@ -1739,19 +1739,16 @@ function BookIcon({ color, size = 22 }: { color: string; size?: number }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" accessible={false}>
       <Path
-        d="M4 5.5C4 4.67 4.67 4 5.5 4H12v16H5.5A1.5 1.5 0 0 1 4 18.5v-13Z"
+        d="M6.5 3.5h8L19 8v12a1 1 0 0 1-1 1H6.5a1 1 0 0 1-1-1v-15.5a1 1 0 0 1 1-1Z"
         stroke={color}
         strokeWidth={1.8}
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <Path
-        d="M20 5.5c0-.83-.67-1.5-1.5-1.5H12v16h6.5a1.5 1.5 0 0 0 1.5-1.5v-13Z"
-        stroke={color}
-        strokeWidth={1.8}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <Path d="M14.5 3.5V8H19" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
+      <Line x1={8.5} y1={12} x2={15.5} y2={12} stroke={color} strokeWidth={1.6} strokeLinecap="round" />
+      <Line x1={8.5} y1={15} x2={15.5} y2={15} stroke={color} strokeWidth={1.6} strokeLinecap="round" />
+      <Line x1={8.5} y1={18} x2={13} y2={18} stroke={color} strokeWidth={1.6} strokeLinecap="round" />
     </Svg>
   );
 }
