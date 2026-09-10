@@ -192,13 +192,13 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (!detail) return;
+    if (!detail || activeExercise || activeMeditation) return;
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
       setDetail(null);
       return true;
     });
     return () => subscription.remove();
-  }, [detail]);
+  }, [detail, activeExercise, activeMeditation]);
 
   const completeSession = (minutes: number) => {
     setCompletedSessions((value) => value + 1);
@@ -251,9 +251,12 @@ export default function App() {
         onDefaultChange={updateExerciseDefault}
         onBack={() => setDetail(null)}
         onBegin={(configuredItem) => {
-          if (detail.kind === 'exercise') setActiveExercise(configuredItem as Exercise);
-          else setActiveMeditation(configuredItem as Meditation);
-          setDetail(null);
+          if (detail.kind === 'exercise') {
+            setActiveExercise(configuredItem as Exercise);
+          } else {
+            setActiveMeditation(configuredItem as Meditation);
+            setDetail(null);
+          }
         }}
       />
     );
@@ -1265,7 +1268,7 @@ function StandardBreathingSession({
       <StatusBar style={palette === palettes.dark ? 'light' : 'dark'} />
       <View style={styles.exerciseSessionHeader}>
         <Pressable onPress={onClose} hitSlop={12} style={styles.exerciseSessionCloseButton}>
-          <Text style={[styles.close, { color: palette.text }]}>×</Text>
+          <Text style={[styles.back, { color: palette.text }]}>‹ Back</Text>
         </Pressable>
         <Text style={[styles.exerciseSessionName, { color: palette.text }]}>{exercise.name}</Text>
         <View style={styles.exerciseSessionHeaderSpacer} />
@@ -1884,7 +1887,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  exerciseSessionCloseButton: { width: 30, zIndex: 1 },
+  exerciseSessionCloseButton: { zIndex: 1 },
   exerciseSessionName: {
     position: 'absolute',
     left: 0,
