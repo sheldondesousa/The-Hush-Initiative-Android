@@ -624,7 +624,7 @@ function ExerciseInfoScreen({
         <Text style={[styles.eyebrow, { color: accent }]}>{item.bestFor.toUpperCase()}</Text>
         <View style={styles.detailTitleRow}>
           {isExercise && (
-            <ExerciseCardVisual exerciseName={item.name} color={palette.text} backgroundColor={getGraphFill(palette)} size={64} />
+            <ExerciseCardVisual exerciseName={item.name} color={palette.text} backgroundColor={PICTOGRAM_BACKGROUND} size={64} />
           )}
           <Text style={[styles.detailTitle, styles.detailTitleText, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>{item.name}</Text>
         </View>
@@ -755,7 +755,7 @@ function ExerciseRhythm({ config, palette, titleFontsLoaded }: { config: Exercis
   return (
     <View style={styles.infoSection}>
       <View style={styles.infoHeadingRow}>
-        <View style={[styles.infoHeadingBadge, { backgroundColor: getGraphFill(palette) }]}>
+        <View style={[styles.infoHeadingBadge, { backgroundColor: PICTOGRAM_BACKGROUND }]}>
           <PulseIcon color="#000000" size={18} />
         </View>
         <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 24, marginBottom: 0 }, titleFontsLoaded && { fontFamily: INFO_HEADING_FONT_FAMILY }]}>Rhythm</Text>
@@ -1001,7 +1001,7 @@ function ExerciseGuide({ sections, palette, titleFontsLoaded }: { sections: Exer
   return (
     <View style={styles.infoSection}>
       <View style={styles.infoHeadingRow}>
-        <View style={[styles.infoHeadingBadge, { backgroundColor: getGraphFill(palette) }]}>
+        <View style={[styles.infoHeadingBadge, { backgroundColor: PICTOGRAM_BACKGROUND }]}>
           <BookIcon color="#000000" size={18} />
         </View>
         <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 24, marginBottom: 0 }, titleFontsLoaded && { fontFamily: INFO_HEADING_FONT_FAMILY }]}>Guide</Text>
