@@ -794,10 +794,10 @@ function ExerciseRhythm({ config, palette, titleFontsLoaded }: { config: Exercis
         accessibilityState={{ expanded: previewExpanded }}
         style={({ pressed }) => [styles.previewToggle, { opacity: pressed ? 0.6 : 1 }]}
       >
-        <Text style={[styles.previewToggleText, { color: palette.muted }]}>
+        <Text style={[styles.previewToggleText, { color: FOREST_SAGE }]}>
           {previewExpanded ? 'Hide preview' : 'Preview'}
         </Text>
-        <ChevronDisclosureIcon color={palette.muted} expanded={previewExpanded} size={13} />
+        <ChevronDisclosureIcon color={FOREST_SAGE} expanded={previewExpanded} size={13} />
       </Pressable>
       {previewExpanded && (
         <View
