@@ -1836,7 +1836,7 @@ const styles = StyleSheet.create({
   detailPersonalizeButton: { width: 52, height: 44, alignItems: 'flex-end', justifyContent: 'center' },
   detailContent: { padding: 22, paddingBottom: 130 },
   detailTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
-  detailTitle: { fontSize: 40, lineHeight: 48, fontWeight: '600', letterSpacing: -1.2 },
+  detailTitle: { fontSize: 40, lineHeight: 48, fontWeight: '400', letterSpacing: -1.2 },
   detailTitleText: { flex: 1 },
   detailMeta: { marginTop: 12, fontSize: 13 },
   detailDescription: { marginTop: 28, fontSize: 18, lineHeight: 29 },
