@@ -1832,7 +1832,7 @@ const styles = StyleSheet.create({
   detailHeaderLabel: { fontSize: 10, letterSpacing: 1.5, fontWeight: '700' },
   detailWordmark: { fontSize: 28, fontWeight: '500', letterSpacing: -0.56 },
   detailPersonalizeButton: { width: 52, height: 44, alignItems: 'flex-end', justifyContent: 'center' },
-  detailContent: { padding: 22, paddingBottom: 130 },
+  detailContent: { padding: 22, paddingTop: 30, paddingBottom: 130 },
   detailTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
   detailTitle: { fontSize: 40, fontWeight: '400', letterSpacing: -1.2 },
   detailTitleText: { flex: 1 },
