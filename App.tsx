@@ -1723,7 +1723,7 @@ function SmartAssistIcon({ color, size = 20 }: { color: string; size?: number })
 function PlayIcon({ color, size = 22 }: { color: string; size?: number }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" accessible={false}>
-      <Path d="M7 4.5v15l13-7.5-13-7.5Z" fill={color} stroke={color} strokeWidth={1.8} strokeLinejoin="round" />
+      <Path d="M5 3v18l16-9L5 3Z" stroke={color} strokeWidth={1.8} strokeLinejoin="round" />
     </Svg>
   );
 }
