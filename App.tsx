@@ -384,7 +384,7 @@ function Library<T extends Exercise | Meditation>({
         )}
         {categories.map((group, groupIndex) => (
           <View key={group.category} style={groupIndex > 0 ? styles.categorySection : undefined}>
-            {groupIndex > 0 && <View style={[styles.categorySeparator, { backgroundColor: FOREST_SAGE, opacity: 0.5 }]} />}
+            {groupIndex > 0 && <View style={[styles.categorySeparator, { backgroundColor: palette.border }]} />}
             {group.items.map((item, index) => (
               <View key={item.id} style={styles.categoryCardSpacing}>
                 <PracticeCard
