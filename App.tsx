@@ -769,7 +769,7 @@ function ExerciseRhythm({ config, palette, titleFontsLoaded }: { config: Exercis
         </View>
         <View style={styles.phaseStrip}>
           {phases.map((phase, index) => (
-            <View key={`${phase.label}-${index}`} style={[styles.phaseColumn, { flex: phase.seconds }, index > 0 && { borderLeftColor: palette.border, borderLeftWidth: StyleSheet.hairlineWidth }]}>
+            <View key={`${phase.label}-${index}`} style={[styles.phaseColumn, { flex: phase.seconds }, index > 0 && { borderLeftColor: palette.border, borderLeftWidth: 0.5 }]}>
               <Text style={[styles.phaseDuration, { color: palette.text }]}>
                 {phase.seconds}<Text style={[styles.phaseUnit, { color: palette.muted }]}>s</Text>
               </Text>
@@ -1009,7 +1009,7 @@ function ExerciseGuide({ sections, palette, titleFontsLoaded }: { sections: Exer
         {sections.map((section, sectionIndex) => {
           const isOpen = Boolean(openSections[section.id]);
           return (
-            <View key={section.id} style={sectionIndex < sections.length - 1 && { borderBottomColor: VISIBLE_BORDER, borderBottomWidth: StyleSheet.hairlineWidth }}>
+            <View key={section.id} style={sectionIndex < sections.length - 1 && { borderBottomColor: VISIBLE_BORDER, borderBottomWidth: 0.5 }}>
               <Pressable
                 onPress={() => setOpenSections((current) => ({ ...current, [section.id]: !current[section.id] }))}
                 accessibilityRole="button"
