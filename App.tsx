@@ -106,6 +106,7 @@ const ENABLE_BOX_ORB_PROTOTYPE = false;
 const HEADER_HEIGHT = 70;
 const FOREST_SAGE = '#4A7C68';
 const TERRACOTTA = '#D97D46';
+const PICTOGRAM_BACKGROUND = '#C8DFD8';
 const TITLE_FONT_FAMILY = 'Lora_400Regular';
 const FEATURED_CARD_TITLE_FONT_FAMILY = 'Lora_600SemiBold';
 const CARD_TITLE_FONT_FAMILY = 'Lora_500Medium';
@@ -393,7 +394,7 @@ function Library<T extends Exercise | Meditation>({
                   accent={accent}
                   onPress={() => onPress(item)}
                   titleFontsLoaded={titleFontsLoaded}
-                  pictogramBackground={accent === 'breath' ? getGraphFill(palette) : undefined}
+                  pictogramBackground={accent === 'breath' ? PICTOGRAM_BACKGROUND : undefined}
                 />
               </View>
             ))}
