@@ -1798,7 +1798,7 @@ const styles = StyleSheet.create({
   listContent: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 36 },
   libraryHeading: { paddingHorizontal: 20, paddingTop: 30 },
   eyebrow: { fontSize: 11, fontWeight: '700', letterSpacing: 1.8, marginBottom: 8 },
-  title: { fontSize: 42, fontWeight: '400', letterSpacing: -1.2 },
+  title: { fontSize: 40, fontWeight: '400', letterSpacing: -1.2 },
   categorySection: { marginTop: 2 },
   categorySeparator: { height: 1, marginBottom: 14 },
   categoryCardSpacing: { marginBottom: 12 },
