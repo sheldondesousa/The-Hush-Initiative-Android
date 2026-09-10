@@ -1,8 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
-  CormorantGaramond_500Medium,
-  CormorantGaramond_600SemiBold,
-} from '@expo-google-fonts/cormorant-garamond';
+  Lora_400Regular,
+  Lora_500Medium,
+  Lora_600SemiBold,
+} from '@expo-google-fonts/lora';
 import { useFonts } from 'expo-font';
 import * as Haptics from 'expo-haptics';
 import { StatusBar } from 'expo-status-bar';
@@ -103,11 +104,13 @@ const SHOW_ONBOARDING_STORAGE_KEY = 'hush.show-onboarding-after-splash.v1';
 const SPLASH_DURATION_MS = 1200;
 const ENABLE_BOX_ORB_PROTOTYPE = false;
 const HEADER_HEIGHT = 70;
-const FOREST_SAGE = '#4A7C68';
 const TERRACOTTA = '#D97D46';
-const TITLE_FONT_FAMILY = 'CormorantGaramond_500Medium';
-const FEATURED_CARD_TITLE_FONT_FAMILY = 'CormorantGaramond_600SemiBold';
-const CARD_TITLE_FONT_FAMILY = 'CormorantGaramond_600SemiBold';
+const PICTOGRAM_BACKGROUND = '#D0E4DE';
+const VISIBLE_BORDER = '#868686';
+const TITLE_FONT_FAMILY = 'Lora_400Regular';
+const FEATURED_CARD_TITLE_FONT_FAMILY = 'Lora_600SemiBold';
+const CARD_TITLE_FONT_FAMILY = 'Lora_500Medium';
+const INFO_HEADING_FONT_FAMILY = 'Lora_600SemiBold';
 
 function getGraphFill(palette: Palette): string {
   if (palette === palettes.dark) return 'rgba(240,240,240,0.08)';
@@ -129,8 +132,9 @@ export default function App() {
   const [showOnboardingAfterSplash, setShowOnboardingAfterSplash] = useState(true);
   const palette = palettes[themeMode];
   const [titleFontsLoaded] = useFonts({
-    CormorantGaramond_500Medium,
-    CormorantGaramond_600SemiBold,
+    Lora_400Regular,
+    Lora_500Medium,
+    Lora_600SemiBold,
   });
 
   useEffect(() => {
@@ -188,13 +192,13 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (!detail) return;
+    if (!detail || activeExercise || activeMeditation) return;
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
       setDetail(null);
       return true;
     });
     return () => subscription.remove();
-  }, [detail]);
+  }, [detail, activeExercise, activeMeditation]);
 
   const completeSession = (minutes: number) => {
     setCompletedSessions((value) => value + 1);
@@ -247,9 +251,12 @@ export default function App() {
         onDefaultChange={updateExerciseDefault}
         onBack={() => setDetail(null)}
         onBegin={(configuredItem) => {
-          if (detail.kind === 'exercise') setActiveExercise(configuredItem as Exercise);
-          else setActiveMeditation(configuredItem as Meditation);
-          setDetail(null);
+          if (detail.kind === 'exercise') {
+            setActiveExercise(configuredItem as Exercise);
+          } else {
+            setActiveMeditation(configuredItem as Meditation);
+            setDetail(null);
+          }
         }}
       />
     );
@@ -380,7 +387,7 @@ function Library<T extends Exercise | Meditation>({
         )}
         {categories.map((group, groupIndex) => (
           <View key={group.category} style={groupIndex > 0 ? styles.categorySection : undefined}>
-            {groupIndex > 0 && <View style={[styles.categorySeparator, { backgroundColor: FOREST_SAGE, opacity: 0.5 }]} />}
+            {groupIndex > 0 && <View style={[styles.categorySeparator, { backgroundColor: VISIBLE_BORDER }]} />}
             {group.items.map((item, index) => (
               <View key={item.id} style={styles.categoryCardSpacing}>
                 <PracticeCard
@@ -390,7 +397,7 @@ function Library<T extends Exercise | Meditation>({
                   accent={accent}
                   onPress={() => onPress(item)}
                   titleFontsLoaded={titleFontsLoaded}
-                  pictogramBackground={accent === 'breath' ? getGraphFill(palette) : undefined}
+                  pictogramBackground={accent === 'breath' ? PICTOGRAM_BACKGROUND : undefined}
                 />
               </View>
             ))}
@@ -616,14 +623,11 @@ function ExerciseInfoScreen({
           <View style={{ width: 52 }} />
         )}
       </View>
-      <ScrollView contentContainerStyle={styles.detailContent}>
+      <View style={styles.detailTitleFixed}>
         <Text style={[styles.eyebrow, { color: accent }]}>{item.bestFor.toUpperCase()}</Text>
-        <View style={styles.detailTitleRow}>
-          {isExercise && (
-            <ExerciseCardVisual exerciseName={item.name} color={palette.text} backgroundColor={getGraphFill(palette)} size={64} />
-          )}
-          <Text style={[styles.detailTitle, styles.detailTitleText, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>{item.name}</Text>
-        </View>
+        <Text style={[styles.detailTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>{item.name}</Text>
+      </View>
+      <ScrollView contentContainerStyle={styles.detailContent}>
         {!isExercise && (
           <Text style={[styles.detailMeta, { color: palette.muted }]}>{item.duration}  ·  Effort {item.effort} of 3</Text>
         )}
@@ -638,6 +642,7 @@ function ExerciseInfoScreen({
             <>
               <ExerciseRhythm config={configuredExerciseConfig ?? exerciseConfig} palette={palette} titleFontsLoaded={titleFontsLoaded} />
               <ExerciseGuide sections={exerciseConfig.guide} palette={palette} titleFontsLoaded={titleFontsLoaded} />
+              <ExercisePreview config={configuredExerciseConfig ?? exerciseConfig} palette={palette} titleFontsLoaded={titleFontsLoaded} />
             </>
           ) : null
         ) : (
@@ -727,19 +732,11 @@ function buildFlowPaths(phases: DetailPhase[]) {
 }
 
 function ExerciseRhythm({ config, palette, titleFontsLoaded }: { config: ExerciseDetailConfig; palette: Palette; titleFontsLoaded: boolean }) {
-  const [previewExpanded, setPreviewExpanded] = useState(false);
-  const { width: screenWidth } = useWindowDimensions();
   const isDark = palette === palettes.dark;
   const isMinimal = palette === palettes.minimal;
   const graphStroke = isDark ? '#FFFFFF' : isMinimal ? palette.accent : '#4A7C68';
   const graphFill = getGraphFill(palette);
   const guideLine = isDark ? 'rgba(240,240,240,0.40)' : isMinimal ? 'rgba(17,17,17,0.35)' : 'rgba(74,124,104,0.42)';
-  const previewScale = Math.min(Math.max(screenWidth - 74, 1) / 360, 259 / 286);
-  // SVG text renders optically smaller than native React Native Text at the
-  // same nominal size, so use a 13px SVG target to match the 12px phase labels.
-  const previewPhaseFontSize = 13 / previewScale;
-  const previewDurationFontSize = 16 / previewScale;
-  const previewUnitFontSize = 13 / previewScale;
   const phases = config.phases;
   const flowPaths = buildFlowPaths(phases);
   let boundary = 0;
@@ -754,10 +751,10 @@ function ExerciseRhythm({ config, palette, titleFontsLoaded }: { config: Exercis
         <View style={[styles.infoHeadingBadge, { backgroundColor: getGraphFill(palette) }]}>
           <PulseIcon color="#000000" size={18} />
         </View>
-        <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 24, marginBottom: 0 }, titleFontsLoaded && { fontFamily: CARD_TITLE_FONT_FAMILY }]}>Rhythm</Text>
+        <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 20, marginBottom: 0 }, titleFontsLoaded && { fontFamily: INFO_HEADING_FONT_FAMILY }]}>Rhythm</Text>
       </View>
       <View
-        style={[styles.rhythmCard, { borderColor: palette.border }]}
+        style={[styles.rhythmCard, { borderColor: VISIBLE_BORDER }]}
       >
         <View
           style={styles.flowGraph}
@@ -775,7 +772,7 @@ function ExerciseRhythm({ config, palette, titleFontsLoaded }: { config: Exercis
         </View>
         <View style={styles.phaseStrip}>
           {phases.map((phase, index) => (
-            <View key={`${phase.label}-${index}`} style={[styles.phaseColumn, { flex: phase.seconds }, index > 0 && { borderLeftColor: palette.border, borderLeftWidth: StyleSheet.hairlineWidth }]}>
+            <View key={`${phase.label}-${index}`} style={[styles.phaseColumn, { flex: phase.seconds }, index > 0 && { borderLeftColor: palette.border, borderLeftWidth: 0.5 }]}>
               <Text style={[styles.phaseDuration, { color: palette.text }]}>
                 {phase.seconds}<Text style={[styles.phaseUnit, { color: palette.muted }]}>s</Text>
               </Text>
@@ -784,33 +781,42 @@ function ExerciseRhythm({ config, palette, titleFontsLoaded }: { config: Exercis
           ))}
         </View>
       </View>
-      <Pressable
-        onPress={() => setPreviewExpanded((value) => !value)}
-        accessibilityRole="button"
-        accessibilityState={{ expanded: previewExpanded }}
-        style={({ pressed }) => [styles.previewToggle, { opacity: pressed ? 0.6 : 1 }]}
-      >
-        <Text style={[styles.previewToggleText, { color: palette.muted }]}>
-          {previewExpanded ? 'Hide preview' : 'Preview'}
-        </Text>
-        <ChevronDisclosureIcon color={palette.muted} expanded={previewExpanded} size={13} />
-      </Pressable>
-      {previewExpanded && (
-        <View
-          style={[styles.boxPreviewCard, { borderColor: palette.border }]}
-          accessible
-          accessibilityLabel={`${config.flow} breathing preview: ${phases.map((phase) => `${phase.label.toLowerCase()} ${phase.seconds} seconds`).join(', ')}.`}
-        >
-          <Text style={[styles.previewFlowLabel, { color: palette.muted }]}>Flow: {config.flow}</Text>
-          <ExercisePreviewGraphic
-            config={config}
-            palette={palette}
-            phaseFontSize={previewPhaseFontSize}
-            durationFontSize={previewDurationFontSize}
-            unitFontSize={previewUnitFontSize}
-          />
+    </View>
+  );
+}
+
+function ExercisePreview({ config, palette, titleFontsLoaded }: { config: ExerciseDetailConfig; palette: Palette; titleFontsLoaded: boolean }) {
+  const { width: screenWidth } = useWindowDimensions();
+  const previewScale = Math.min(Math.max(screenWidth - 74, 1) / 360, 259 / 286);
+  // SVG text renders optically smaller than native React Native Text at the
+  // same nominal size, so use a 13px SVG target to match the 12px phase labels.
+  const previewPhaseFontSize = 13 / previewScale;
+  const previewDurationFontSize = 16 / previewScale;
+  const previewUnitFontSize = 13 / previewScale;
+  const phases = config.phases;
+
+  return (
+    <View style={styles.infoSection}>
+      <View style={styles.infoHeadingRow}>
+        <View style={[styles.infoHeadingBadge, { backgroundColor: getGraphFill(palette) }]}>
+          <PlayIcon color="#000000" size={18} />
         </View>
-      )}
+        <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 20, marginBottom: 0 }, titleFontsLoaded && { fontFamily: INFO_HEADING_FONT_FAMILY }]}>Preview</Text>
+      </View>
+      <View
+        style={[styles.boxPreviewCard, { borderColor: VISIBLE_BORDER }]}
+        accessible
+        accessibilityLabel={`${config.flow} breathing preview: ${phases.map((phase) => `${phase.label.toLowerCase()} ${phase.seconds} seconds`).join(', ')}.`}
+      >
+        <Text style={[styles.previewFlowLabel, { color: palette.muted }]}>Flow: {config.flow}</Text>
+        <ExercisePreviewGraphic
+          config={config}
+          palette={palette}
+          phaseFontSize={previewPhaseFontSize}
+          durationFontSize={previewDurationFontSize}
+          unitFontSize={previewUnitFontSize}
+        />
+      </View>
     </View>
   );
 }
@@ -934,7 +940,7 @@ function ExercisePreviewGraphic({
         {metric('diaphragm-inhale', 50, 242.5, 'end', config.phases[0])}
         <Circle cx={262.5} cy={67.5} r={2.5} fill={palette.text} />
         <Line x1={262.5} y1={67.5} x2={295} y2={67.5} stroke={leader} />
-        {metric('diaphragm-exhale', 300, 67.5, 'start', config.phases[2])}
+        {metric('diaphragm-exhale', 300, 67.5, 'start', config.phases[1])}
       </Svg>
     );
   }
@@ -1000,13 +1006,13 @@ function ExerciseGuide({ sections, palette, titleFontsLoaded }: { sections: Exer
         <View style={[styles.infoHeadingBadge, { backgroundColor: getGraphFill(palette) }]}>
           <BookIcon color="#000000" size={18} />
         </View>
-        <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 24, marginBottom: 0 }, titleFontsLoaded && { fontFamily: CARD_TITLE_FONT_FAMILY }]}>Guide</Text>
+        <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 20, marginBottom: 0 }, titleFontsLoaded && { fontFamily: INFO_HEADING_FONT_FAMILY }]}>Guide</Text>
       </View>
-      <View style={[styles.guideBox, { borderColor: palette.border }]}>
+      <View style={[styles.guideBox, { borderColor: VISIBLE_BORDER }]}>
         {sections.map((section, sectionIndex) => {
           const isOpen = Boolean(openSections[section.id]);
           return (
-            <View key={section.id} style={sectionIndex < sections.length - 1 && { borderBottomColor: palette.border, borderBottomWidth: StyleSheet.hairlineWidth }}>
+            <View key={section.id} style={sectionIndex < sections.length - 1 && { borderBottomColor: VISIBLE_BORDER, borderBottomWidth: 0.5 }}>
               <Pressable
                 onPress={() => setOpenSections((current) => ({ ...current, [section.id]: !current[section.id] }))}
                 accessibilityRole="button"
@@ -1262,7 +1268,7 @@ function StandardBreathingSession({
       <StatusBar style={palette === palettes.dark ? 'light' : 'dark'} />
       <View style={styles.exerciseSessionHeader}>
         <Pressable onPress={onClose} hitSlop={12} style={styles.exerciseSessionCloseButton}>
-          <Text style={[styles.close, { color: palette.text }]}>×</Text>
+          <Text style={[styles.back, { color: palette.text }]}>‹ Back</Text>
         </Pressable>
         <Text style={[styles.exerciseSessionName, { color: palette.text }]}>{exercise.name}</Text>
         <View style={styles.exerciseSessionHeaderSpacer} />
@@ -1717,6 +1723,14 @@ function SmartAssistIcon({ color, size = 20 }: { color: string; size?: number })
   );
 }
 
+function PlayIcon({ color, size = 22 }: { color: string; size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" accessible={false}>
+      <Path d="M5 3v18l16-9L5 3Z" stroke={color} strokeWidth={1.8} strokeLinejoin="round" />
+    </Svg>
+  );
+}
+
 function PulseIcon({ color, size = 22 }: { color: string; size?: number }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" accessible={false}>
@@ -1735,19 +1749,16 @@ function BookIcon({ color, size = 22 }: { color: string; size?: number }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" accessible={false}>
       <Path
-        d="M4 5.5C4 4.67 4.67 4 5.5 4H12v16H5.5A1.5 1.5 0 0 1 4 18.5v-13Z"
+        d="M6.5 3.5h8L19 8v12a1 1 0 0 1-1 1H6.5a1 1 0 0 1-1-1v-15.5a1 1 0 0 1 1-1Z"
         stroke={color}
         strokeWidth={1.8}
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <Path
-        d="M20 5.5c0-.83-.67-1.5-1.5-1.5H12v16h6.5a1.5 1.5 0 0 0 1.5-1.5v-13Z"
-        stroke={color}
-        strokeWidth={1.8}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <Path d="M14.5 3.5V8H19" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
+      <Line x1={8.5} y1={12} x2={15.5} y2={12} stroke={color} strokeWidth={1.6} strokeLinecap="round" />
+      <Line x1={8.5} y1={15} x2={15.5} y2={15} stroke={color} strokeWidth={1.6} strokeLinecap="round" />
+      <Line x1={8.5} y1={18} x2={13} y2={18} stroke={color} strokeWidth={1.6} strokeLinecap="round" />
     </Svg>
   );
 }
@@ -1795,9 +1806,9 @@ const styles = StyleSheet.create({
   listContent: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 36 },
   libraryHeading: { paddingHorizontal: 20, paddingTop: 30 },
   eyebrow: { fontSize: 11, fontWeight: '700', letterSpacing: 1.8, marginBottom: 8 },
-  title: { fontSize: 42, fontWeight: '500', letterSpacing: -1.2 },
+  title: { fontSize: 40, fontWeight: '400', letterSpacing: -1.2 },
   categorySection: { marginTop: 2 },
-  categorySeparator: { height: 1, marginBottom: 14 },
+  categorySeparator: { height: 0.5, marginBottom: 14, marginHorizontal: 18 },
   categoryCardSpacing: { marginBottom: 12 },
   featuredCard: {
     marginBottom: 24, minHeight: 192, borderRadius: 22, padding: 22, overflow: 'hidden',
@@ -1808,7 +1819,7 @@ const styles = StyleSheet.create({
   featuredCardGraphLabel: { position: 'absolute', width: 28, marginLeft: -14, textAlign: 'center', fontSize: 10, fontWeight: '600', opacity: 0.8 },
   featuredCardBody: { flex: 1, paddingRight: 12, alignSelf: 'flex-start', zIndex: 1 },
   featuredCardTitle: { fontSize: 32, fontWeight: '600', letterSpacing: -0.6 },
-  featuredCardMeta: { marginTop: 8, fontSize: 14 },
+  featuredCardMeta: { marginTop: 8, marginBottom: 8, fontSize: 14 },
   featuredCardTryButton: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', alignSelf: 'flex-start', zIndex: 1 },
   featuredCardTryLabel: { fontSize: 14, fontWeight: '700' },
   card: { borderWidth: 1, borderRadius: 18, padding: 16, flexDirection: 'row', alignItems: 'flex-start', gap: 14 },
@@ -1818,7 +1829,7 @@ const styles = StyleSheet.create({
   cardCategoryRow: { minHeight: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 6 },
   cardCategory: { flex: 1, fontSize: 12, fontWeight: '600', letterSpacing: 1.2 },
   confidence: { overflow: 'hidden', borderRadius: 10, paddingVertical: 3, paddingHorizontal: 7, fontSize: 9, fontWeight: '700', letterSpacing: 0.5 },
-  cardTitle: { fontSize: 28, fontWeight: '600', lineHeight: 34 },
+  cardTitle: { fontSize: 24, fontWeight: '500', lineHeight: 34 },
   recommendationNote: { fontSize: 12, lineHeight: 17, fontWeight: '500', marginTop: 8 },
   arrow: { fontSize: 20 },
   cardArrow: { position: 'absolute', right: 16, bottom: 16 },
@@ -1830,10 +1841,9 @@ const styles = StyleSheet.create({
   detailHeaderLabel: { fontSize: 10, letterSpacing: 1.5, fontWeight: '700' },
   detailWordmark: { fontSize: 28, fontWeight: '500', letterSpacing: -0.56 },
   detailPersonalizeButton: { width: 52, height: 44, alignItems: 'flex-end', justifyContent: 'center' },
-  detailContent: { padding: 22, paddingBottom: 130 },
-  detailTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
-  detailTitle: { fontSize: 42, lineHeight: 48, fontWeight: '600', letterSpacing: -1.2 },
-  detailTitleText: { flex: 1 },
+  detailTitleFixed: { paddingHorizontal: 22, paddingTop: 30, paddingBottom: 16 },
+  detailContent: { paddingHorizontal: 22, paddingBottom: 130 },
+  detailTitle: { fontSize: 40, fontWeight: '400', letterSpacing: -1.2 },
   detailMeta: { marginTop: 12, fontSize: 13 },
   detailDescription: { marginTop: 28, fontSize: 18, lineHeight: 29 },
   summarySection: { marginTop: 28 },
@@ -1848,18 +1858,16 @@ const styles = StyleSheet.create({
   infoRow: { minHeight: 60, padding: 14, flexDirection: 'row', borderBottomWidth: StyleSheet.hairlineWidth, gap: 14 },
   infoNumber: { width: 24, fontSize: 11, letterSpacing: 1 },
   infoText: { flex: 1, fontSize: 15, lineHeight: 22 },
-  rhythmCard: { borderWidth: 1, borderRadius: 16, overflow: 'hidden' },
+  rhythmCard: { borderWidth: 0.5, borderRadius: 16, overflow: 'hidden' },
   flowGraph: { paddingHorizontal: 14, paddingTop: 14 },
   phaseStrip: { flexDirection: 'row', paddingHorizontal: 14, paddingTop: 10, paddingBottom: 14 },
   phaseColumn: { flex: 1, alignItems: 'center' },
   phaseDuration: { fontSize: 16, fontWeight: '500' },
   phaseUnit: { fontSize: 13, fontWeight: '400' },
   phaseLabel: { marginTop: 4, fontSize: 12, letterSpacing: 0.65 },
-  previewToggle: { minHeight: 38, alignSelf: 'center', flexDirection: 'row', alignItems: 'center', gap: 4 },
-  previewToggleText: { fontSize: 13 },
-  boxPreviewCard: { borderWidth: 1, borderRadius: 16, paddingHorizontal: 14, paddingVertical: 8, overflow: 'hidden' },
+  boxPreviewCard: { borderWidth: 0.5, borderRadius: 16, paddingHorizontal: 14, paddingVertical: 8, overflow: 'hidden' },
   previewFlowLabel: { fontSize: 14, lineHeight: 20, marginBottom: 12 },
-  guideBox: { borderWidth: 1, borderRadius: 16, overflow: 'hidden' },
+  guideBox: { borderWidth: 0.5, borderRadius: 16, overflow: 'hidden' },
   guideHeader: { minHeight: 54, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   guideTitle: { fontSize: 16, fontWeight: '500' },
   guideContent: { paddingHorizontal: 16, paddingBottom: 18, gap: 12 },
@@ -1879,7 +1887,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  exerciseSessionCloseButton: { width: 30, zIndex: 1 },
+  exerciseSessionCloseButton: { zIndex: 1 },
   exerciseSessionName: {
     position: 'absolute',
     left: 0,

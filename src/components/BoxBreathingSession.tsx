@@ -304,10 +304,10 @@ export default function BoxBreathingSession({
           onPress={onClose}
           hitSlop={12}
           accessibilityRole="button"
-          accessibilityLabel="Close breathing session"
+          accessibilityLabel="Back to exercise info"
           style={styles.closeButton}
         >
-          <Text style={[styles.close, { color: palette.text }]}>×</Text>
+          <Text style={[styles.back, { color: palette.text }]}>‹ Back</Text>
         </Pressable>
         <Text style={[styles.headerTitle, { color: palette.text }]}>Box Breathing</Text>
         <View style={styles.headerSpacer} />
@@ -518,10 +518,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   closeButton: {
-    width: 30,
     zIndex: 1,
   },
-  close: { fontSize: 32, fontWeight: '300', lineHeight: 34 },
+  back: { fontSize: 16 },
   headerTitle: {
     position: 'absolute',
     left: 0,

@@ -1,11 +1,11 @@
-import { CormorantGaramond_500Medium } from '@expo-google-fonts/cormorant-garamond';
+import { Lora_500Medium } from '@expo-google-fonts/lora';
 import { useFonts } from 'expo-font';
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
 
 const TERRACOTTA = '#D97D46';
-const TITLE_FONT_FAMILY = 'CormorantGaramond_500Medium';
+const TITLE_FONT_FAMILY = 'Lora_500Medium';
 
 export type MenuSection = 'profile' | 'dashboard' | 'configuration' | 'about' | 'terms';
 export type MenuThemeMode = 'light' | 'dark' | 'minimal';
@@ -171,7 +171,7 @@ export function MenuHome({
 }) {
   const badgeColor = themeMode === 'minimal' ? '#000000' : themeMode === 'dark' ? palette.accent : '#FFFFFF';
   const badgeIconColor = themeMode === 'dark' ? palette.bg : themeMode === 'minimal' ? '#FFFFFF' : TERRACOTTA;
-  const [titleFontsLoaded] = useFonts({ CormorantGaramond_500Medium });
+  const [titleFontsLoaded] = useFonts({ Lora_500Medium });
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.menuHeading}>
@@ -212,7 +212,7 @@ function PageHeader({
   title: string;
   palette: MenuPalette;
 }) {
-  const [titleFontsLoaded] = useFonts({ CormorantGaramond_500Medium });
+  const [titleFontsLoaded] = useFonts({ Lora_500Medium });
   return (
     <View style={styles.pageHeader}>
       <Text style={[styles.eyebrow, { color: palette.accent }]}>{eyebrow}</Text>
@@ -231,7 +231,7 @@ function InfoRow({ label, value, palette, last = false }: { label: string; value
 }
 
 function ProfilePage({ palette, onBack }: { palette: MenuPalette; onBack: () => void }) {
-  const [titleFontsLoaded] = useFonts({ CormorantGaramond_500Medium });
+  const [titleFontsLoaded] = useFonts({ Lora_500Medium });
   return (
     <View style={{ flex: 1 }}>
       <PageHeader eyebrow="YOUR SPACE" title="Profile" palette={palette} />
@@ -269,7 +269,7 @@ function DashboardPage({
   mindfulMinutes: number;
   onBack: () => void;
 }) {
-  const [titleFontsLoaded] = useFonts({ CormorantGaramond_500Medium });
+  const [titleFontsLoaded] = useFonts({ Lora_500Medium });
   return (
     <View style={{ flex: 1 }}>
       <PageHeader eyebrow="YOUR PRACTICE" title="Dashboard" palette={palette} />
@@ -309,7 +309,7 @@ function ConfigurationPage({
   setShowOnboardingAfterSplash: (enabled: boolean) => void;
   onBack: () => void;
 }) {
-  const [titleFontsLoaded] = useFonts({ CormorantGaramond_500Medium });
+  const [titleFontsLoaded] = useFonts({ Lora_500Medium });
   return (
     <View style={{ flex: 1 }}>
       <PageHeader eyebrow="PREFERENCES" title="Configuration" palette={palette} />
@@ -363,7 +363,7 @@ function ConfigurationPage({
 }
 
 function AboutPage({ palette, onBack }: { palette: MenuPalette; onBack: () => void }) {
-  const [titleFontsLoaded] = useFonts({ CormorantGaramond_500Medium });
+  const [titleFontsLoaded] = useFonts({ Lora_500Medium });
   return (
     <View style={{ flex: 1 }}>
       <PageHeader eyebrow="OUR STORY" title="About Hush" palette={palette} />
@@ -380,7 +380,7 @@ function AboutPage({ palette, onBack }: { palette: MenuPalette; onBack: () => vo
 }
 
 function TermsPage({ palette, onBack }: { palette: MenuPalette; onBack: () => void }) {
-  const [titleFontsLoaded] = useFonts({ CormorantGaramond_500Medium });
+  const [titleFontsLoaded] = useFonts({ Lora_500Medium });
   return (
     <View style={{ flex: 1 }}>
       <PageHeader eyebrow="LEGAL" title="Terms & Conditions" palette={palette} />

@@ -13,6 +13,8 @@ import {
   maxCycles,
 } from '../personalization';
 
+const PICTOGRAM_BACKGROUND = '#D0E4DE';
+
 type SheetPalette = {
   bg: string;
   surface: string;
@@ -184,7 +186,7 @@ export default function PersonalizeSheet({
                 style={[
                   styles.stepButton,
                   {
-                    backgroundColor: palette.bg,
+                    backgroundColor: PICTOGRAM_BACKGROUND,
                     borderColor: palette.border,
                     opacity: safeDraft.cycles <= 3 ? 0.4 : 1,
                   },
@@ -192,7 +194,7 @@ export default function PersonalizeSheet({
               >
                 <Text style={[styles.stepButtonText, { color: palette.text }]}>−</Text>
               </Pressable>
-              <View style={[styles.cycleDisplay, { backgroundColor: palette.bg, borderColor: palette.border }]}>
+              <View style={[styles.cycleDisplay, { backgroundColor: PICTOGRAM_BACKGROUND, borderColor: palette.border }]}>
                 <Text style={[styles.cycleValue, { color: palette.text }]}>{safeDraft.cycles}</Text>
               </View>
               <Pressable
@@ -203,7 +205,7 @@ export default function PersonalizeSheet({
                 style={[
                   styles.stepButton,
                   {
-                    backgroundColor: palette.bg,
+                    backgroundColor: PICTOGRAM_BACKGROUND,
                     borderColor: palette.border,
                     opacity: safeDraft.cycles >= maximumCycles ? 0.4 : 1,
                   },
