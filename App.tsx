@@ -621,14 +621,11 @@ function ExerciseInfoScreen({
           <View style={{ width: 52 }} />
         )}
       </View>
-      <ScrollView contentContainerStyle={styles.detailContent}>
+      <View style={styles.detailTitleFixed}>
         <Text style={[styles.eyebrow, { color: accent }]}>{item.bestFor.toUpperCase()}</Text>
-        <View style={styles.detailTitleRow}>
-          {isExercise && (
-            <ExerciseCardVisual exerciseName={item.name} color={palette.text} backgroundColor={getGraphFill(palette)} size={64} />
-          )}
-          <Text style={[styles.detailTitle, styles.detailTitleText, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>{item.name}</Text>
-        </View>
+        <Text style={[styles.detailTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>{item.name}</Text>
+      </View>
+      <ScrollView contentContainerStyle={styles.detailContent}>
         {!isExercise && (
           <Text style={[styles.detailMeta, { color: palette.muted }]}>{item.duration}  ·  Effort {item.effort} of 3</Text>
         )}
@@ -1832,10 +1829,9 @@ const styles = StyleSheet.create({
   detailHeaderLabel: { fontSize: 10, letterSpacing: 1.5, fontWeight: '700' },
   detailWordmark: { fontSize: 28, fontWeight: '500', letterSpacing: -0.56 },
   detailPersonalizeButton: { width: 52, height: 44, alignItems: 'flex-end', justifyContent: 'center' },
-  detailContent: { padding: 22, paddingTop: 30, paddingBottom: 130 },
-  detailTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
+  detailTitleFixed: { paddingHorizontal: 22, paddingTop: 30, paddingBottom: 16 },
+  detailContent: { paddingHorizontal: 22, paddingBottom: 130 },
   detailTitle: { fontSize: 40, fontWeight: '400', letterSpacing: -1.2 },
-  detailTitleText: { flex: 1 },
   detailMeta: { marginTop: 12, fontSize: 13 },
   detailDescription: { marginTop: 28, fontSize: 18, lineHeight: 29 },
   summarySection: { marginTop: 28 },
