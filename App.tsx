@@ -1805,7 +1805,7 @@ const styles = StyleSheet.create({
   eyebrow: { fontSize: 11, fontWeight: '700', letterSpacing: 1.8, marginBottom: 8 },
   title: { fontSize: 40, fontWeight: '400', letterSpacing: -1.2 },
   categorySection: { marginTop: 2 },
-  categorySeparator: { height: 0.5, marginBottom: 14 },
+  categorySeparator: { height: 0.5, marginBottom: 14, marginHorizontal: 18 },
   categoryCardSpacing: { marginBottom: 12 },
   featuredCard: {
     marginBottom: 24, minHeight: 192, borderRadius: 22, padding: 22, overflow: 'hidden',
