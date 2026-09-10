@@ -107,6 +107,7 @@ const HEADER_HEIGHT = 70;
 const FOREST_SAGE = '#4A7C68';
 const TERRACOTTA = '#D97D46';
 const PICTOGRAM_BACKGROUND = '#D0E4DE';
+const VISIBLE_BORDER = '#868686';
 const TITLE_FONT_FAMILY = 'Lora_400Regular';
 const FEATURED_CARD_TITLE_FONT_FAMILY = 'Lora_600SemiBold';
 const CARD_TITLE_FONT_FAMILY = 'Lora_500Medium';
@@ -384,7 +385,7 @@ function Library<T extends Exercise | Meditation>({
         )}
         {categories.map((group, groupIndex) => (
           <View key={group.category} style={groupIndex > 0 ? styles.categorySection : undefined}>
-            {groupIndex > 0 && <View style={[styles.categorySeparator, { backgroundColor: palette.border }]} />}
+            {groupIndex > 0 && <View style={[styles.categorySeparator, { backgroundColor: VISIBLE_BORDER }]} />}
             {group.items.map((item, index) => (
               <View key={item.id} style={styles.categoryCardSpacing}>
                 <PracticeCard
@@ -801,7 +802,7 @@ function ExerciseRhythm({ config, palette, titleFontsLoaded }: { config: Exercis
       </Pressable>
       {previewExpanded && (
         <View
-          style={[styles.boxPreviewCard, { borderColor: palette.border }]}
+          style={[styles.boxPreviewCard, { borderColor: VISIBLE_BORDER }]}
           accessible
           accessibilityLabel={`${config.flow} breathing preview: ${phases.map((phase) => `${phase.label.toLowerCase()} ${phase.seconds} seconds`).join(', ')}.`}
         >
@@ -1006,11 +1007,11 @@ function ExerciseGuide({ sections, palette, titleFontsLoaded }: { sections: Exer
         </View>
         <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 24, marginBottom: 0 }, titleFontsLoaded && { fontFamily: INFO_HEADING_FONT_FAMILY }]}>Guide</Text>
       </View>
-      <View style={[styles.guideBox, { borderColor: palette.border }]}>
+      <View style={[styles.guideBox, { borderColor: VISIBLE_BORDER }]}>
         {sections.map((section, sectionIndex) => {
           const isOpen = Boolean(openSections[section.id]);
           return (
-            <View key={section.id} style={sectionIndex < sections.length - 1 && { borderBottomColor: palette.border, borderBottomWidth: StyleSheet.hairlineWidth }}>
+            <View key={section.id} style={sectionIndex < sections.length - 1 && { borderBottomColor: VISIBLE_BORDER, borderBottomWidth: StyleSheet.hairlineWidth }}>
               <Pressable
                 onPress={() => setOpenSections((current) => ({ ...current, [section.id]: !current[section.id] }))}
                 accessibilityRole="button"
