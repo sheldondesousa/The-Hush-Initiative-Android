@@ -107,7 +107,7 @@ const HEADER_HEIGHT = 70;
 const FOREST_SAGE = '#4A7C68';
 const TERRACOTTA = '#D97D46';
 const PICTOGRAM_BACKGROUND = '#D0E4DE';
-const LOW_CONTRAST_BORDER = '#868686';
+const CARD_SEPARATOR_COLOR = 'rgba(74, 124, 104, 0.5)';
 const TITLE_FONT_FAMILY = 'Lora_400Regular';
 const FEATURED_CARD_TITLE_FONT_FAMILY = 'Lora_600SemiBold';
 const CARD_TITLE_FONT_FAMILY = 'Lora_500Medium';
@@ -802,7 +802,7 @@ function ExerciseRhythm({ config, palette, titleFontsLoaded }: { config: Exercis
       </Pressable>
       {previewExpanded && (
         <View
-          style={[styles.boxPreviewCard, { borderColor: LOW_CONTRAST_BORDER }]}
+          style={[styles.boxPreviewCard, { borderColor: CARD_SEPARATOR_COLOR }]}
           accessible
           accessibilityLabel={`${config.flow} breathing preview: ${phases.map((phase) => `${phase.label.toLowerCase()} ${phase.seconds} seconds`).join(', ')}.`}
         >
@@ -1007,11 +1007,11 @@ function ExerciseGuide({ sections, palette, titleFontsLoaded }: { sections: Exer
         </View>
         <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 24, marginBottom: 0 }, titleFontsLoaded && { fontFamily: INFO_HEADING_FONT_FAMILY }]}>Guide</Text>
       </View>
-      <View style={[styles.guideBox, { borderColor: LOW_CONTRAST_BORDER }]}>
+      <View style={[styles.guideBox, { borderColor: CARD_SEPARATOR_COLOR }]}>
         {sections.map((section, sectionIndex) => {
           const isOpen = Boolean(openSections[section.id]);
           return (
-            <View key={section.id} style={sectionIndex < sections.length - 1 && { borderBottomColor: LOW_CONTRAST_BORDER, borderBottomWidth: StyleSheet.hairlineWidth }}>
+            <View key={section.id} style={sectionIndex < sections.length - 1 && { borderBottomColor: CARD_SEPARATOR_COLOR, borderBottomWidth: StyleSheet.hairlineWidth }}>
               <Pressable
                 onPress={() => setOpenSections((current) => ({ ...current, [section.id]: !current[section.id] }))}
                 accessibilityRole="button"
