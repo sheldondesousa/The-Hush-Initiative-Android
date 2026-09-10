@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   Lora_400Regular,
+  Lora_500Medium,
   Lora_600SemiBold,
 } from '@expo-google-fonts/lora';
 import { useFonts } from 'expo-font';
@@ -107,7 +108,8 @@ const FOREST_SAGE = '#4A7C68';
 const TERRACOTTA = '#D97D46';
 const TITLE_FONT_FAMILY = 'Lora_400Regular';
 const FEATURED_CARD_TITLE_FONT_FAMILY = 'Lora_600SemiBold';
-const CARD_TITLE_FONT_FAMILY = 'Lora_600SemiBold';
+const CARD_TITLE_FONT_FAMILY = 'Lora_500Medium';
+const INFO_HEADING_FONT_FAMILY = 'Lora_600SemiBold';
 
 function getGraphFill(palette: Palette): string {
   if (palette === palettes.dark) return 'rgba(240,240,240,0.08)';
@@ -130,6 +132,7 @@ export default function App() {
   const palette = palettes[themeMode];
   const [titleFontsLoaded] = useFonts({
     Lora_400Regular,
+    Lora_500Medium,
     Lora_600SemiBold,
   });
 
@@ -754,7 +757,7 @@ function ExerciseRhythm({ config, palette, titleFontsLoaded }: { config: Exercis
         <View style={[styles.infoHeadingBadge, { backgroundColor: getGraphFill(palette) }]}>
           <PulseIcon color="#000000" size={18} />
         </View>
-        <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 24, marginBottom: 0 }, titleFontsLoaded && { fontFamily: CARD_TITLE_FONT_FAMILY }]}>Rhythm</Text>
+        <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 24, marginBottom: 0 }, titleFontsLoaded && { fontFamily: INFO_HEADING_FONT_FAMILY }]}>Rhythm</Text>
       </View>
       <View
         style={[styles.rhythmCard, { borderColor: palette.border }]}
@@ -1000,7 +1003,7 @@ function ExerciseGuide({ sections, palette, titleFontsLoaded }: { sections: Exer
         <View style={[styles.infoHeadingBadge, { backgroundColor: getGraphFill(palette) }]}>
           <BookIcon color="#000000" size={18} />
         </View>
-        <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 24, marginBottom: 0 }, titleFontsLoaded && { fontFamily: CARD_TITLE_FONT_FAMILY }]}>Guide</Text>
+        <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 24, marginBottom: 0 }, titleFontsLoaded && { fontFamily: INFO_HEADING_FONT_FAMILY }]}>Guide</Text>
       </View>
       <View style={[styles.guideBox, { borderColor: palette.border }]}>
         {sections.map((section, sectionIndex) => {
@@ -1818,7 +1821,7 @@ const styles = StyleSheet.create({
   cardCategoryRow: { minHeight: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 6 },
   cardCategory: { flex: 1, fontSize: 12, fontWeight: '600', letterSpacing: 1.2 },
   confidence: { overflow: 'hidden', borderRadius: 10, paddingVertical: 3, paddingHorizontal: 7, fontSize: 9, fontWeight: '700', letterSpacing: 0.5 },
-  cardTitle: { fontSize: 28, fontWeight: '600', lineHeight: 34 },
+  cardTitle: { fontSize: 24, fontWeight: '500', lineHeight: 34 },
   recommendationNote: { fontSize: 12, lineHeight: 17, fontWeight: '500', marginTop: 8 },
   arrow: { fontSize: 20 },
   cardArrow: { position: 'absolute', right: 16, bottom: 16 },
