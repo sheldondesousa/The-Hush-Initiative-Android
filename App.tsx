@@ -748,7 +748,7 @@ function ExerciseRhythm({ config, palette, titleFontsLoaded }: { config: Exercis
         <View style={[styles.infoHeadingBadge, { backgroundColor: getGraphFill(palette) }]}>
           <PulseIcon color="#000000" size={18} />
         </View>
-        <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 24, marginBottom: 0 }, titleFontsLoaded && { fontFamily: INFO_HEADING_FONT_FAMILY }]}>Rhythm</Text>
+        <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 20, marginBottom: 0 }, titleFontsLoaded && { fontFamily: INFO_HEADING_FONT_FAMILY }]}>Rhythm</Text>
       </View>
       <View
         style={[styles.rhythmCard, { borderColor: VISIBLE_BORDER }]}
@@ -798,7 +798,7 @@ function ExercisePreview({ config, palette, titleFontsLoaded }: { config: Exerci
         <View style={[styles.infoHeadingBadge, { backgroundColor: getGraphFill(palette) }]}>
           <PlayIcon color="#000000" size={18} />
         </View>
-        <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 24, marginBottom: 0 }, titleFontsLoaded && { fontFamily: INFO_HEADING_FONT_FAMILY }]}>Preview</Text>
+        <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 20, marginBottom: 0 }, titleFontsLoaded && { fontFamily: INFO_HEADING_FONT_FAMILY }]}>Preview</Text>
       </View>
       <View
         style={[styles.boxPreviewCard, { borderColor: VISIBLE_BORDER }]}
@@ -1003,7 +1003,7 @@ function ExerciseGuide({ sections, palette, titleFontsLoaded }: { sections: Exer
         <View style={[styles.infoHeadingBadge, { backgroundColor: getGraphFill(palette) }]}>
           <BookIcon color="#000000" size={18} />
         </View>
-        <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 24, marginBottom: 0 }, titleFontsLoaded && { fontFamily: INFO_HEADING_FONT_FAMILY }]}>Guide</Text>
+        <Text style={[styles.infoTitle, styles.cardTitle, { color: '#000000', fontSize: 20, marginBottom: 0 }, titleFontsLoaded && { fontFamily: INFO_HEADING_FONT_FAMILY }]}>Guide</Text>
       </View>
       <View style={[styles.guideBox, { borderColor: VISIBLE_BORDER }]}>
         {sections.map((section, sectionIndex) => {
