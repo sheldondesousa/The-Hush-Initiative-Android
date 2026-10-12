@@ -441,13 +441,15 @@ function FeaturedCard({
       style={({ pressed }) => [styles.featuredCard, { backgroundColor: palette.accent, opacity: pressed ? 0.85 : 1 }]}
     >
       {flow && (
-        <Svg pointerEvents="none" style={styles.featuredCardGraph} viewBox="0 0 1000 64" preserveAspectRatio="none">
+        <View pointerEvents="none" style={styles.featuredCardGraph}>
+        <Svg width="100%" height="100%" viewBox="0 0 1000 64" preserveAspectRatio="none">
           <Path d={flow.fill} fill="#FFFFFF" opacity={0.1} />
           {phaseBoundaries?.map((x) => (
             <Line key={x} x1={x} y1={8} x2={x} y2={56} stroke="#FFFFFF" strokeWidth={1} opacity={0.4} />
           ))}
           <Path d={flow.stroke} fill="none" stroke="#FFFFFF" strokeWidth={3} opacity={0.75} />
         </Svg>
+        </View>
       )}
       {flow && phaseLabels && (
         <View pointerEvents="none" style={styles.featuredCardGraphLabels}>
