@@ -450,7 +450,7 @@ function ExerciseRowCard({
         exerciseName={item.name}
         color={palette.text}
         backgroundColor={PICTOGRAM_BACKGROUND}
-        size={40}
+        size={48}
       />
       <View style={styles.rowCardBody}>
         <Text style={[styles.rowCardTitle, { color: palette.text }]}>{item.name}</Text>
