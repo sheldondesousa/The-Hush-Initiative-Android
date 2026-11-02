@@ -1722,7 +1722,7 @@ function TabBar({
   });
 
   return (
-    <View style={{ backgroundColor: palette.surface }}>
+    <View style={[styles.tabBarContainer, { backgroundColor: palette.bg }]}>
       <View style={styles.tabItems} accessibilityRole="tablist">
         {tabItems.map((item, index) => (
           <React.Fragment key={tabs[index].id}>
@@ -1878,6 +1878,7 @@ const styles = StyleSheet.create({
   featuredCardTryLabel: { fontSize: 14, fontWeight: '700' },
   card: { borderWidth: 1, borderRadius: 18, padding: 16, flexDirection: 'row', alignItems: 'flex-start', gap: 14 },
   rowCard: { borderWidth: 1, borderRadius: 14, paddingVertical: 8, paddingHorizontal: 10, flexDirection: 'row', alignItems: 'center', gap: 10 },
+  tabBarContainer: { shadowColor: '#000000', shadowOffset: { width: 0, height: -2 }, shadowOpacity: 0.08, shadowRadius: 4, elevation: 8 },
   rowCardSpacing: { marginBottom: 6 },
   rowCardBody: { flex: 1 },
   rowCardTitle: { fontSize: 16, fontWeight: '600', lineHeight: 21 },
