@@ -278,8 +278,11 @@ export default function App() {
             ? () => setMenuSection(null)
             : tab === 'recommend' && recommendSituation !== null
               ? () => {
-                  setRecommendSituation(null);
-                  setRecommendLevel(null);
+                  if (recommendLevel !== null) {
+                    setRecommendLevel(null);
+                  } else {
+                    setRecommendSituation(null);
+                  }
                 }
               : undefined
         }
@@ -1656,36 +1659,50 @@ function RecommendScreen({
       .filter(Boolean) as { item: Meditation }[];
   }, [mode, selectedLevel, selectedSituation]);
   useEffect(() => setResultCardHeight(0), [recommendation]);
+  const step = !selectedSituation ? 1 : !selectedLevel ? 2 : 3;
   const [pickedSituation, setPickedSituation] = useState<string | null>(null);
+  const [pickedLevel, setPickedLevel] = useState<string | null>(null);
   const slideX = useRef(new Animated.Value(0)).current;
   const fade = useRef(new Animated.Value(1)).current;
   const transitioning = useRef(false);
-  const firstRender = useRef(true);
+  const previousStep = useRef(step);
   // Material "shared axis" (X): 30dp slide + fade, ~90ms out and ~210ms in.
-  const pickSituation = (id: string) => {
+  const advance = (commit: () => void) => {
     if (transitioning.current) return;
     transitioning.current = true;
-    setPickedSituation(id);
     Animated.sequence([
       Animated.delay(120),
       Animated.parallel([
         Animated.timing(fade, { toValue: 0, duration: 90, easing: Easing.bezier(0.3, 0, 1, 1), useNativeDriver: true }),
         Animated.timing(slideX, { toValue: -30, duration: 90, easing: Easing.bezier(0.3, 0, 1, 1), useNativeDriver: true }),
       ]),
-    ]).start(() => {
+    ]).start(commit);
+  };
+  const pickSituation = (id: string) => {
+    if (transitioning.current) return;
+    setPickedSituation(id);
+    advance(() => {
       setSelectedSituation(id);
       setSelectedLevel(null);
     });
   };
+  const pickLevel = (id: BreathIntensityId | MeditationTimeId) => {
+    if (transitioning.current) return;
+    setPickedLevel(id);
+    advance(() => setSelectedLevel(id));
+  };
+  const startOver = () => {
+    setSelectedSituation(null);
+    setSelectedLevel(null);
+  };
   useEffect(() => {
     setTileHeight(0);
     setPickedSituation(null);
+    setPickedLevel(null);
     scrollToTop();
-    if (firstRender.current) {
-      firstRender.current = false;
-      return;
-    }
-    slideX.setValue(selectedSituation !== null ? 30 : -30);
+    if (previousStep.current === step) return;
+    slideX.setValue(step > previousStep.current ? 30 : -30);
+    previousStep.current = step;
     fade.setValue(0);
     Animated.parallel([
       Animated.timing(fade, { toValue: 1, duration: 210, easing: Easing.bezier(0.2, 0, 0, 1), useNativeDriver: true }),
@@ -1693,7 +1710,7 @@ function RecommendScreen({
     ]).start(() => {
       transitioning.current = false;
     });
-  }, [selectedSituation]);
+  }, [step]);
 
   return (
     <View style={{ flex: 1 }}>
@@ -1703,7 +1720,7 @@ function RecommendScreen({
       </View>
       <ScrollView ref={scrollRef} contentContainerStyle={styles.recommendContent} showsVerticalScrollIndicator={false}>
       <Animated.View style={{ opacity: fade, transform: [{ translateX: slideX }] }}>
-      {!selectedSituation ? (
+      {step === 1 ? (
         <>
           <NumberedHeading number={1} title="How are you feeling right now?" palette={palette} titleFontsLoaded={titleFontsLoaded} />
           <View style={styles.chips}>
@@ -1729,7 +1746,7 @@ function RecommendScreen({
             </View>
           </View>
         </>
-      ) : (
+      ) : step === 2 ? (
         <>
           <NumberedHeading
             number={2}
@@ -1741,15 +1758,15 @@ function RecommendScreen({
             {levels.map((level) => (
               <Pressable
                 key={level.id}
-                onPress={() => setSelectedLevel(level.id)}
+                onPress={() => pickLevel(level.id)}
                 onLayout={(event) => setTileHeight((current) => Math.max(current, event.nativeEvent.layout.height))}
                 style={[
                   styles.chip,
                   styles.tileChip,
                   {
                     minHeight: Math.max(TILE_MIN_HEIGHT, tileHeight),
-                    borderColor: selectedLevel === level.id ? modeAccent : VISIBLE_BORDER,
-                    backgroundColor: selectedLevel === level.id ? modeTint : getTileBackground(palette),
+                    borderColor: pickedLevel === level.id ? modeAccent : VISIBLE_BORDER,
+                    backgroundColor: pickedLevel === level.id ? modeTint : getTileBackground(palette),
                   },
                 ]}
               >
@@ -1759,10 +1776,9 @@ function RecommendScreen({
             ))}
           </View>
         </>
-      )}
-      {recommendation.length > 0 && (
+      ) : (
         <View style={styles.results}>
-          <Text style={[styles.question, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>Suggested exercises</Text>
+          <NumberedHeading number={3} title="You could try:" palette={palette} titleFontsLoaded={titleFontsLoaded} />
           {recommendation.map((result) => (
             <ExerciseRowCard
               key={result.item.id}
@@ -1775,6 +1791,14 @@ function RecommendScreen({
               onHeight={(height) => setResultCardHeight((current) => Math.max(current, height))}
             />
           ))}
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Start over"
+            onPress={startOver}
+            style={({ pressed }) => [styles.startOverButton, { backgroundColor: palette.accent, opacity: pressed ? 0.8 : 1 }]}
+          >
+            <Text style={[styles.startOverLabel, { color: palette.surface }]}>Start over</Text>
+          </Pressable>
         </View>
       )}
       </Animated.View>
@@ -2195,6 +2219,8 @@ const styles = StyleSheet.create({
   numberedHeadingTitle: { flex: 1, marginBottom: 0 },
   question: { fontSize: 20, fontWeight: '600', marginTop: 30, marginBottom: 14 },
   chips: { alignItems: 'stretch' },
+  startOverButton: { minHeight: 52, borderRadius: 16, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 },
+  startOverLabel: { fontSize: 15, fontWeight: '600' },
   chipColumn: { alignItems: 'stretch', gap: 12 },
   chip: { minHeight: 64, borderWidth: 1, borderRadius: 14, paddingVertical: 12, paddingHorizontal: 16, justifyContent: 'center' },
   tileChip: { borderWidth: 0.5, borderRadius: 16 },
