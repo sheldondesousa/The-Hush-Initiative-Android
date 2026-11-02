@@ -454,7 +454,7 @@ function ExerciseRowCard({
       />
       <View style={styles.rowCardBody}>
         <Text style={[styles.rowCardTitle, { color: palette.text }]}>{item.name}</Text>
-        <Text style={[styles.rowCardSubtitle, { color: palette.text, opacity: 0.65 }]}>{item.bestFor}</Text>
+        <Text style={[styles.rowCardSubtitle, { color: palette.accent }]}>{item.bestFor}</Text>
       </View>
       <Text style={[styles.rowCardDuration, { color: palette.text, opacity: 0.65 }]}>{item.duration}</Text>
       <Text style={[styles.rowCardChevron, { color: palette.text, opacity: 0.65 }]}>›</Text>
