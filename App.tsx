@@ -1580,6 +1580,15 @@ function MeditationSession({
   );
 }
 
+function ResetIcon({ color }: { color: string }) {
+  return (
+    <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" accessible={false}>
+      <Path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+      <Path d="M3 3v5h5" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+    </Svg>
+  );
+}
+
 function NumberedHeading({
   number,
   title,
@@ -1718,8 +1727,8 @@ function RecommendScreen({
         <Text style={[styles.eyebrow, { color: palette.accent }]}>FIND THE RIGHT TECHNIQUE</Text>
         <Text style={[styles.title, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>App Suggestions</Text>
       </View>
-      <ScrollView ref={scrollRef} contentContainerStyle={styles.recommendContent} showsVerticalScrollIndicator={false}>
-      <Animated.View style={{ opacity: fade, transform: [{ translateX: slideX }] }}>
+      <ScrollView ref={scrollRef} contentContainerStyle={[styles.recommendContent, styles.recommendContentFill, step === 3 && { paddingBottom: 0 }]} showsVerticalScrollIndicator={false}>
+      <Animated.View style={{ flexGrow: 1, opacity: fade, transform: [{ translateX: slideX }] }}>
       {step === 1 ? (
         <>
           <NumberedHeading number={1} title="How are you feeling right now?" palette={palette} titleFontsLoaded={titleFontsLoaded} />
@@ -1778,7 +1787,12 @@ function RecommendScreen({
         </>
       ) : (
         <View style={styles.results}>
-          <NumberedHeading number={3} title="You could try:" palette={palette} titleFontsLoaded={titleFontsLoaded} />
+          <Text
+            accessibilityRole="header"
+            style={[styles.infoTitle, styles.resultsHeading, { color: palette.accent }, titleFontsLoaded && { fontFamily: INFO_HEADING_FONT_FAMILY }]}
+          >
+            Try
+          </Text>
           {recommendation.map((result) => (
             <ExerciseRowCard
               key={result.item.id}
@@ -1791,14 +1805,18 @@ function RecommendScreen({
               onHeight={(height) => setResultCardHeight((current) => Math.max(current, height))}
             />
           ))}
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Start over"
-            onPress={startOver}
-            style={({ pressed }) => [styles.startOverButton, { backgroundColor: palette.accent, opacity: pressed ? 0.8 : 1 }]}
-          >
-            <Text style={[styles.startOverLabel, { color: palette.surface }]}>Start over</Text>
-          </Pressable>
+          <View style={styles.startOverSlot}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Start over"
+              hitSlop={12}
+              onPress={startOver}
+              style={({ pressed }) => [styles.startOver, { opacity: pressed ? 0.55 : 1 }]}
+            >
+              <ResetIcon color={palette.accent} />
+              <Text style={[styles.startOverLabel, { color: palette.accent }]}>Start over</Text>
+            </Pressable>
+          </View>
         </View>
       )}
       </Animated.View>
@@ -2213,20 +2231,23 @@ const styles = StyleSheet.create({
   meditationGlyph: { fontSize: 48 },
   meditationPrompt: { textAlign: 'center', fontSize: 27, lineHeight: 38, fontWeight: '500', marginTop: 38 },
   recommendHeading: { paddingHorizontal: 20, paddingTop: 30 },
+  recommendContentFill: { flexGrow: 1 },
   recommendContent: { paddingHorizontal: 20, paddingBottom: 36 },
   numberedHeading: { marginTop: 30 },
   numberedHeadingNumber: { fontSize: 18, fontWeight: '600' },
   numberedHeadingTitle: { flex: 1, marginBottom: 0 },
   question: { fontSize: 20, fontWeight: '600', marginTop: 30, marginBottom: 14 },
   chips: { alignItems: 'stretch' },
-  startOverButton: { minHeight: 52, borderRadius: 16, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 },
-  startOverLabel: { fontSize: 15, fontWeight: '600' },
+  startOverSlot: { flexGrow: 1, minHeight: 100, alignItems: 'center', justifyContent: 'center' },
+  startOver: { alignItems: 'center', gap: 6 },
+  startOverLabel: { fontSize: 14, fontWeight: '600' },
+  resultsHeading: { marginTop: 30, marginBottom: 2 },
   chipColumn: { alignItems: 'stretch', gap: 12 },
   chip: { minHeight: 64, borderWidth: 1, borderRadius: 14, paddingVertical: 12, paddingHorizontal: 16, justifyContent: 'center' },
   tileChip: { borderWidth: 0.5, borderRadius: 16 },
   chipLabel: { textAlign: 'center', fontSize: 15, lineHeight: 20, fontWeight: '600' },
   chipDescription: { textAlign: 'center', fontSize: 12, lineHeight: 16, fontWeight: '500', marginTop: 3 },
-  results: { gap: 12 },
+  results: { flexGrow: 1, gap: 12 },
   tabItems: { height: 66, paddingTop: 8, flexDirection: 'row', justifyContent: 'space-around' },
   tab: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 2 },
   tabDivider: { width: 1, marginVertical: 10 },
