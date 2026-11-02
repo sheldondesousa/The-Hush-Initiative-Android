@@ -106,6 +106,7 @@ const ENABLE_BOX_ORB_PROTOTYPE = false;
 const HEADER_HEIGHT = 70;
 const TERRACOTTA = '#D97D46';
 const PICTOGRAM_BACKGROUND = '#D0E4DE';
+const GRAPH_STROKE_GREEN = '#4A7C68';
 const VISIBLE_BORDER = '#868686';
 const ROW_CARD_MIN_HEIGHT = 87; // previous ~58px card height + 50%
 const TITLE_FONT_FAMILY = 'Lora_400Regular';
@@ -455,8 +456,8 @@ function ExerciseRowCard({
     >
       <ExerciseCardVisual
         exerciseName={item.name}
-        color={palette.text}
-        backgroundColor={PICTOGRAM_BACKGROUND}
+        color={isLight ? GRAPH_STROKE_GREEN : palette.text}
+        backgroundColor={isLight ? '#FFFFFF' : PICTOGRAM_BACKGROUND}
         size={48}
       />
       <View style={styles.rowCardBody}>
