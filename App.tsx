@@ -424,6 +424,10 @@ function darken(hex: string, amount: number): string {
   return `#${channel(1)}${channel(3)}${channel(5)}`;
 }
 
+function getTileBackground(palette: Palette): string {
+  return palette === palettes.light ? darken(palette.bg, 0.05) : palette.surface;
+}
+
 function ExerciseRowCard({
   item,
   palette,
@@ -451,7 +455,7 @@ function ExerciseRowCard({
       style={({ pressed }) => [
         styles.rowCard,
         {
-          backgroundColor: isLight ? darken(palette.bg, 0.05) : palette.surface,
+          backgroundColor: getTileBackground(palette),
           borderColor: VISIBLE_BORDER,
           minHeight: Math.max(ROW_CARD_MIN_HEIGHT, minHeight),
           opacity: pressed ? 0.78 : 1,
@@ -1627,7 +1631,8 @@ function RecommendScreen({
                   }}
                   style={[
                     styles.chip,
-                    { borderColor: palette.border, backgroundColor: palette.surface },
+                    styles.tileChip,
+                    { borderColor: VISIBLE_BORDER, backgroundColor: getTileBackground(palette) },
                   ]}
                 >
                   <Text style={{ color: palette.text, textAlign: 'center' }}>{item.label}</Text>
@@ -1659,9 +1664,10 @@ function RecommendScreen({
                     onPress={() => setSelectedLevel(level.id)}
                     style={[
                       styles.chip,
+                      styles.tileChip,
                       {
-                        borderColor: selectedLevel === level.id ? modeAccent : palette.border,
-                        backgroundColor: selectedLevel === level.id ? modeTint : palette.surface,
+                        borderColor: selectedLevel === level.id ? modeAccent : VISIBLE_BORDER,
+                        backgroundColor: selectedLevel === level.id ? modeTint : getTileBackground(palette),
                       },
                     ]}
                   >
@@ -2112,6 +2118,7 @@ const styles = StyleSheet.create({
   chips: { alignItems: 'stretch' },
   chipColumn: { alignItems: 'stretch', gap: 10 },
   chip: { minHeight: 58, borderWidth: 1, borderRadius: 14, paddingHorizontal: 17, justifyContent: 'center' },
+  tileChip: { borderWidth: 0.5, borderRadius: 16 },
   chipLabel: { textAlign: 'center', fontSize: 15, fontWeight: '600' },
   chipDescription: { textAlign: 'center', fontSize: 12, marginTop: 3 },
   results: { gap: 12 },
