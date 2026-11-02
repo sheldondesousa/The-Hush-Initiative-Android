@@ -441,7 +441,7 @@ function ExerciseRowCard({
         styles.rowCard,
         {
           backgroundColor: isLight ? PICTOGRAM_BACKGROUND : palette.surface,
-          borderColor: palette.border,
+          borderColor: isLight ? '#4A7C68' : palette.border,
           minHeight: Math.max(ROW_CARD_MIN_HEIGHT, minHeight),
           opacity: pressed ? 0.78 : 1,
         },
