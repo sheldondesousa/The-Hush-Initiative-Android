@@ -1635,7 +1635,7 @@ function RecommendScreen({
                     { borderColor: VISIBLE_BORDER, backgroundColor: getTileBackground(palette) },
                   ]}
                 >
-                  <Text style={{ color: palette.text, textAlign: 'center' }}>{item.label}</Text>
+                  <Text style={{ color: palette.text, textAlign: 'center', fontWeight: '600' }}>{item.label}</Text>
                 </Pressable>
               ))}
             </View>
@@ -2120,7 +2120,7 @@ const styles = StyleSheet.create({
   chip: { minHeight: 58, borderWidth: 1, borderRadius: 14, paddingHorizontal: 17, justifyContent: 'center' },
   tileChip: { borderWidth: 0.5, borderRadius: 16 },
   chipLabel: { textAlign: 'center', fontSize: 15, fontWeight: '600' },
-  chipDescription: { textAlign: 'center', fontSize: 12, marginTop: 3 },
+  chipDescription: { textAlign: 'center', fontSize: 12, fontWeight: '500', marginTop: 3 },
   results: { gap: 12 },
   tabItems: { height: 66, paddingTop: 8, flexDirection: 'row', justifyContent: 'space-around' },
   tab: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 2 },
