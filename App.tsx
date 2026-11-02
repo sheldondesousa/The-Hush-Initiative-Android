@@ -430,12 +430,16 @@ function ExerciseRowCard({
   onPress,
   minHeight,
   onHeight,
+  confidence,
+  note,
 }: {
   item: Exercise;
   palette: Palette;
   onPress: () => void;
   minHeight: number;
   onHeight: (height: number) => void;
+  confidence?: number;
+  note?: string;
 }) {
   const isLight = palette === palettes.light;
   return (
@@ -443,7 +447,7 @@ function ExerciseRowCard({
       onPress={onPress}
       onLayout={(event) => onHeight(event.nativeEvent.layout.height)}
       accessibilityRole="button"
-      accessibilityLabel={`${item.name}, ${item.bestFor}, ${item.duration}`}
+      accessibilityLabel={`${item.name}, ${item.bestFor}, ${item.duration}${confidence !== undefined ? `, ${confidence}% match` : ''}${note ? `, ${note}` : ''}`}
       style={({ pressed }) => [
         styles.rowCard,
         {
@@ -463,7 +467,8 @@ function ExerciseRowCard({
       />
       <View style={styles.rowCardBody}>
         <Text style={[styles.rowCardTitle, { color: palette.text }]}>{item.name}</Text>
-        <Text style={[styles.rowCardSubtitle, { color: palette.accent }]}>{item.bestFor}</Text>
+        <Text style={[styles.rowCardSubtitle, { color: palette.accent }]}>{item.bestFor}{confidence !== undefined ? ` · ${confidence}% match` : ''}</Text>
+        {note ? <Text style={[styles.rowCardSubtitle, { color: palette.muted }]}>{note}</Text> : null}
       </View>
       <Text style={[styles.rowCardDuration, { color: palette.text, opacity: 0.65 }]}>{item.duration}</Text>
       <Text style={[styles.rowCardChevron, { color: palette.text, opacity: 0.65 }]}>›</Text>
@@ -1560,6 +1565,7 @@ function RecommendScreen({
   titleFontsLoaded: boolean;
 }) {
   const scrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
+  const [resultCardHeight, setResultCardHeight] = useState(0);
   // Guide Me only covers breathing for now — the meditate mode toggle was removed.
   const mode: 'breathe' | 'meditate' = 'breathe';
   const [selectedSituation, setSelectedSituation] = useState<string | null>(null);
@@ -1597,6 +1603,7 @@ function RecommendScreen({
       })
       .filter(Boolean) as { item: Meditation }[];
   }, [mode, selectedLevel, selectedSituation]);
+  useEffect(() => setResultCardHeight(0), [recommendation]);
 
   return (
     <View style={{ flex: 1 }}>
@@ -1671,17 +1678,16 @@ function RecommendScreen({
       {recommendation.length > 0 && (
         <View style={styles.results}>
           <Text style={[styles.question, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>Suggested exercises</Text>
-          {recommendation.map((result, index) => (
-            <PracticeCard
+          {recommendation.map((result) => (
+            <ExerciseRowCard
               key={result.item.id}
-              item={result.item}
-              index={index}
+              item={result.item as Exercise}
               palette={palette}
-              accent={mode === 'breathe' ? 'breath' : 'meditation'}
               confidence={'confidence' in result ? result.confidence : undefined}
-              recommendationNote={'recommendationNote' in result ? result.recommendationNote : undefined}
-              onPress={() => mode === 'breathe' ? onExercise(result.item as Exercise) : onMeditation(result.item as Meditation)}
-              titleFontsLoaded={titleFontsLoaded}
+              note={'recommendationNote' in result ? result.recommendationNote : undefined}
+              onPress={() => onExercise(result.item as Exercise)}
+              minHeight={resultCardHeight}
+              onHeight={(height) => setResultCardHeight((current) => Math.max(current, height))}
             />
           ))}
         </View>
