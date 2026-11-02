@@ -457,16 +457,12 @@ function ExerciseRowCard({
   onPress,
   minHeight,
   onHeight,
-  confidence,
-  note,
 }: {
   item: Exercise;
   palette: Palette;
   onPress: () => void;
   minHeight: number;
   onHeight: (height: number) => void;
-  confidence?: number;
-  note?: string;
 }) {
   const isLight = palette === palettes.light;
   return (
@@ -474,7 +470,7 @@ function ExerciseRowCard({
       onPress={onPress}
       onLayout={(event) => onHeight(event.nativeEvent.layout.height)}
       accessibilityRole="button"
-      accessibilityLabel={`${item.name}, ${item.bestFor}, ${item.duration}${confidence !== undefined ? `, ${confidence}% match` : ''}${note ? `, ${note}` : ''}`}
+      accessibilityLabel={`${item.name}, ${item.bestFor}, ${item.duration}`}
       style={({ pressed }) => [
         styles.rowCard,
         {
@@ -494,8 +490,7 @@ function ExerciseRowCard({
       />
       <View style={styles.rowCardBody}>
         <Text style={[styles.rowCardTitle, { color: palette.text }]}>{item.name}</Text>
-        <Text style={[styles.rowCardSubtitle, { color: palette.accent }]}>{item.bestFor}{confidence !== undefined ? ` · ${confidence}% match` : ''}</Text>
-        {note ? <Text style={[styles.rowCardSubtitle, { color: palette.muted }]}>{note}</Text> : null}
+        <Text style={[styles.rowCardSubtitle, { color: palette.accent }]}>{item.bestFor}</Text>
       </View>
       <Text style={[styles.rowCardDuration, { color: palette.text, opacity: 0.65 }]}>{item.duration}</Text>
       <Text style={[styles.rowCardChevron, { color: palette.text, opacity: 0.65 }]}>›</Text>
@@ -1798,8 +1793,6 @@ function RecommendScreen({
               key={result.item.id}
               item={result.item as Exercise}
               palette={palette}
-              confidence={'confidence' in result ? result.confidence : undefined}
-              note={'recommendationNote' in result ? result.recommendationNote : undefined}
               onPress={() => onExercise(result.item as Exercise)}
               minHeight={resultCardHeight}
               onHeight={(height) => setResultCardHeight((current) => Math.max(current, height))}
