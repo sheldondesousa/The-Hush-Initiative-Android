@@ -404,7 +404,6 @@ function Library<T extends Exercise | Meditation>({
                   accent={accent}
                   onPress={() => onPress(item)}
                   titleFontsLoaded={titleFontsLoaded}
-                  pictogramBackground={accent === 'breath' ? PICTOGRAM_BACKGROUND : undefined}
                 />
               </View>
             ))}
@@ -1540,7 +1539,7 @@ function RecommendScreen({
   onMeditation: (item: Meditation) => void;
   titleFontsLoaded: boolean;
 }) {
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
   // Guide Me only covers breathing for now — the meditate mode toggle was removed.
   const mode: 'breathe' | 'meditate' = 'breathe';
   const [selectedSituation, setSelectedSituation] = useState<string | null>(null);
