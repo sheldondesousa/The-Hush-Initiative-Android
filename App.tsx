@@ -1646,38 +1646,24 @@ function RecommendScreen({
           <Text style={[styles.question, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>
             {mode === 'breathe' ? 'How strongly is it affecting you?' : 'How much time do you have?'}
           </Text>
-          <View style={styles.recommenderCarousel}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Back to situations"
-              hitSlop={6}
-              onPress={returnToSituations}
-              style={({ pressed }) => [styles.recommenderChevron, { opacity: pressed ? 0.55 : 1 }]}
-            >
-              <ChevronLeftIcon color={modeAccent} />
-            </Pressable>
-            <View style={styles.recommenderCarouselPills}>
-              <View style={styles.chipColumn}>
-                {levels.map((level) => (
-                  <Pressable
-                    key={level.id}
-                    onPress={() => setSelectedLevel(level.id)}
-                    style={[
-                      styles.chip,
-                      styles.tileChip,
-                      {
-                        borderColor: selectedLevel === level.id ? modeAccent : VISIBLE_BORDER,
-                        backgroundColor: selectedLevel === level.id ? modeTint : getTileBackground(palette),
-                      },
-                    ]}
-                  >
-                    <Text style={[styles.chipLabel, { color: palette.text }]}>{level.label}</Text>
-                    <Text style={[styles.chipDescription, { color: palette.muted }]}>{level.description}</Text>
-                  </Pressable>
-                ))}
-              </View>
-            </View>
-            <View style={styles.recommenderChevronSpacer} />
+          <View style={styles.chipColumn}>
+            {levels.map((level) => (
+              <Pressable
+                key={level.id}
+                onPress={() => setSelectedLevel(level.id)}
+                style={[
+                  styles.chip,
+                  styles.tileChip,
+                  {
+                    borderColor: selectedLevel === level.id ? modeAccent : VISIBLE_BORDER,
+                    backgroundColor: selectedLevel === level.id ? modeTint : getTileBackground(palette),
+                  },
+                ]}
+              >
+                <Text style={[styles.chipLabel, { color: palette.text }]}>{level.label}</Text>
+                <Text style={[styles.chipDescription, { color: palette.muted }]}>{level.description}</Text>
+              </Pressable>
+            ))}
           </View>
         </>
       )}
@@ -1699,6 +1685,19 @@ function RecommendScreen({
         </View>
       )}
       </ScrollView>
+      <View style={styles.recommendFooter}>
+        {selectedSituation && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Back to situations"
+            hitSlop={6}
+            onPress={returnToSituations}
+            style={({ pressed }) => [styles.recommenderChevron, { opacity: pressed ? 0.55 : 1 }]}
+          >
+            <ChevronLeftIcon color={modeAccent} />
+          </Pressable>
+        )}
+      </View>
     </View>
   );
 }
@@ -2109,12 +2108,10 @@ const styles = StyleSheet.create({
   meditationGlyph: { fontSize: 48 },
   meditationPrompt: { textAlign: 'center', fontSize: 27, lineHeight: 38, fontWeight: '500', marginTop: 38 },
   recommendHeading: { paddingHorizontal: 20, paddingTop: 30 },
-  recommendContent: { paddingHorizontal: 20, paddingBottom: 42 },
+  recommendContent: { paddingHorizontal: 20, paddingBottom: 12 },
+  recommendFooter: { height: 68, alignItems: 'center', justifyContent: 'center' },
   question: { fontSize: 20, fontWeight: '600', marginTop: 30, marginBottom: 14 },
-  recommenderCarousel: { flexDirection: 'row', alignItems: 'center' },
   recommenderChevron: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  recommenderCarouselPills: { flex: 1, alignItems: 'stretch' },
-  recommenderChevronSpacer: { width: 44 },
   chips: { alignItems: 'stretch' },
   chipColumn: { alignItems: 'stretch', gap: 10 },
   chip: { minHeight: 58, borderWidth: 1, borderRadius: 14, paddingHorizontal: 17, justifyContent: 'center' },
