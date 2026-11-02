@@ -1557,6 +1557,32 @@ function MeditationSession({
   );
 }
 
+function NumberedHeading({
+  number,
+  title,
+  palette,
+  titleFontsLoaded,
+}: {
+  number: number;
+  title: string;
+  palette: Palette;
+  titleFontsLoaded: boolean;
+}) {
+  return (
+    <View style={[styles.infoHeadingRow, styles.numberedHeading]}>
+      <View style={[styles.infoHeadingBadge, { backgroundColor: getGraphFill(palette) }]}>
+        <Text style={[styles.numberedHeadingNumber, { color: palette.text }, titleFontsLoaded && { fontFamily: INFO_HEADING_FONT_FAMILY }]}>{number}</Text>
+      </View>
+      <Text
+        accessibilityRole="header"
+        style={[styles.infoTitle, styles.numberedHeadingTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: INFO_HEADING_FONT_FAMILY }]}
+      >
+        {title}
+      </Text>
+    </View>
+  );
+}
+
 function RecommendScreen({
   palette,
   onExercise,
@@ -1618,7 +1644,7 @@ function RecommendScreen({
       <ScrollView ref={scrollRef} contentContainerStyle={styles.recommendContent} showsVerticalScrollIndicator={false}>
       {!selectedSituation ? (
         <>
-          <Text style={[styles.question, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>How are you feeling right now?</Text>
+          <NumberedHeading number={1} title="How are you feeling right now?" palette={palette} titleFontsLoaded={titleFontsLoaded} />
           <View style={styles.chips}>
             <View style={styles.chipColumn}>
               {situations.map((item) => (
@@ -1643,9 +1669,12 @@ function RecommendScreen({
         </>
       ) : (
         <>
-          <Text style={[styles.question, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>
-            {mode === 'breathe' ? 'How strongly is it affecting you?' : 'How much time do you have?'}
-          </Text>
+          <NumberedHeading
+            number={2}
+            title={mode === 'breathe' ? 'How strongly is it affecting you?' : 'How much time do you have?'}
+            palette={palette}
+            titleFontsLoaded={titleFontsLoaded}
+          />
           <View style={styles.chipColumn}>
             {levels.map((level) => (
               <Pressable
@@ -1686,17 +1715,20 @@ function RecommendScreen({
       )}
       </ScrollView>
       <View style={styles.recommendFooter}>
-        {selectedSituation && (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Back to situations"
-            hitSlop={6}
-            onPress={returnToSituations}
-            style={({ pressed }) => [styles.recommenderChevron, { opacity: pressed ? 0.55 : 1 }]}
-          >
-            <ChevronLeftIcon color={modeAccent} />
-          </Pressable>
-        )}
+        <Text style={[styles.recommendStep, { color: palette.muted }]}>{selectedSituation ? '2/2' : '1/2'}</Text>
+        <View style={styles.recommendChevronSlot}>
+          {selectedSituation && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Back to situations"
+              hitSlop={6}
+              onPress={returnToSituations}
+              style={({ pressed }) => [styles.recommenderChevron, { backgroundColor: getGraphFill(palette), opacity: pressed ? 0.55 : 1 }]}
+            >
+              <ChevronLeftIcon color={modeAccent} />
+            </Pressable>
+          )}
+        </View>
       </View>
     </View>
   );
@@ -2109,9 +2141,14 @@ const styles = StyleSheet.create({
   meditationPrompt: { textAlign: 'center', fontSize: 27, lineHeight: 38, fontWeight: '500', marginTop: 38 },
   recommendHeading: { paddingHorizontal: 20, paddingTop: 30 },
   recommendContent: { paddingHorizontal: 20, paddingBottom: 12 },
-  recommendFooter: { height: 68, alignItems: 'center', justifyContent: 'center' },
+  recommendFooter: { height: 84, paddingBottom: 12, alignItems: 'center', justifyContent: 'flex-end', gap: 4 },
+  recommendStep: { fontSize: 12, fontWeight: '600', letterSpacing: 0.5 },
+  recommendChevronSlot: { height: 44, justifyContent: 'center' },
+  numberedHeading: { marginTop: 30 },
+  numberedHeadingNumber: { fontSize: 18, fontWeight: '600' },
+  numberedHeadingTitle: { flex: 1, marginBottom: 0 },
   question: { fontSize: 20, fontWeight: '600', marginTop: 30, marginBottom: 14 },
-  recommenderChevron: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  recommenderChevron: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
   chips: { alignItems: 'stretch' },
   chipColumn: { alignItems: 'stretch', gap: 12 },
   chip: { minHeight: 58, borderWidth: 1, borderRadius: 14, paddingHorizontal: 17, justifyContent: 'center' },
