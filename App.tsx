@@ -2113,7 +2113,7 @@ const styles = StyleSheet.create({
   question: { fontSize: 20, fontWeight: '600', marginTop: 30, marginBottom: 14 },
   recommenderChevron: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   chips: { alignItems: 'stretch' },
-  chipColumn: { alignItems: 'stretch', gap: 10 },
+  chipColumn: { alignItems: 'stretch', gap: 12 },
   chip: { minHeight: 58, borderWidth: 1, borderRadius: 14, paddingHorizontal: 17, justifyContent: 'center' },
   tileChip: { borderWidth: 0.5, borderRadius: 16 },
   chipLabel: { textAlign: 'center', fontSize: 15, fontWeight: '600' },
