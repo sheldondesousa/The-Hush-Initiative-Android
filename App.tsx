@@ -417,6 +417,12 @@ function Library<T extends Exercise | Meditation>({
   );
 }
 
+function darken(hex: string, amount: number): string {
+  const channel = (start: number) => Math.round(parseInt(hex.slice(start, start + 2), 16) * (1 - amount))
+    .toString(16).padStart(2, '0');
+  return `#${channel(1)}${channel(3)}${channel(5)}`;
+}
+
 function ExerciseRowCard({
   item,
   palette,
@@ -440,7 +446,7 @@ function ExerciseRowCard({
       style={({ pressed }) => [
         styles.rowCard,
         {
-          backgroundColor: isLight ? PICTOGRAM_BACKGROUND : palette.surface,
+          backgroundColor: isLight ? darken(palette.bg, 0.1) : palette.surface,
           borderColor: isLight ? '#4A7C68' : palette.border,
           minHeight: Math.max(ROW_CARD_MIN_HEIGHT, minHeight),
           opacity: pressed ? 0.78 : 1,
