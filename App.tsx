@@ -459,6 +459,7 @@ function ExerciseRowCard({
         color={isLight ? GRAPH_STROKE_GREEN : palette.text}
         backgroundColor={isLight ? '#FFFFFF' : PICTOGRAM_BACKGROUND}
         size={48}
+        strong={isLight}
       />
       <View style={styles.rowCardBody}>
         <Text style={[styles.rowCardTitle, { color: palette.text }]}>{item.name}</Text>
