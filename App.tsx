@@ -1656,9 +1656,43 @@ function RecommendScreen({
       .filter(Boolean) as { item: Meditation }[];
   }, [mode, selectedLevel, selectedSituation]);
   useEffect(() => setResultCardHeight(0), [recommendation]);
+  const [pickedSituation, setPickedSituation] = useState<string | null>(null);
+  const slideX = useRef(new Animated.Value(0)).current;
+  const fade = useRef(new Animated.Value(1)).current;
+  const transitioning = useRef(false);
+  const firstRender = useRef(true);
+  // Material "shared axis" (X): 30dp slide + fade, ~90ms out and ~210ms in.
+  const pickSituation = (id: string) => {
+    if (transitioning.current) return;
+    transitioning.current = true;
+    setPickedSituation(id);
+    Animated.sequence([
+      Animated.delay(120),
+      Animated.parallel([
+        Animated.timing(fade, { toValue: 0, duration: 90, easing: Easing.bezier(0.3, 0, 1, 1), useNativeDriver: true }),
+        Animated.timing(slideX, { toValue: -30, duration: 90, easing: Easing.bezier(0.3, 0, 1, 1), useNativeDriver: true }),
+      ]),
+    ]).start(() => {
+      setSelectedSituation(id);
+      setSelectedLevel(null);
+    });
+  };
   useEffect(() => {
     setTileHeight(0);
+    setPickedSituation(null);
     scrollToTop();
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    slideX.setValue(selectedSituation !== null ? 30 : -30);
+    fade.setValue(0);
+    Animated.parallel([
+      Animated.timing(fade, { toValue: 1, duration: 210, easing: Easing.bezier(0.2, 0, 0, 1), useNativeDriver: true }),
+      Animated.timing(slideX, { toValue: 0, duration: 210, easing: Easing.bezier(0.2, 0, 0, 1), useNativeDriver: true }),
+    ]).start(() => {
+      transitioning.current = false;
+    });
   }, [selectedSituation]);
 
   return (
@@ -1668,6 +1702,7 @@ function RecommendScreen({
         <Text style={[styles.title, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>App Suggestions</Text>
       </View>
       <ScrollView ref={scrollRef} contentContainerStyle={styles.recommendContent} showsVerticalScrollIndicator={false}>
+      <Animated.View style={{ opacity: fade, transform: [{ translateX: slideX }] }}>
       {!selectedSituation ? (
         <>
           <NumberedHeading number={1} title="How are you feeling right now?" palette={palette} titleFontsLoaded={titleFontsLoaded} />
@@ -1676,16 +1711,16 @@ function RecommendScreen({
               {situations.map((item) => (
                 <Pressable
                   key={item.id}
-                  onPress={() => {
-                    setSelectedSituation(item.id);
-                    setSelectedLevel(null);
-                    scrollToTop();
-                  }}
+                  onPress={() => pickSituation(item.id)}
                   onLayout={(event) => setTileHeight((current) => Math.max(current, event.nativeEvent.layout.height))}
                   style={[
                     styles.chip,
                     styles.tileChip,
-                    { borderColor: VISIBLE_BORDER, backgroundColor: getTileBackground(palette), minHeight: Math.max(TILE_MIN_HEIGHT, tileHeight) },
+                    {
+                      borderColor: pickedSituation === item.id ? modeAccent : VISIBLE_BORDER,
+                      backgroundColor: pickedSituation === item.id ? modeTint : getTileBackground(palette),
+                      minHeight: Math.max(TILE_MIN_HEIGHT, tileHeight),
+                    },
                   ]}
                 >
                   <Text style={[styles.chipLabel, { color: palette.text }]}>{item.label}</Text>
@@ -1742,6 +1777,7 @@ function RecommendScreen({
           ))}
         </View>
       )}
+      </Animated.View>
       </ScrollView>
     </View>
   );
