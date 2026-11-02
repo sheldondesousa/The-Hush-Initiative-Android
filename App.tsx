@@ -1692,6 +1692,9 @@ function TabBar({
   palette: Palette;
 }) {
   const insets = useSafeAreaInsets();
+  // Light theme: orange bar (as on the Menu page icons); muted grey would fail contrast on it.
+  const isLight = palette === palettes.light;
+  const barColor = isLight ? TERRACOTTA : palette.bg;
   const tabs: { id: Tab; label: string; icon: string }[] = [
     { id: 'breathe', label: 'Breathe', icon: '' },
     // Meditate is hidden from the nav bar for now.
@@ -1700,7 +1703,7 @@ function TabBar({
   ];
   const tabItems = tabs.map((item) => {
     const selected = tab === item.id;
-    const iconColor = selected ? palette.text : palette.muted;
+    const iconColor = selected || isLight ? palette.text : palette.muted;
     const iconSize = selected ? 24 : 20;
     const icon = item.id === 'breathe' ? (
       <WindIcon color={iconColor} size={iconSize} />
@@ -1722,11 +1725,11 @@ function TabBar({
   });
 
   return (
-    <View style={[styles.tabBarContainer, { backgroundColor: palette.bg }]}>
+    <View style={[styles.tabBarContainer, { backgroundColor: barColor }]}>
       <View style={styles.tabItems} accessibilityRole="tablist">
         {tabItems.map((item, index) => (
           <React.Fragment key={tabs[index].id}>
-            {index > 0 && <View style={[styles.tabDivider, { backgroundColor: palette.border }]} />}
+            {index > 0 && <View style={[styles.tabDivider, { backgroundColor: isLight ? 'rgba(26,26,26,0.25)' : palette.border }]} />}
             {item}
           </React.Fragment>
         ))}
