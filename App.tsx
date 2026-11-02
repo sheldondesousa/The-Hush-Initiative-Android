@@ -132,6 +132,8 @@ export default function App() {
   const [mindfulMinutes, setMindfulMinutes] = useState(0);
   const [exerciseDefaults, setExerciseDefaults] = useState<ExerciseDefaults>({});
   const [menuSection, setMenuSection] = useState<MenuSection | null>(null);
+  const [recommendSituation, setRecommendSituation] = useState<string | null>(null);
+  const [recommendLevel, setRecommendLevel] = useState<BreathIntensityId | MeditationTimeId | null>(null);
   const [showOnboardingAfterSplash, setShowOnboardingAfterSplash] = useState(true);
   const palette = palettes[themeMode];
   const [titleFontsLoaded] = useFonts({
@@ -271,7 +273,16 @@ export default function App() {
       <Header
         palette={palette}
         themeMode={themeMode}
-        onBack={tab === 'menu' && menuSection !== null ? () => setMenuSection(null) : undefined}
+        onBack={
+          tab === 'menu' && menuSection !== null
+            ? () => setMenuSection(null)
+            : tab === 'recommend' && recommendSituation !== null
+              ? () => {
+                  setRecommendSituation(null);
+                  setRecommendLevel(null);
+                }
+              : undefined
+        }
       />
 
       <View style={styles.content}>
@@ -298,6 +309,10 @@ export default function App() {
         {tab === 'recommend' && (
           <RecommendScreen
             palette={palette}
+            selectedSituation={recommendSituation}
+            setSelectedSituation={setRecommendSituation}
+            selectedLevel={recommendLevel}
+            setSelectedLevel={setRecommendLevel}
             onExercise={(item) => setDetail({ kind: 'exercise', item })}
             onMeditation={(item) => setDetail({ kind: 'meditation', item })}
             titleFontsLoaded={titleFontsLoaded}
@@ -324,6 +339,10 @@ export default function App() {
         palette={palette}
         onTabPress={(nextTab) => {
           if (nextTab === 'menu') setMenuSection(null);
+          if (nextTab !== 'recommend') {
+            setRecommendSituation(null);
+            setRecommendLevel(null);
+          }
           setTab(nextTab);
         }}
       />
@@ -1586,11 +1605,19 @@ function NumberedHeading({
 
 function RecommendScreen({
   palette,
+  selectedSituation,
+  setSelectedSituation,
+  selectedLevel,
+  setSelectedLevel,
   onExercise,
   onMeditation,
   titleFontsLoaded,
 }: {
   palette: Palette;
+  selectedSituation: string | null;
+  setSelectedSituation: (id: string | null) => void;
+  selectedLevel: BreathIntensityId | MeditationTimeId | null;
+  setSelectedLevel: (id: BreathIntensityId | MeditationTimeId | null) => void;
   onExercise: (item: Exercise) => void;
   onMeditation: (item: Meditation) => void;
   titleFontsLoaded: boolean;
@@ -1600,19 +1627,12 @@ function RecommendScreen({
   const [tileHeight, setTileHeight] = useState(0);
   // Guide Me only covers breathing for now — the meditate mode toggle was removed.
   const mode: 'breathe' | 'meditate' = 'breathe';
-  const [selectedSituation, setSelectedSituation] = useState<string | null>(null);
-  const [selectedLevel, setSelectedLevel] = useState<BreathIntensityId | MeditationTimeId | null>(null);
   const situations = mode === 'breathe' ? breathSituations : meditationSituations;
   const levels = mode === 'breathe' ? breathIntensities : meditationTimes;
   const modeAccent = mode === 'breathe' ? palette.accent : palette.meditation;
   const modeTint = mode === 'breathe' ? palette.tint : palette.meditationTint;
   const scrollToTop = () => {
     requestAnimationFrame(() => scrollRef.current?.scrollTo({ y: 0, animated: true }));
-  };
-  const returnToSituations = () => {
-    setSelectedSituation(null);
-    setSelectedLevel(null);
-    scrollToTop();
   };
   const recommendation = useMemo(() => {
     if (!selectedSituation || !selectedLevel) return [];
@@ -1636,23 +1656,13 @@ function RecommendScreen({
       .filter(Boolean) as { item: Meditation }[];
   }, [mode, selectedLevel, selectedSituation]);
   useEffect(() => setResultCardHeight(0), [recommendation]);
-  useEffect(() => setTileHeight(0), [selectedSituation]);
+  useEffect(() => {
+    setTileHeight(0);
+    scrollToTop();
+  }, [selectedSituation]);
 
   return (
     <View style={{ flex: 1 }}>
-      <View style={styles.recommendBackRow}>
-        {selectedSituation && (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Back to situations"
-            hitSlop={12}
-            onPress={returnToSituations}
-            style={({ pressed }) => ({ opacity: pressed ? 0.55 : 1 })}
-          >
-            <Text style={[styles.headerBack, { color: palette.text }]}>‹ Back</Text>
-          </Pressable>
-        )}
-      </View>
       <View style={styles.recommendHeading}>
         <Text style={[styles.eyebrow, { color: palette.accent }]}>FIND THE RIGHT TECHNIQUE</Text>
         <Text style={[styles.title, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>App Suggestions</Text>
@@ -1733,9 +1743,6 @@ function RecommendScreen({
         </View>
       )}
       </ScrollView>
-      <View style={styles.recommendFooter}>
-        <Text style={[styles.recommendStep, { color: palette.muted }]}>{selectedSituation ? '2/2' : '1/2'}</Text>
-      </View>
     </View>
   );
 }
@@ -2145,11 +2152,8 @@ const styles = StyleSheet.create({
   meditationHalo: { width: 140, height: 140, borderRadius: 70, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   meditationGlyph: { fontSize: 48 },
   meditationPrompt: { textAlign: 'center', fontSize: 27, lineHeight: 38, fontWeight: '500', marginTop: 38 },
-  recommendBackRow: { height: 36, paddingHorizontal: 20, justifyContent: 'center' },
-  recommendHeading: { paddingHorizontal: 20 },
-  recommendContent: { paddingHorizontal: 20, paddingBottom: 12 },
-  recommendFooter: { height: 40, paddingBottom: 12, alignItems: 'center', justifyContent: 'flex-end' },
-  recommendStep: { fontSize: 12, fontWeight: '600', letterSpacing: 0.5 },
+  recommendHeading: { paddingHorizontal: 20, paddingTop: 30 },
+  recommendContent: { paddingHorizontal: 20, paddingBottom: 36 },
   numberedHeading: { marginTop: 30 },
   numberedHeadingNumber: { fontSize: 18, fontWeight: '600' },
   numberedHeadingTitle: { flex: 1, marginBottom: 0 },
