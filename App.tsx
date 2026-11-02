@@ -109,6 +109,7 @@ const PICTOGRAM_BACKGROUND = '#D0E4DE';
 const GRAPH_STROKE_GREEN = '#4A7C68';
 const VISIBLE_BORDER = '#868686';
 const ROW_CARD_MIN_HEIGHT = 90;
+const TILE_MIN_HEIGHT = 64;
 const TITLE_FONT_FAMILY = 'Lora_400Regular';
 const FEATURED_CARD_TITLE_FONT_FAMILY = 'Lora_600SemiBold';
 const CARD_TITLE_FONT_FAMILY = 'Lora_500Medium';
@@ -1596,6 +1597,7 @@ function RecommendScreen({
 }) {
   const scrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
   const [resultCardHeight, setResultCardHeight] = useState(0);
+  const [tileHeight, setTileHeight] = useState(0);
   // Guide Me only covers breathing for now — the meditate mode toggle was removed.
   const mode: 'breathe' | 'meditate' = 'breathe';
   const [selectedSituation, setSelectedSituation] = useState<string | null>(null);
@@ -1634,6 +1636,7 @@ function RecommendScreen({
       .filter(Boolean) as { item: Meditation }[];
   }, [mode, selectedLevel, selectedSituation]);
   useEffect(() => setResultCardHeight(0), [recommendation]);
+  useEffect(() => setTileHeight(0), [selectedSituation]);
 
   return (
     <View style={{ flex: 1 }}>
@@ -1668,13 +1671,14 @@ function RecommendScreen({
                     setSelectedLevel(null);
                     scrollToTop();
                   }}
+                  onLayout={(event) => setTileHeight((current) => Math.max(current, event.nativeEvent.layout.height))}
                   style={[
                     styles.chip,
                     styles.tileChip,
-                    { borderColor: VISIBLE_BORDER, backgroundColor: getTileBackground(palette) },
+                    { borderColor: VISIBLE_BORDER, backgroundColor: getTileBackground(palette), minHeight: Math.max(TILE_MIN_HEIGHT, tileHeight) },
                   ]}
                 >
-                  <Text style={{ color: palette.text, textAlign: 'center', fontWeight: '600' }}>{item.label}</Text>
+                  <Text style={[styles.chipLabel, { color: palette.text }]}>{item.label}</Text>
                 </Pressable>
               ))}
             </View>
@@ -1693,10 +1697,12 @@ function RecommendScreen({
               <Pressable
                 key={level.id}
                 onPress={() => setSelectedLevel(level.id)}
+                onLayout={(event) => setTileHeight((current) => Math.max(current, event.nativeEvent.layout.height))}
                 style={[
                   styles.chip,
                   styles.tileChip,
                   {
+                    minHeight: Math.max(TILE_MIN_HEIGHT, tileHeight),
                     borderColor: selectedLevel === level.id ? modeAccent : VISIBLE_BORDER,
                     backgroundColor: selectedLevel === level.id ? modeTint : getTileBackground(palette),
                   },
@@ -2150,10 +2156,10 @@ const styles = StyleSheet.create({
   question: { fontSize: 20, fontWeight: '600', marginTop: 30, marginBottom: 14 },
   chips: { alignItems: 'stretch' },
   chipColumn: { alignItems: 'stretch', gap: 12 },
-  chip: { minHeight: 58, borderWidth: 1, borderRadius: 14, paddingHorizontal: 17, justifyContent: 'center' },
+  chip: { minHeight: 64, borderWidth: 1, borderRadius: 14, paddingVertical: 12, paddingHorizontal: 16, justifyContent: 'center' },
   tileChip: { borderWidth: 0.5, borderRadius: 16 },
-  chipLabel: { textAlign: 'center', fontSize: 15, fontWeight: '600' },
-  chipDescription: { textAlign: 'center', fontSize: 12, fontWeight: '500', marginTop: 3 },
+  chipLabel: { textAlign: 'center', fontSize: 15, lineHeight: 20, fontWeight: '600' },
+  chipDescription: { textAlign: 'center', fontSize: 12, lineHeight: 16, fontWeight: '500', marginTop: 3 },
   results: { gap: 12 },
   tabItems: { height: 66, paddingTop: 8, flexDirection: 'row', justifyContent: 'space-around' },
   tab: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 2 },
