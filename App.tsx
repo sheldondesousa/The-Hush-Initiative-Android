@@ -456,7 +456,7 @@ function ExerciseRowCard({
       <ExerciseCardVisual
         exerciseName={item.name}
         color={palette.text}
-        backgroundColor={isLight ? '#FFFFFF' : PICTOGRAM_BACKGROUND}
+        backgroundColor={PICTOGRAM_BACKGROUND}
         size={48}
       />
       <View style={styles.rowCardBody}>
