@@ -1891,7 +1891,7 @@ const styles = StyleSheet.create({
   rowCardSpacing: { marginBottom: 12 },
   rowCardBody: { flex: 1 },
   rowCardTitle: { fontSize: 16, fontWeight: '600', lineHeight: 21 },
-  rowCardSubtitle: { fontSize: 13, lineHeight: 17, marginTop: 1 },
+  rowCardSubtitle: { fontSize: 13, fontWeight: '500', lineHeight: 17, marginTop: 1 },
   rowCardDuration: { fontSize: 12 },
   rowCardChevron: { fontSize: 20, lineHeight: 22 },
   cardMark: { width: 54, height: 54, borderRadius: 27, alignItems: 'center', justifyContent: 'center' },
