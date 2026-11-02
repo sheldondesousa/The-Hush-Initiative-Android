@@ -1682,6 +1682,12 @@ function RecommendScreen({
   );
 }
 
+function darken(hex: string, amount: number): string {
+  const channel = (start: number) => Math.round(parseInt(hex.slice(start, start + 2), 16) * (1 - amount))
+    .toString(16).padStart(2, '0');
+  return `#${channel(1)}${channel(3)}${channel(5)}`;
+}
+
 function TabBar({
   tab,
   onTabPress,
@@ -1692,9 +1698,9 @@ function TabBar({
   palette: Palette;
 }) {
   const insets = useSafeAreaInsets();
-  // Light theme: orange bar (as on the Menu page icons); muted grey would fail contrast on it.
+  const barColor = darken(palette.bg, 0.2);
+  // Muted grey drops below 4.5:1 on the darkened light-theme bar, so use the text color there.
   const isLight = palette === palettes.light;
-  const barColor = isLight ? TERRACOTTA : palette.bg;
   const tabs: { id: Tab; label: string; icon: string }[] = [
     { id: 'breathe', label: 'Breathe', icon: '' },
     // Meditate is hidden from the nav bar for now.
@@ -1729,7 +1735,7 @@ function TabBar({
       <View style={styles.tabItems} accessibilityRole="tablist">
         {tabItems.map((item, index) => (
           <React.Fragment key={tabs[index].id}>
-            {index > 0 && <View style={[styles.tabDivider, { backgroundColor: isLight ? 'rgba(26,26,26,0.25)' : palette.border }]} />}
+            {index > 0 && <View style={[styles.tabDivider, { backgroundColor: palette.border }]} />}
             {item}
           </React.Fragment>
         ))}
