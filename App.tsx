@@ -447,7 +447,7 @@ function ExerciseRowCard({
         styles.rowCard,
         {
           backgroundColor: isLight ? darken(palette.bg, 0.05) : palette.surface,
-          borderColor: isLight ? '#4A7C68' : palette.border,
+          borderColor: VISIBLE_BORDER,
           minHeight: Math.max(ROW_CARD_MIN_HEIGHT, minHeight),
           opacity: pressed ? 0.78 : 1,
         },
@@ -1884,7 +1884,7 @@ const styles = StyleSheet.create({
   featuredCardTryButton: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', alignSelf: 'flex-start', zIndex: 1 },
   featuredCardTryLabel: { fontSize: 14, fontWeight: '700' },
   card: { borderWidth: 1, borderRadius: 18, padding: 16, flexDirection: 'row', alignItems: 'flex-start', gap: 14 },
-  rowCard: { borderWidth: 1, borderRadius: 14, paddingVertical: 8, paddingHorizontal: 10, flexDirection: 'row', alignItems: 'center', gap: 10 },
+  rowCard: { borderWidth: 0.5, borderRadius: 16, paddingVertical: 8, paddingHorizontal: 10, flexDirection: 'row', alignItems: 'center', gap: 10 },
   tabBarContainer: { shadowColor: '#000000', shadowOffset: { width: 0, height: -2 }, shadowOpacity: 0.08, shadowRadius: 4, elevation: 8 },
   rowCardSpacing: { marginBottom: 12 },
   rowCardBody: { flex: 1 },
