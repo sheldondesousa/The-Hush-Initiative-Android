@@ -107,8 +107,7 @@ const HEADER_HEIGHT = 70;
 const TERRACOTTA = '#D97D46';
 const PICTOGRAM_BACKGROUND = '#D0E4DE';
 const VISIBLE_BORDER = '#868686';
-const ROW_CARD_BORDER = '#ECEAE5';
-const ROW_CARD_ICON_BACKGROUND = '#F1F0EC';
+const ROW_CARD_MIN_HEIGHT = 87; // previous ~58px card height + 50%
 const TITLE_FONT_FAMILY = 'Lora_400Regular';
 const FEATURED_CARD_TITLE_FONT_FAMILY = 'Lora_600SemiBold';
 const CARD_TITLE_FONT_FAMILY = 'Lora_500Medium';
@@ -431,7 +430,6 @@ function ExerciseRowCard({
   minHeight: number;
   onHeight: (height: number) => void;
 }) {
-  const isDark = palette === palettes.dark;
   return (
     <Pressable
       onPress={onPress}
@@ -442,8 +440,8 @@ function ExerciseRowCard({
         styles.rowCard,
         {
           backgroundColor: palette.surface,
-          borderColor: isDark ? palette.border : ROW_CARD_BORDER,
-          minHeight,
+          borderColor: palette.border,
+          minHeight: Math.max(ROW_CARD_MIN_HEIGHT, minHeight),
           opacity: pressed ? 0.78 : 1,
         },
       ]}
@@ -451,7 +449,7 @@ function ExerciseRowCard({
       <ExerciseCardVisual
         exerciseName={item.name}
         color={palette.text}
-        backgroundColor={isDark ? palette.border : ROW_CARD_ICON_BACKGROUND}
+        backgroundColor={PICTOGRAM_BACKGROUND}
         size={40}
       />
       <View style={styles.rowCardBody}>
