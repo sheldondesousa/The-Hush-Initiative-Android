@@ -621,8 +621,8 @@ function DiaphragmaticVisual({
   height: number;
 }) {
   const safePhase = Math.min(Math.max(phaseIndex, 0), 1);
-  const fill = safePhase === 0
-    ? phaseProgress
+  const fill: Animated.AnimatedInterpolation<number> = safePhase === 0
+    ? phaseProgress as unknown as Animated.AnimatedInterpolation<number>
     : phaseProgress.interpolate({
           inputRange: [0, 1],
           outputRange: [1, 0],

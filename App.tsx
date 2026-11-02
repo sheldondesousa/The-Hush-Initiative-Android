@@ -106,7 +106,10 @@ const ENABLE_BOX_ORB_PROTOTYPE = false;
 const HEADER_HEIGHT = 70;
 const TERRACOTTA = '#D97D46';
 const PICTOGRAM_BACKGROUND = '#D0E4DE';
+const GRAPH_STROKE_GREEN = '#4A7C68';
 const VISIBLE_BORDER = '#868686';
+const ROW_CARD_MIN_HEIGHT = 90;
+const TILE_MIN_HEIGHT = 64;
 const TITLE_FONT_FAMILY = 'Lora_400Regular';
 const FEATURED_CARD_TITLE_FONT_FAMILY = 'Lora_600SemiBold';
 const CARD_TITLE_FONT_FAMILY = 'Lora_500Medium';
@@ -129,6 +132,8 @@ export default function App() {
   const [mindfulMinutes, setMindfulMinutes] = useState(0);
   const [exerciseDefaults, setExerciseDefaults] = useState<ExerciseDefaults>({});
   const [menuSection, setMenuSection] = useState<MenuSection | null>(null);
+  const [recommendSituation, setRecommendSituation] = useState<string | null>(null);
+  const [recommendLevel, setRecommendLevel] = useState<BreathIntensityId | MeditationTimeId | null>(null);
   const [showOnboardingAfterSplash, setShowOnboardingAfterSplash] = useState(true);
   const palette = palettes[themeMode];
   const [titleFontsLoaded] = useFonts({
@@ -268,7 +273,19 @@ export default function App() {
       <Header
         palette={palette}
         themeMode={themeMode}
-        onBack={tab === 'menu' && menuSection !== null ? () => setMenuSection(null) : undefined}
+        onBack={
+          tab === 'menu' && menuSection !== null
+            ? () => setMenuSection(null)
+            : tab === 'recommend' && recommendSituation !== null
+              ? () => {
+                  if (recommendLevel !== null) {
+                    setRecommendLevel(null);
+                  } else {
+                    setRecommendSituation(null);
+                  }
+                }
+              : undefined
+        }
       />
 
       <View style={styles.content}>
@@ -295,6 +312,10 @@ export default function App() {
         {tab === 'recommend' && (
           <RecommendScreen
             palette={palette}
+            selectedSituation={recommendSituation}
+            setSelectedSituation={setRecommendSituation}
+            selectedLevel={recommendLevel}
+            setSelectedLevel={setRecommendLevel}
             onExercise={(item) => setDetail({ kind: 'exercise', item })}
             onMeditation={(item) => setDetail({ kind: 'meditation', item })}
             titleFontsLoaded={titleFontsLoaded}
@@ -321,6 +342,10 @@ export default function App() {
         palette={palette}
         onTabPress={(nextTab) => {
           if (nextTab === 'menu') setMenuSection(null);
+          if (nextTab !== 'recommend') {
+            setRecommendSituation(null);
+            setRecommendLevel(null);
+          }
           setTab(nextTab);
         }}
       />
@@ -366,6 +391,7 @@ function Library<T extends Exercise | Meditation>({
   onPress: (item: T) => void;
   titleFontsLoaded: boolean;
 }) {
+  const [rowCardHeight, setRowCardHeight] = useState(0);
   const categories: { category: string; items: T[] }[] = [];
   for (const item of items) {
     const group = categories.find((entry) => entry.category === item.bestFor);
@@ -382,10 +408,18 @@ function Library<T extends Exercise | Meditation>({
         <Text style={[styles.title, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>{title}</Text>
       </View>
       <ScrollView contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
-        {accent === 'breath' && items.length > 0 && (
-          <FeaturedCard item={items[0] as unknown as Exercise} palette={palette} onPress={() => onPress(items[0])} titleFontsLoaded={titleFontsLoaded} />
-        )}
-        {categories.map((group, groupIndex) => (
+        {accent === 'breath' && items.map((item) => (
+          <View key={item.id} style={styles.rowCardSpacing}>
+            <ExerciseRowCard
+              item={item as unknown as Exercise}
+              palette={palette}
+              onPress={() => onPress(item)}
+              minHeight={rowCardHeight}
+              onHeight={(height) => setRowCardHeight((current) => Math.max(current, height))}
+            />
+          </View>
+        ))}
+        {accent !== 'breath' && categories.map((group, groupIndex) => (
           <View key={group.category} style={groupIndex > 0 ? styles.categorySection : undefined}>
             {groupIndex > 0 && <View style={[styles.categorySeparator, { backgroundColor: VISIBLE_BORDER }]} />}
             {group.items.map((item, index) => (
@@ -397,7 +431,6 @@ function Library<T extends Exercise | Meditation>({
                   accent={accent}
                   onPress={() => onPress(item)}
                   titleFontsLoaded={titleFontsLoaded}
-                  pictogramBackground={accent === 'breath' ? PICTOGRAM_BACKGROUND : undefined}
                 />
               </View>
             ))}
@@ -405,6 +438,63 @@ function Library<T extends Exercise | Meditation>({
         ))}
       </ScrollView>
     </View>
+  );
+}
+
+function darken(hex: string, amount: number): string {
+  const channel = (start: number) => Math.round(parseInt(hex.slice(start, start + 2), 16) * (1 - amount))
+    .toString(16).padStart(2, '0');
+  return `#${channel(1)}${channel(3)}${channel(5)}`;
+}
+
+function getTileBackground(palette: Palette): string {
+  return palette === palettes.light ? darken(palette.bg, 0.05) : palette.surface;
+}
+
+function ExerciseRowCard({
+  item,
+  palette,
+  onPress,
+  minHeight,
+  onHeight,
+}: {
+  item: Exercise;
+  palette: Palette;
+  onPress: () => void;
+  minHeight: number;
+  onHeight: (height: number) => void;
+}) {
+  const isLight = palette === palettes.light;
+  return (
+    <Pressable
+      onPress={onPress}
+      onLayout={(event) => onHeight(event.nativeEvent.layout.height)}
+      accessibilityRole="button"
+      accessibilityLabel={`${item.name}, ${item.bestFor}, ${item.duration}`}
+      style={({ pressed }) => [
+        styles.rowCard,
+        {
+          backgroundColor: getTileBackground(palette),
+          borderColor: VISIBLE_BORDER,
+          minHeight: Math.max(ROW_CARD_MIN_HEIGHT, minHeight),
+          opacity: pressed ? 0.78 : 1,
+        },
+      ]}
+    >
+      <ExerciseCardVisual
+        exerciseName={item.name}
+        color={isLight ? GRAPH_STROKE_GREEN : palette.text}
+        backgroundColor={isLight ? '#FFFFFF' : PICTOGRAM_BACKGROUND}
+        size={56}
+        strong={isLight}
+      />
+      <View style={styles.rowCardBody}>
+        <Text style={[styles.rowCardTitle, { color: palette.text }]}>{item.name}</Text>
+        <Text style={[styles.rowCardSubtitle, { color: palette.accent }]}>{item.bestFor}</Text>
+      </View>
+      <Text style={[styles.rowCardDuration, { color: palette.text, opacity: 0.65 }]}>{item.duration}</Text>
+      <Text style={[styles.rowCardChevron, { color: palette.text, opacity: 0.65 }]}>›</Text>
+    </Pressable>
   );
 }
 
@@ -1485,33 +1575,71 @@ function MeditationSession({
   );
 }
 
+function ResetIcon({ color }: { color: string }) {
+  return (
+    <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" accessible={false}>
+      <Path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+      <Path d="M3 3v5h5" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+    </Svg>
+  );
+}
+
+function NumberedHeading({
+  number,
+  title,
+  palette,
+  titleFontsLoaded,
+}: {
+  number: number;
+  title: string;
+  palette: Palette;
+  titleFontsLoaded: boolean;
+}) {
+  return (
+    <View style={[styles.infoHeadingRow, styles.numberedHeading]}>
+      <View style={[styles.infoHeadingBadge, { backgroundColor: getGraphFill(palette) }]}>
+        <Text style={[styles.numberedHeadingNumber, { color: palette.text }, titleFontsLoaded && { fontFamily: INFO_HEADING_FONT_FAMILY }]}>{number}</Text>
+      </View>
+      <Text
+        accessibilityRole="header"
+        style={[styles.infoTitle, styles.numberedHeadingTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: INFO_HEADING_FONT_FAMILY }]}
+      >
+        {title}
+      </Text>
+    </View>
+  );
+}
+
 function RecommendScreen({
   palette,
+  selectedSituation,
+  setSelectedSituation,
+  selectedLevel,
+  setSelectedLevel,
   onExercise,
   onMeditation,
   titleFontsLoaded,
 }: {
   palette: Palette;
+  selectedSituation: string | null;
+  setSelectedSituation: (id: string | null) => void;
+  selectedLevel: BreathIntensityId | MeditationTimeId | null;
+  setSelectedLevel: (id: BreathIntensityId | MeditationTimeId | null) => void;
   onExercise: (item: Exercise) => void;
   onMeditation: (item: Meditation) => void;
   titleFontsLoaded: boolean;
 }) {
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
+  const [resultCardHeight, setResultCardHeight] = useState(0);
+  const [tileHeight, setTileHeight] = useState(0);
   // Guide Me only covers breathing for now — the meditate mode toggle was removed.
   const mode: 'breathe' | 'meditate' = 'breathe';
-  const [selectedSituation, setSelectedSituation] = useState<string | null>(null);
-  const [selectedLevel, setSelectedLevel] = useState<BreathIntensityId | MeditationTimeId | null>(null);
   const situations = mode === 'breathe' ? breathSituations : meditationSituations;
   const levels = mode === 'breathe' ? breathIntensities : meditationTimes;
   const modeAccent = mode === 'breathe' ? palette.accent : palette.meditation;
   const modeTint = mode === 'breathe' ? palette.tint : palette.meditationTint;
   const scrollToTop = () => {
     requestAnimationFrame(() => scrollRef.current?.scrollTo({ y: 0, animated: true }));
-  };
-  const returnToSituations = () => {
-    setSelectedSituation(null);
-    setSelectedLevel(null);
-    scrollToTop();
   };
   const recommendation = useMemo(() => {
     if (!selectedSituation || !selectedLevel) return [];
@@ -1534,95 +1662,157 @@ function RecommendScreen({
       })
       .filter(Boolean) as { item: Meditation }[];
   }, [mode, selectedLevel, selectedSituation]);
+  useEffect(() => setResultCardHeight(0), [recommendation]);
+  const step = !selectedSituation ? 1 : !selectedLevel ? 2 : 3;
+  const [pickedSituation, setPickedSituation] = useState<string | null>(null);
+  const [pickedLevel, setPickedLevel] = useState<string | null>(null);
+  const slideX = useRef(new Animated.Value(0)).current;
+  const fade = useRef(new Animated.Value(1)).current;
+  const transitioning = useRef(false);
+  const previousStep = useRef(step);
+  // Material "shared axis" (X): 30dp slide + fade, ~90ms out and ~210ms in.
+  const advance = (commit: () => void) => {
+    if (transitioning.current) return;
+    transitioning.current = true;
+    Animated.sequence([
+      Animated.delay(120),
+      Animated.parallel([
+        Animated.timing(fade, { toValue: 0, duration: 90, easing: Easing.bezier(0.3, 0, 1, 1), useNativeDriver: true }),
+        Animated.timing(slideX, { toValue: -30, duration: 90, easing: Easing.bezier(0.3, 0, 1, 1), useNativeDriver: true }),
+      ]),
+    ]).start(commit);
+  };
+  const pickSituation = (id: string) => {
+    if (transitioning.current) return;
+    setPickedSituation(id);
+    advance(() => {
+      setSelectedSituation(id);
+      setSelectedLevel(null);
+    });
+  };
+  const pickLevel = (id: BreathIntensityId | MeditationTimeId) => {
+    if (transitioning.current) return;
+    setPickedLevel(id);
+    advance(() => setSelectedLevel(id));
+  };
+  const startOver = () => {
+    setSelectedSituation(null);
+    setSelectedLevel(null);
+  };
+  useEffect(() => {
+    setTileHeight(0);
+    setPickedSituation(null);
+    setPickedLevel(null);
+    scrollToTop();
+    if (previousStep.current === step) return;
+    slideX.setValue(step > previousStep.current ? 30 : -30);
+    previousStep.current = step;
+    fade.setValue(0);
+    Animated.parallel([
+      Animated.timing(fade, { toValue: 1, duration: 210, easing: Easing.bezier(0.2, 0, 0, 1), useNativeDriver: true }),
+      Animated.timing(slideX, { toValue: 0, duration: 210, easing: Easing.bezier(0.2, 0, 0, 1), useNativeDriver: true }),
+    ]).start(() => {
+      transitioning.current = false;
+    });
+  }, [step]);
 
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.recommendHeading}>
-        <Text style={[styles.eyebrow, { color: '#000000' }]}>FIND THE RIGHT TECHNIQUE</Text>
+        <Text style={[styles.eyebrow, { color: palette.accent }]}>FIND THE RIGHT TECHNIQUE</Text>
         <Text style={[styles.title, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>App Suggestions</Text>
       </View>
-      <ScrollView ref={scrollRef} contentContainerStyle={styles.recommendContent} showsVerticalScrollIndicator={false}>
-      {!selectedSituation ? (
+      <ScrollView ref={scrollRef} contentContainerStyle={[styles.recommendContent, styles.recommendContentFill, step === 3 && { paddingBottom: 0 }]} showsVerticalScrollIndicator={false}>
+      <Animated.View style={{ flexGrow: 1, opacity: fade, transform: [{ translateX: slideX }] }}>
+      {step === 1 ? (
         <>
-          <Text style={[styles.question, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>How are you feeling right now?</Text>
+          <NumberedHeading number={1} title="How are you feeling right now?" palette={palette} titleFontsLoaded={titleFontsLoaded} />
           <View style={styles.chips}>
             <View style={styles.chipColumn}>
               {situations.map((item) => (
                 <Pressable
                   key={item.id}
-                  onPress={() => {
-                    setSelectedSituation(item.id);
-                    setSelectedLevel(null);
-                    scrollToTop();
-                  }}
+                  onPress={() => pickSituation(item.id)}
+                  onLayout={(event) => setTileHeight((current) => Math.max(current, event.nativeEvent.layout.height))}
                   style={[
                     styles.chip,
-                    { borderColor: palette.border, backgroundColor: palette.surface },
+                    styles.tileChip,
+                    {
+                      borderColor: pickedSituation === item.id ? modeAccent : VISIBLE_BORDER,
+                      backgroundColor: pickedSituation === item.id ? modeTint : getTileBackground(palette),
+                      minHeight: Math.max(TILE_MIN_HEIGHT, tileHeight),
+                    },
                   ]}
                 >
-                  <Text style={{ color: palette.text, textAlign: 'center' }}>{item.label}</Text>
+                  <Text style={[styles.chipLabel, { color: palette.text }]}>{item.label}</Text>
                 </Pressable>
               ))}
             </View>
           </View>
         </>
-      ) : (
+      ) : step === 2 ? (
         <>
-          <Text style={[styles.question, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>
-            {mode === 'breathe' ? 'How strongly is it affecting you?' : 'How much time do you have?'}
-          </Text>
-          <View style={styles.recommenderCarousel}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Back to situations"
-              hitSlop={6}
-              onPress={returnToSituations}
-              style={({ pressed }) => [styles.recommenderChevron, { opacity: pressed ? 0.55 : 1 }]}
-            >
-              <ChevronLeftIcon color={modeAccent} />
-            </Pressable>
-            <View style={styles.recommenderCarouselPills}>
-              <View style={styles.chipColumn}>
-                {levels.map((level) => (
-                  <Pressable
-                    key={level.id}
-                    onPress={() => setSelectedLevel(level.id)}
-                    style={[
-                      styles.chip,
-                      {
-                        borderColor: selectedLevel === level.id ? modeAccent : palette.border,
-                        backgroundColor: selectedLevel === level.id ? modeTint : palette.surface,
-                      },
-                    ]}
-                  >
-                    <Text style={[styles.chipLabel, { color: palette.text }]}>{level.label}</Text>
-                    <Text style={[styles.chipDescription, { color: palette.muted }]}>{level.description}</Text>
-                  </Pressable>
-                ))}
-              </View>
-            </View>
-            <View style={styles.recommenderChevronSpacer} />
+          <NumberedHeading
+            number={2}
+            title={mode === 'breathe' ? 'How strongly is it affecting you?' : 'How much time do you have?'}
+            palette={palette}
+            titleFontsLoaded={titleFontsLoaded}
+          />
+          <View style={styles.chipColumn}>
+            {levels.map((level) => (
+              <Pressable
+                key={level.id}
+                onPress={() => pickLevel(level.id)}
+                onLayout={(event) => setTileHeight((current) => Math.max(current, event.nativeEvent.layout.height))}
+                style={[
+                  styles.chip,
+                  styles.tileChip,
+                  {
+                    minHeight: Math.max(TILE_MIN_HEIGHT, tileHeight),
+                    borderColor: pickedLevel === level.id ? modeAccent : VISIBLE_BORDER,
+                    backgroundColor: pickedLevel === level.id ? modeTint : getTileBackground(palette),
+                  },
+                ]}
+              >
+                <Text style={[styles.chipLabel, { color: palette.text }]}>{level.label}</Text>
+                <Text style={[styles.chipDescription, { color: palette.muted }]}>{level.description}</Text>
+              </Pressable>
+            ))}
           </View>
         </>
-      )}
-      {recommendation.length > 0 && (
+      ) : (
         <View style={styles.results}>
-          <Text style={[styles.question, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>Suggested exercises</Text>
-          {recommendation.map((result, index) => (
-            <PracticeCard
+          <Text
+            accessibilityRole="header"
+            style={[styles.infoTitle, styles.resultsHeading, { color: palette.accent }, titleFontsLoaded && { fontFamily: INFO_HEADING_FONT_FAMILY }]}
+          >
+            Try
+          </Text>
+          {recommendation.map((result) => (
+            <ExerciseRowCard
               key={result.item.id}
-              item={result.item}
-              index={index}
+              item={result.item as Exercise}
               palette={palette}
-              accent={mode === 'breathe' ? 'breath' : 'meditation'}
-              confidence={'confidence' in result ? result.confidence : undefined}
-              recommendationNote={'recommendationNote' in result ? result.recommendationNote : undefined}
-              onPress={() => mode === 'breathe' ? onExercise(result.item as Exercise) : onMeditation(result.item as Meditation)}
-              titleFontsLoaded={titleFontsLoaded}
+              onPress={() => onExercise(result.item as Exercise)}
+              minHeight={resultCardHeight}
+              onHeight={(height) => setResultCardHeight((current) => Math.max(current, height))}
             />
           ))}
+          <View style={styles.startOverSlot}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Start over"
+              hitSlop={12}
+              onPress={startOver}
+              style={({ pressed }) => [styles.startOver, { opacity: pressed ? 0.55 : 1 }]}
+            >
+              <ResetIcon color={palette.accent} />
+              <Text style={[styles.startOverLabel, { color: palette.accent }]}>Start over</Text>
+            </Pressable>
+          </View>
         </View>
       )}
+      </Animated.View>
       </ScrollView>
     </View>
   );
@@ -1668,7 +1858,7 @@ function TabBar({
   });
 
   return (
-    <View style={{ backgroundColor: palette.surface }}>
+    <View style={[styles.tabBarContainer, { backgroundColor: palette.surface }]}>
       <View style={styles.tabItems} accessibilityRole="tablist">
         {tabItems.map((item, index) => (
           <React.Fragment key={tabs[index].id}>
@@ -1823,6 +2013,14 @@ const styles = StyleSheet.create({
   featuredCardTryButton: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', alignSelf: 'flex-start', zIndex: 1 },
   featuredCardTryLabel: { fontSize: 14, fontWeight: '700' },
   card: { borderWidth: 1, borderRadius: 18, padding: 16, flexDirection: 'row', alignItems: 'flex-start', gap: 14 },
+  rowCard: { borderWidth: 0.5, borderRadius: 16, paddingVertical: 8, paddingHorizontal: 10, flexDirection: 'row', alignItems: 'center', gap: 10 },
+  tabBarContainer: { shadowColor: '#000000', shadowOffset: { width: 0, height: -2 }, shadowOpacity: 0.08, shadowRadius: 4, elevation: 8 },
+  rowCardSpacing: { marginBottom: 12 },
+  rowCardBody: { flex: 1 },
+  rowCardTitle: { fontSize: 16, fontWeight: '600', lineHeight: 21 },
+  rowCardSubtitle: { fontSize: 13, fontWeight: '500', lineHeight: 17, marginTop: 1 },
+  rowCardDuration: { fontSize: 12 },
+  rowCardChevron: { fontSize: 20, lineHeight: 22 },
   cardMark: { width: 54, height: 54, borderRadius: 27, alignItems: 'center', justifyContent: 'center' },
   cardMarkText: { fontSize: 13, fontWeight: '700', letterSpacing: 1 },
   cardBody: { flex: 1, paddingRight: 28 },
@@ -2026,19 +2224,24 @@ const styles = StyleSheet.create({
   meditationGlyph: { fontSize: 48 },
   meditationPrompt: { textAlign: 'center', fontSize: 27, lineHeight: 38, fontWeight: '500', marginTop: 38 },
   recommendHeading: { paddingHorizontal: 20, paddingTop: 30 },
-  recommendContent: { paddingHorizontal: 20, paddingBottom: 42 },
+  recommendContentFill: { flexGrow: 1 },
+  recommendContent: { paddingHorizontal: 20, paddingBottom: 36 },
+  numberedHeading: { marginTop: 30 },
+  numberedHeadingNumber: { fontSize: 18, fontWeight: '600' },
+  numberedHeadingTitle: { flex: 1, marginBottom: 0 },
   question: { fontSize: 20, fontWeight: '600', marginTop: 30, marginBottom: 14 },
-  recommenderCarousel: { flexDirection: 'row', alignItems: 'center' },
-  recommenderChevron: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  recommenderCarouselPills: { flex: 1, alignItems: 'stretch' },
-  recommenderChevronSpacer: { width: 44 },
   chips: { alignItems: 'stretch' },
-  chipColumn: { alignItems: 'stretch', gap: 10 },
-  chip: { minHeight: 58, borderWidth: 1, borderRadius: 14, paddingHorizontal: 17, justifyContent: 'center' },
-  chipLabel: { textAlign: 'center', fontSize: 15, fontWeight: '600' },
-  chipDescription: { textAlign: 'center', fontSize: 12, marginTop: 3 },
-  results: { gap: 12 },
-  tabItems: { height: 58, paddingTop: 8, flexDirection: 'row', justifyContent: 'space-around' },
+  startOverSlot: { flexGrow: 1, minHeight: 100, alignItems: 'center', justifyContent: 'center' },
+  startOver: { alignItems: 'center', gap: 6 },
+  startOverLabel: { fontSize: 14, fontWeight: '600' },
+  resultsHeading: { marginTop: 30, marginBottom: 2 },
+  chipColumn: { alignItems: 'stretch', gap: 12 },
+  chip: { minHeight: 64, borderWidth: 1, borderRadius: 14, paddingVertical: 12, paddingHorizontal: 16, justifyContent: 'center' },
+  tileChip: { borderWidth: 0.5, borderRadius: 16 },
+  chipLabel: { textAlign: 'center', fontSize: 15, lineHeight: 20, fontWeight: '600' },
+  chipDescription: { textAlign: 'center', fontSize: 12, lineHeight: 16, fontWeight: '500', marginTop: 3 },
+  results: { flexGrow: 1, gap: 12 },
+  tabItems: { height: 66, paddingTop: 8, flexDirection: 'row', justifyContent: 'space-around' },
   tab: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 2 },
   tabDivider: { width: 1, marginVertical: 10 },
   tabIcon: { fontSize: 20 },
