@@ -446,7 +446,7 @@ function ExerciseRowCard({
       style={({ pressed }) => [
         styles.rowCard,
         {
-          backgroundColor: isLight ? darken(palette.bg, 0.1) : palette.surface,
+          backgroundColor: isLight ? darken(palette.bg, 0.05) : palette.surface,
           borderColor: isLight ? '#4A7C68' : palette.border,
           minHeight: Math.max(ROW_CARD_MIN_HEIGHT, minHeight),
           opacity: pressed ? 0.78 : 1,
