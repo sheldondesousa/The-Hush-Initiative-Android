@@ -107,6 +107,8 @@ const HEADER_HEIGHT = 70;
 const TERRACOTTA = '#D97D46';
 const PICTOGRAM_BACKGROUND = '#D0E4DE';
 const VISIBLE_BORDER = '#868686';
+const ROW_CARD_BORDER = '#ECEAE5';
+const ROW_CARD_ICON_BACKGROUND = '#F1F0EC';
 const TITLE_FONT_FAMILY = 'Lora_400Regular';
 const FEATURED_CARD_TITLE_FONT_FAMILY = 'Lora_600SemiBold';
 const CARD_TITLE_FONT_FAMILY = 'Lora_500Medium';
@@ -366,6 +368,7 @@ function Library<T extends Exercise | Meditation>({
   onPress: (item: T) => void;
   titleFontsLoaded: boolean;
 }) {
+  const [rowCardHeight, setRowCardHeight] = useState(0);
   const categories: { category: string; items: T[] }[] = [];
   for (const item of items) {
     const group = categories.find((entry) => entry.category === item.bestFor);
@@ -383,12 +386,13 @@ function Library<T extends Exercise | Meditation>({
       </View>
       <ScrollView contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
         {accent === 'breath' && items.map((item) => (
-          <View key={item.id} style={styles.categoryCardSpacing}>
+          <View key={item.id} style={styles.rowCardSpacing}>
             <ExerciseRowCard
               item={item as unknown as Exercise}
               palette={palette}
               onPress={() => onPress(item)}
-              titleFontsLoaded={titleFontsLoaded}
+              minHeight={rowCardHeight}
+              onHeight={(height) => setRowCardHeight((current) => Math.max(current, height))}
             />
           </View>
         ))}
@@ -418,31 +422,40 @@ function ExerciseRowCard({
   item,
   palette,
   onPress,
-  titleFontsLoaded,
+  minHeight,
+  onHeight,
 }: {
   item: Exercise;
   palette: Palette;
   onPress: () => void;
-  titleFontsLoaded: boolean;
+  minHeight: number;
+  onHeight: (height: number) => void;
 }) {
+  const isDark = palette === palettes.dark;
   return (
     <Pressable
       onPress={onPress}
+      onLayout={(event) => onHeight(event.nativeEvent.layout.height)}
       accessibilityRole="button"
       accessibilityLabel={`${item.name}, ${item.bestFor}, ${item.duration}`}
       style={({ pressed }) => [
         styles.rowCard,
-        { backgroundColor: palette.surface, borderColor: palette.border, opacity: pressed ? 0.78 : 1 },
+        {
+          backgroundColor: palette.surface,
+          borderColor: isDark ? palette.border : ROW_CARD_BORDER,
+          minHeight,
+          opacity: pressed ? 0.78 : 1,
+        },
       ]}
     >
       <ExerciseCardVisual
         exerciseName={item.name}
         color={palette.text}
-        backgroundColor={PICTOGRAM_BACKGROUND}
-        size={48}
+        backgroundColor={isDark ? palette.border : ROW_CARD_ICON_BACKGROUND}
+        size={40}
       />
       <View style={styles.rowCardBody}>
-        <Text style={[styles.rowCardTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: CARD_TITLE_FONT_FAMILY }]}>{item.name}</Text>
+        <Text style={[styles.rowCardTitle, { color: palette.text }]}>{item.name}</Text>
         <Text style={[styles.rowCardSubtitle, { color: palette.text, opacity: 0.65 }]}>{item.bestFor}</Text>
       </View>
       <Text style={[styles.rowCardDuration, { color: palette.text, opacity: 0.65 }]}>{item.duration}</Text>
@@ -1866,12 +1879,13 @@ const styles = StyleSheet.create({
   featuredCardTryButton: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', alignSelf: 'flex-start', zIndex: 1 },
   featuredCardTryLabel: { fontSize: 14, fontWeight: '700' },
   card: { borderWidth: 1, borderRadius: 18, padding: 16, flexDirection: 'row', alignItems: 'flex-start', gap: 14 },
-  rowCard: { borderWidth: 1, borderRadius: 16, paddingVertical: 12, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  rowCard: { borderWidth: 1, borderRadius: 14, paddingVertical: 8, paddingHorizontal: 10, flexDirection: 'row', alignItems: 'center', gap: 10 },
+  rowCardSpacing: { marginBottom: 6 },
   rowCardBody: { flex: 1 },
-  rowCardTitle: { fontSize: 17, fontWeight: '600', lineHeight: 22 },
-  rowCardSubtitle: { fontSize: 13, lineHeight: 18, marginTop: 2 },
-  rowCardDuration: { fontSize: 13 },
-  rowCardChevron: { fontSize: 22, lineHeight: 24 },
+  rowCardTitle: { fontSize: 14, fontWeight: '600', lineHeight: 18 },
+  rowCardSubtitle: { fontSize: 11, lineHeight: 15, marginTop: 1 },
+  rowCardDuration: { fontSize: 11 },
+  rowCardChevron: { fontSize: 20, lineHeight: 22 },
   cardMark: { width: 54, height: 54, borderRadius: 27, alignItems: 'center', justifyContent: 'center' },
   cardMarkText: { fontSize: 13, fontWeight: '700', letterSpacing: 1 },
   cardBody: { flex: 1, paddingRight: 28 },
