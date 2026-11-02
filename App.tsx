@@ -1637,6 +1637,19 @@ function RecommendScreen({
 
   return (
     <View style={{ flex: 1 }}>
+      <View style={styles.recommendBackRow}>
+        {selectedSituation && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Back to situations"
+            hitSlop={12}
+            onPress={returnToSituations}
+            style={({ pressed }) => ({ opacity: pressed ? 0.55 : 1 })}
+          >
+            <Text style={[styles.headerBack, { color: palette.text }]}>‹ Back</Text>
+          </Pressable>
+        )}
+      </View>
       <View style={styles.recommendHeading}>
         <Text style={[styles.eyebrow, { color: '#000000' }]}>FIND THE RIGHT TECHNIQUE</Text>
         <Text style={[styles.title, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>App Suggestions</Text>
@@ -1716,19 +1729,6 @@ function RecommendScreen({
       </ScrollView>
       <View style={styles.recommendFooter}>
         <Text style={[styles.recommendStep, { color: palette.muted }]}>{selectedSituation ? '2/2' : '1/2'}</Text>
-        <View style={styles.recommendChevronSlot}>
-          {selectedSituation && (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Back to situations"
-              hitSlop={6}
-              onPress={returnToSituations}
-              style={({ pressed }) => [styles.recommenderChevron, { backgroundColor: getGraphFill(palette), opacity: pressed ? 0.55 : 1 }]}
-            >
-              <ChevronLeftIcon color={modeAccent} />
-            </Pressable>
-          )}
-        </View>
       </View>
     </View>
   );
@@ -2139,16 +2139,15 @@ const styles = StyleSheet.create({
   meditationHalo: { width: 140, height: 140, borderRadius: 70, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   meditationGlyph: { fontSize: 48 },
   meditationPrompt: { textAlign: 'center', fontSize: 27, lineHeight: 38, fontWeight: '500', marginTop: 38 },
-  recommendHeading: { paddingHorizontal: 20, paddingTop: 30 },
+  recommendBackRow: { height: 36, paddingHorizontal: 20, justifyContent: 'center' },
+  recommendHeading: { paddingHorizontal: 20 },
   recommendContent: { paddingHorizontal: 20, paddingBottom: 12 },
-  recommendFooter: { height: 84, paddingBottom: 12, alignItems: 'center', justifyContent: 'flex-end', gap: 4 },
+  recommendFooter: { height: 40, paddingBottom: 12, alignItems: 'center', justifyContent: 'flex-end' },
   recommendStep: { fontSize: 12, fontWeight: '600', letterSpacing: 0.5 },
-  recommendChevronSlot: { height: 44, justifyContent: 'center' },
   numberedHeading: { marginTop: 30 },
   numberedHeadingNumber: { fontSize: 18, fontWeight: '600' },
   numberedHeadingTitle: { flex: 1, marginBottom: 0 },
   question: { fontSize: 20, fontWeight: '600', marginTop: 30, marginBottom: 14 },
-  recommenderChevron: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
   chips: { alignItems: 'stretch' },
   chipColumn: { alignItems: 'stretch', gap: 12 },
   chip: { minHeight: 58, borderWidth: 1, borderRadius: 14, paddingHorizontal: 17, justifyContent: 'center' },
