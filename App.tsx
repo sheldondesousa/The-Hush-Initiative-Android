@@ -430,6 +430,7 @@ function ExerciseRowCard({
   minHeight: number;
   onHeight: (height: number) => void;
 }) {
+  const isLight = palette === palettes.light;
   return (
     <Pressable
       onPress={onPress}
@@ -439,7 +440,7 @@ function ExerciseRowCard({
       style={({ pressed }) => [
         styles.rowCard,
         {
-          backgroundColor: palette.surface,
+          backgroundColor: isLight ? PICTOGRAM_BACKGROUND : palette.surface,
           borderColor: palette.border,
           minHeight: Math.max(ROW_CARD_MIN_HEIGHT, minHeight),
           opacity: pressed ? 0.78 : 1,
@@ -449,7 +450,7 @@ function ExerciseRowCard({
       <ExerciseCardVisual
         exerciseName={item.name}
         color={palette.text}
-        backgroundColor={PICTOGRAM_BACKGROUND}
+        backgroundColor={isLight ? '#FFFFFF' : PICTOGRAM_BACKGROUND}
         size={48}
       />
       <View style={styles.rowCardBody}>
@@ -1682,12 +1683,6 @@ function RecommendScreen({
   );
 }
 
-function darken(hex: string, amount: number): string {
-  const channel = (start: number) => Math.round(parseInt(hex.slice(start, start + 2), 16) * (1 - amount))
-    .toString(16).padStart(2, '0');
-  return `#${channel(1)}${channel(3)}${channel(5)}`;
-}
-
 function TabBar({
   tab,
   onTabPress,
@@ -1698,9 +1693,6 @@ function TabBar({
   palette: Palette;
 }) {
   const insets = useSafeAreaInsets();
-  const barColor = darken(palette.bg, 0.2);
-  // Muted grey drops below 4.5:1 on the darkened light-theme bar, so use the text color there.
-  const isLight = palette === palettes.light;
   const tabs: { id: Tab; label: string; icon: string }[] = [
     { id: 'breathe', label: 'Breathe', icon: '' },
     // Meditate is hidden from the nav bar for now.
@@ -1709,7 +1701,7 @@ function TabBar({
   ];
   const tabItems = tabs.map((item) => {
     const selected = tab === item.id;
-    const iconColor = selected || isLight ? palette.text : palette.muted;
+    const iconColor = selected ? palette.text : palette.muted;
     const iconSize = selected ? 24 : 20;
     const icon = item.id === 'breathe' ? (
       <WindIcon color={iconColor} size={iconSize} />
@@ -1731,7 +1723,7 @@ function TabBar({
   });
 
   return (
-    <View style={[styles.tabBarContainer, { backgroundColor: barColor }]}>
+    <View style={[styles.tabBarContainer, { backgroundColor: palette.surface }]}>
       <View style={styles.tabItems} accessibilityRole="tablist">
         {tabItems.map((item, index) => (
           <React.Fragment key={tabs[index].id}>
