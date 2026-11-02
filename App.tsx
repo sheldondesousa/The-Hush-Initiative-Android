@@ -382,10 +382,17 @@ function Library<T extends Exercise | Meditation>({
         <Text style={[styles.title, { color: palette.text }, titleFontsLoaded && { fontFamily: TITLE_FONT_FAMILY }]}>{title}</Text>
       </View>
       <ScrollView contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
-        {accent === 'breath' && items.length > 0 && (
-          <FeaturedCard item={items[0] as unknown as Exercise} palette={palette} onPress={() => onPress(items[0])} titleFontsLoaded={titleFontsLoaded} />
-        )}
-        {categories.map((group, groupIndex) => (
+        {accent === 'breath' && items.map((item) => (
+          <View key={item.id} style={styles.categoryCardSpacing}>
+            <ExerciseRowCard
+              item={item as unknown as Exercise}
+              palette={palette}
+              onPress={() => onPress(item)}
+              titleFontsLoaded={titleFontsLoaded}
+            />
+          </View>
+        ))}
+        {accent !== 'breath' && categories.map((group, groupIndex) => (
           <View key={group.category} style={groupIndex > 0 ? styles.categorySection : undefined}>
             {groupIndex > 0 && <View style={[styles.categorySeparator, { backgroundColor: VISIBLE_BORDER }]} />}
             {group.items.map((item, index) => (
@@ -405,6 +412,43 @@ function Library<T extends Exercise | Meditation>({
         ))}
       </ScrollView>
     </View>
+  );
+}
+
+function ExerciseRowCard({
+  item,
+  palette,
+  onPress,
+  titleFontsLoaded,
+}: {
+  item: Exercise;
+  palette: Palette;
+  onPress: () => void;
+  titleFontsLoaded: boolean;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`${item.name}, ${item.bestFor}, ${item.duration}`}
+      style={({ pressed }) => [
+        styles.rowCard,
+        { backgroundColor: palette.surface, borderColor: palette.border, opacity: pressed ? 0.78 : 1 },
+      ]}
+    >
+      <ExerciseCardVisual
+        exerciseName={item.name}
+        color={palette.text}
+        backgroundColor={PICTOGRAM_BACKGROUND}
+        size={48}
+      />
+      <View style={styles.rowCardBody}>
+        <Text style={[styles.rowCardTitle, { color: palette.text }, titleFontsLoaded && { fontFamily: CARD_TITLE_FONT_FAMILY }]}>{item.name}</Text>
+        <Text style={[styles.rowCardSubtitle, { color: palette.text, opacity: 0.65 }]}>{item.bestFor}</Text>
+      </View>
+      <Text style={[styles.rowCardDuration, { color: palette.text, opacity: 0.65 }]}>{item.duration}</Text>
+      <Text style={[styles.rowCardChevron, { color: palette.text, opacity: 0.65 }]}>›</Text>
+    </Pressable>
   );
 }
 
@@ -1823,6 +1867,12 @@ const styles = StyleSheet.create({
   featuredCardTryButton: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', alignSelf: 'flex-start', zIndex: 1 },
   featuredCardTryLabel: { fontSize: 14, fontWeight: '700' },
   card: { borderWidth: 1, borderRadius: 18, padding: 16, flexDirection: 'row', alignItems: 'flex-start', gap: 14 },
+  rowCard: { borderWidth: 1, borderRadius: 16, paddingVertical: 12, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  rowCardBody: { flex: 1 },
+  rowCardTitle: { fontSize: 17, fontWeight: '600', lineHeight: 22 },
+  rowCardSubtitle: { fontSize: 13, lineHeight: 18, marginTop: 2 },
+  rowCardDuration: { fontSize: 13 },
+  rowCardChevron: { fontSize: 22, lineHeight: 24 },
   cardMark: { width: 54, height: 54, borderRadius: 27, alignItems: 'center', justifyContent: 'center' },
   cardMarkText: { fontSize: 13, fontWeight: '700', letterSpacing: 1 },
   cardBody: { flex: 1, paddingRight: 28 },
